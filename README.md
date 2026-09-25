@@ -30,40 +30,34 @@ Em **Classes e requisitos → (classe) → Adicionar em lote**, cole o texto do 
 
 > Os requisitos **não vêm pré-cadastrados**. Use sempre o cartão/manual oficial mais recente da sua Associação/União, porque os requisitos mudam de tempos em tempos.
 
-## Publicar no Cloudflare (primeira vez)
+## Criar uma instância para um clube (pelo painel da Cloudflare, sem terminal)
 
-Você precisa do [Node.js](https://nodejs.org) instalado e de uma conta Cloudflare (a mesma do Cedros Digital).
+Cada clube tem **o próprio banco de dados** e o próprio endereço, e os dados de um não se misturam com os de outro. As tabelas são criadas pelo próprio app no primeiro acesso, então basta criar um banco vazio.
+
+1. **Criar o banco:** em [dash.cloudflare.com](https://dash.cloudflare.com), abra **Storage & Databases → D1 SQL Database → Create Database**. Dê um nome (ex.: `controle-classes-nomedoclube`) e clique em **Create**. Na página do banco, copie o **Database ID**.
+2. **Ligar o banco ao app:** no GitHub, edite o arquivo `wrangler.toml`:
+   - `database_id` → cole o ID copiado
+   - `database_name` → o nome que você deu ao banco
+   - `NOME_CLUBE` → o nome do clube que vai aparecer no app
+   - `name` → o nome do app na Cloudflare, que vira o endereço (`<name>.<sua-conta>.workers.dev`)
+3. **Publicar:** em **Workers & Pages → Create → Import a repository**, conecte o GitHub, escolha este repositório e confirme. O comando de deploy é `npx wrangler deploy`, que já vem preenchido. A partir daí, cada alteração na branch `main` é publicada automaticamente.
+4. **Primeiro acesso:** abra o endereço do app. Ele pede para criar a conta da diretoria. Depois disso, cadastre as unidades e os requisitos das classes e crie os usuários dos conselheiros.
+
+**Outro clube?** Faça um *fork* ou uma cópia deste repositório e repita os passos com um banco novo.
+
+### Pelo terminal (alternativa)
 
 ```bash
-git clone https://github.com/adrodriguesahi-ui/Cedros-Digital_Controle-de-Classes.git
-cd Cedros-Digital_Controle-de-Classes
 npm install
 npx wrangler login
-
-# 1. Criar o banco de dados
-npx wrangler d1 create cedros-controle-classes
-#    → copie o "database_id" mostrado e cole no arquivo wrangler.toml
-
-# 2. Criar as tabelas e publicar
+npx wrangler d1 create controle-classes-nomedoclube   # copie o database_id para o wrangler.toml
 npm run deploy
 ```
-
-Ao final, o wrangler mostra o endereço do app (algo como `https://cedros-controle-classes.<sua-conta>.workers.dev`).
-
-**Primeiro acesso:** ao abrir o endereço pela primeira vez, o app pede para criar a conta da diretoria. Depois disso, cadastre as unidades e os requisitos, e crie os usuários dos conselheiros em **Usuários**.
-
-### Atualizações
-
-Depois de alterar o código, rode `npm run deploy` de novo. Esse comando aplica as migrações novas do banco (se houver) e publica a nova versão.
-
-### Publicar automaticamente pelo GitHub (opcional)
-
-No painel da Cloudflare, abra **Workers & Pages → Create → Import a repository**, escolha este repositório e use `npx wrangler deploy` como comando de deploy. Assim, cada push na branch `main` publica o app sozinho. Rode `npm run db:migrar` sempre que uma migração nova for adicionada.
 
 ## Desenvolvimento local
 
 ```bash
-npm run dev        # usa o wrangler, com banco local em .wrangler/
+npm run dev        # usa o wrangler, com banco local em .wrangler/ (tabelas criadas automaticamente)
 ```
 
 Sem o wrangler (só com Node 22+):
@@ -78,7 +72,7 @@ npm run teste                 # testes automáticos da API
 ```
 src/index.js          API (Worker): login, desbravadores, classes, requisitos, progresso, relatórios
 public/               interface (HTML, CSS e JavaScript, sem dependências)
-migrations/           estrutura do banco D1
+src/esquema.js        estrutura do banco (criada automaticamente pelo app)
 dev/                  servidor local e testes (não vão para produção)
 wrangler.toml         configuração do Cloudflare
 ```

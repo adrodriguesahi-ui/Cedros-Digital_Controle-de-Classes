@@ -1,11 +1,11 @@
 // Teste de ponta a ponta da API com banco em memória: npm run teste
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
 import worker from '../src/index.js';
 import { criarD1 } from './d1-local.mjs';
 
 const env = {
-  DB: criarD1(':memory:', fileURLToPath(new URL('../migrations', import.meta.url))),
+  DB: criarD1(':memory:'),
+  NOME_CLUBE: 'Clube Teste',
   ASSETS: { fetch: async () => new Response('estático') },
 };
 
@@ -30,7 +30,9 @@ function cliente() {
 const admin = cliente();
 const ok = (r, s = 200) => (assert.equal(r.status, s, JSON.stringify(r.dados)), r.dados);
 
-assert.equal(ok(await admin('GET', '/api/status')).precisaConfigurar, true);
+const st = ok(await admin('GET', '/api/status'));
+assert.equal(st.precisaConfigurar, true);
+assert.equal(st.nomeClube, 'Clube Teste');
 assert.equal((await admin('GET', '/api/me')).status, 401);
 ok(await admin('POST', '/api/setup', { nome: 'Diretor', email: 'diretor@clube.org', senha: 'senha-forte-1' }), 201);
 assert.equal((await admin('POST', '/api/setup', { nome: 'X', email: 'x@x', senha: '12345678' })).status, 409);

@@ -2,7 +2,7 @@
 
 const app = document.getElementById('app');
 const modal = document.getElementById('modal');
-const estado = { usuario: null, classes: [], unidades: [] };
+const estado = { usuario: null, classes: [], unidades: [], nomeClube: '' };
 
 // ---------------------------------------------------------------------------
 // Utilidades
@@ -116,7 +116,7 @@ function telaAcesso(configurar) {
         <div class="marca-grande">
           <img src="icone.svg" alt="">
           <h1>Controle de Classes</h1>
-          <p class="suave">${configurar ? 'Primeiro acesso: crie a conta da diretoria.' : 'Cedros Digital · Clube de Desbravadores'}</p>
+          <p class="suave">${configurar ? 'Primeiro acesso: crie a conta da diretoria.' : esc(estado.nomeClube || 'Cedros Digital · Clube de Desbravadores')}</p>
         </div>
         ${configurar ? `<label class="campo"><span>Seu nome</span><input type="text" name="nome" autocomplete="name" required></label>` : ''}
         <label class="campo"><span>E-mail</span><input type="email" name="email" autocomplete="username" required></label>
@@ -160,7 +160,7 @@ function moldura(abaAtiva) {
   app.innerHTML = `
     <header class="topo">
       <div class="topo-linha">
-        <div class="marca"><img src="icone.svg" alt=""><div><small>Cedros Digital</small>Controle de Classes</div></div>
+        <div class="marca"><img src="icone.svg" alt=""><div><small>${esc(estado.nomeClube || 'Cedros Digital')}</small>Controle de Classes</div></div>
         <button class="usuario-btn" id="btn-conta" title="Minha conta">${esc(u.nome.split(' ')[0])} ▾</button>
       </div>
       <nav class="abas">
@@ -726,8 +726,11 @@ async function iniciar() {
     estado.usuario = await fetch('/api/me', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null));
     if (!estado.usuario) {
       const s = await fetch('/api/status').then((r) => r.json());
+      estado.nomeClube = s.nomeClube;
       return telaAcesso(s.precisaConfigurar);
     }
+    estado.nomeClube = estado.usuario.nome_clube;
+    if (estado.nomeClube) document.title = `Controle de Classes · ${estado.nomeClube}`;
     await carregarBase();
     rotear();
   } catch {

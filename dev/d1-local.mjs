@@ -1,8 +1,6 @@
 // Simulação mínima do Cloudflare D1 usando node:sqlite (Node 22+).
 // Usada só para testes locais sem o wrangler. Não vai para produção.
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
 
 class Stmt {
   constructor(db, sql, params = []) {
@@ -29,17 +27,9 @@ class Stmt {
   }
 }
 
-export function criarD1(arquivo = ':memory:', pastaMigracoes) {
+export function criarD1(arquivo = ':memory:') {
   const db = new DatabaseSync(arquivo);
   db.exec('PRAGMA foreign_keys = ON');
-  if (pastaMigracoes) {
-    db.exec('CREATE TABLE IF NOT EXISTS _migracoes (nome TEXT PRIMARY KEY)');
-    for (const f of readdirSync(pastaMigracoes).filter((f) => f.endsWith('.sql')).sort()) {
-      if (db.prepare('SELECT 1 FROM _migracoes WHERE nome = ?').get(f)) continue;
-      db.exec(readFileSync(join(pastaMigracoes, f), 'utf8'));
-      db.prepare('INSERT INTO _migracoes VALUES (?)').run(f);
-    }
-  }
   return {
     prepare: (sql) => new Stmt(db, sql),
     async batch(stmts) {

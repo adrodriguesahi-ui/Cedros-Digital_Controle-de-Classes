@@ -12,7 +12,7 @@ const porta = Number(process.argv[2] || 8787);
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json', '.webmanifest': 'application/manifest+json' };
 
 const env = {
-  DB: criarD1(join(raiz, 'dev', 'local.sqlite'), join(raiz, 'migrations')),
+  DB: criarD1(join(raiz, 'dev', 'local.sqlite')),
   ASSETS: {
     async fetch(req) {
       let caminho = new URL(req.url).pathname;

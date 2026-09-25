@@ -4,6 +4,8 @@
  * Banco: Cloudflare D1 (binding DB).
  */
 
+import { ESQUEMA } from './esquema.js';
+
 const SESSAO_COOKIE = 'cedros_sessao';
 const SESSAO_DIAS = 30;
 const PBKDF2_ITERACOES = 100000; // máximo aceito pelo runtime do Workers
@@ -93,6 +95,19 @@ const exigirAdmin = (u) => {
 };
 
 // ---------------------------------------------------------------------------
+// Banco: cria as tabelas automaticamente (uma vez por instância do Worker)
+// ---------------------------------------------------------------------------
+
+let bancoPronto = false;
+async function garantirBanco(env) {
+  if (bancoPronto) return;
+  if (!env.DB) throw new ErroHttp(500, 'Banco de dados não configurado: ligue um banco D1 ao app com o nome "DB".');
+  // Comandos idempotentes: rodar de novo (ex.: duas requisições ao mesmo tempo) não causa problema
+  await env.DB.batch(ESQUEMA.map((sql) => env.DB.prepare(sql)));
+  bancoPronto = true;
+}
+
+// ---------------------------------------------------------------------------
 // Sessão / autenticação
 // ---------------------------------------------------------------------------
 
@@ -158,7 +173,8 @@ const rota = (metodo, padrao, handler, { publica = false } = {}) => {
 
 // --- Status / primeiro acesso -------------------------------------------------
 
-rota('GET', '/api/status', async ({ env }) => json({ precisaConfigurar: (await totalUsuarios(env)) === 0 }), {
+rota('GET', '/api/status', async ({ env }) =>
+  json({ precisaConfigurar: (await totalUsuarios(env)) === 0, nomeClube: env.NOME_CLUBE || '' }), {
   publica: true,
 });
 
@@ -213,7 +229,7 @@ rota(
   { publica: true },
 );
 
-rota('GET', '/api/me', async ({ usuario }) => json(usuario));
+rota('GET', '/api/me', async ({ env, usuario }) => json({ ...usuario, nome_clube: env.NOME_CLUBE || '' }));
 
 rota('PUT', '/api/me/senha', async ({ env, request, usuario }) => {
   const b = await corpo(request);
@@ -612,6 +628,7 @@ export default {
     if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
 
     try {
+      await garantirBanco(env);
       // Proteção CSRF simples: requisições que alteram dados precisam vir do próprio site
       if (request.method !== 'GET') {
         const origem = request.headers.get('origin');
