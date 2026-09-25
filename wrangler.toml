@@ -1,0 +1,14 @@
+name = "cedros-controle-classes"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cedros-controle-classes"
+# Substitua pelo ID gerado em: npx wrangler d1 create cedros-controle-classes
+database_id = "COLOQUE-AQUI-O-ID-DO-BANCO"
+migrations_dir = "migrations"

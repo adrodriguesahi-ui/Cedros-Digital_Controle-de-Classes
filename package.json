@@ -1,0 +1,16 @@
+{
+  "name": "cedros-digital-controle-de-classes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cedros Digital · Controle de Classes — acompanhamento das classes regulares do clube de desbravadores",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler d1 migrations apply cedros-controle-classes --local && wrangler dev",
+    "deploy": "wrangler d1 migrations apply cedros-controle-classes --remote && wrangler deploy",
+    "db:migrar": "wrangler d1 migrations apply cedros-controle-classes --remote",
+    "teste": "node --no-warnings dev/testar-api.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

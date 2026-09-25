@@ -1,0 +1,10 @@
+{
+  "name": "Cedros Digital · Controle de Classes",
+  "short_name": "Classes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#173d2a",
+  "lang": "pt-BR",
+  "icons": [{ "src": "icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
