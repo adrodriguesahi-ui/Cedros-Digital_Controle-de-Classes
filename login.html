@@ -1187,6 +1187,63 @@
   .at-history-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:4px; }
   .at-empty-hint{ font-size:12px; font-weight:600; color:rgba(245,239,225,0.4); margin:4px 0 0; }
 
+  /* ---- Painel de Frequência (Chamada de Presença) ---- */
+  .fq-card{ margin:6px 0 14px; padding:12px; border-radius:16px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); }
+  .fq-tabs{ display:flex; gap:6px; padding:4px; border-radius:12px; background:rgba(0,0,0,0.25); margin-bottom:10px; }
+  .fq-tab{
+    flex:1; border:none; border-radius:9px; padding:8px 6px; cursor:pointer; font-family:inherit;
+    font-size:12.5px; font-weight:800; background:transparent; color:rgba(245,239,225,0.6);
+  }
+  .fq-tab.active{ background:var(--accent); color:#08130A; }
+  .fq-filtros{ display:flex; gap:8px; margin-bottom:12px; }
+  .fq-sel{ flex:1; min-width:0; padding:8px 10px; font-size:13px; }
+  .fq-kpis{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; }
+  .fq-kpi{ display:flex; flex-direction:column; gap:2px; padding:9px 8px; border-radius:12px; background:rgba(255,255,255,0.05); text-align:center; }
+  .fq-kpi b{ font-size:20px; font-weight:900; color:var(--cream); line-height:1.1; }
+  .fq-kpi span{ font-size:10.5px; font-weight:700; color:rgba(245,239,225,0.55); }
+  .fq-kpi-largo{ grid-column:1 / -1; flex-direction:row; justify-content:space-between; align-items:center; text-align:left; }
+  .fq-kpi-largo b{ font-size:13px; }
+  .fq-cena-scroll{ overflow-x:auto; border-radius:14px; -webkit-overflow-scrolling:touch; }
+  .fq-cena{ display:block; }
+  .fq-trilha-wrap{ margin:12px 0 0; }
+  .fq-t-pct{ font:800 9px 'Nunito',sans-serif; fill:#F5EFE1; text-anchor:middle; }
+  .fq-t-data{ font:700 8px 'Nunito',sans-serif; fill:rgba(245,239,225,0.6); text-anchor:middle; }
+  .fq-t-pedra{ font:900 12px 'Nunito',sans-serif; fill:#08130A; text-anchor:middle; }
+  .fq-t-pedra.falta{ fill:#E0685A; }
+  .fq-legenda{ margin:8px 2px 0; font-size:11px; font-weight:600; line-height:1.5; color:rgba(245,239,225,0.5); }
+  .fq-bolinha{ display:inline-block; width:8px; height:8px; border-radius:50%; margin:0 4px 0 2px; vertical-align:0; }
+  .fq-bolinha-falta{ border:1.5px dashed #E0685A; width:7px; height:7px; }
+  .fq-subtitulo{ margin:16px 0 8px; font-size:11.5px; font-weight:900; letter-spacing:0.03em; text-transform:uppercase; color:var(--gold); }
+  .fq-unidades, .fq-ranking{ display:flex; flex-direction:column; gap:8px; }
+  .fq-uni-top{ display:flex; align-items:center; gap:7px; margin-bottom:5px; font-size:12.5px; font-weight:800; color:var(--cream); }
+  .fq-uni-top .cl-class-dot{ margin-right:0; }
+  .fq-uni-nome{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fq-barra{ display:flex; gap:2px; width:100%; height:7px; border-radius:5px; overflow:hidden; background:rgba(255,255,255,0.08); }
+  .fq-barra > span{ display:block; height:100%; border-radius:5px; transition:width .35s ease; }
+  .fq-barra-empilhada > span{ border-radius:0; }
+  .fq-ind-top{ display:flex; align-items:center; gap:14px; margin-top:12px; }
+  .fq-anel{ position:relative; width:104px; height:104px; flex-shrink:0; }
+  .fq-anel svg{ width:100%; height:100%; transform:rotate(0deg); }
+  .fq-anel-centro{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .fq-anel-centro b{ font-size:22px; font-weight:900; color:var(--cream); line-height:1; }
+  .fq-anel-centro em{ font-style:normal; font-size:10px; font-weight:700; color:rgba(245,239,225,0.5); margin-top:2px; }
+  .fq-ind-stats{ flex:1; min-width:0; display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; }
+  .fq-frase{ grid-column:1 / -1; margin:0; font-size:13px; font-weight:900; color:var(--cream); }
+  .fq-mini{ display:flex; flex-direction:column; font-size:10.5px; font-weight:700; color:rgba(245,239,225,0.55); }
+  .fq-mini span{ font-size:18px; font-weight:900; line-height:1.1; }
+  .fq-mini-largo{ grid-column:1 / -1; flex-direction:row; gap:4px; font-size:11.5px; color:rgba(245,239,225,0.7); }
+  .fq-mini-largo b{ color:var(--cream); }
+  .fq-rank-row{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left; cursor:pointer; font:inherit; color:inherit;
+    padding:9px 11px; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  }
+  .fq-rank-row.ativo{ border-color:var(--accent); background:rgba(63,203,107,0.08); }
+  .fq-rank-pos{ flex-shrink:0; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; background:rgba(255,255,255,0.08); color:var(--cream); }
+  .fq-rank-corpo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+  .fq-rank-top{ display:flex; justify-content:space-between; gap:8px; font-size:13px; }
+  .fq-rank-nome{ font-weight:800; color:var(--cream); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fq-rank-meta{ font-size:10.5px; font-weight:600; color:rgba(245,239,225,0.5); }
+
   .eo-extra-section{ margin-top:22px; }
   .eo-upload-btn{
     display:inline-flex; align-items:center; justify-content:center; width:100%;
@@ -10647,6 +10704,47 @@
                     <button type="button" class="pl-btn" id="atCallPdfBtn" style="background:rgba(255,255,255,0.08); color:var(--cream);"><svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Gerar PDF</button>
                     <button type="button" class="pl-btn pl-btn-primary" id="atSaveCallBtn">Salvar Chamada</button>
                   </div>
+                </div>
+
+                <!-- Painel de Frequência: tudo calculado a partir das chamadas já
+                     carregadas (chamadas + chamada_presencas), sem tabela nova.
+                     Geral = "Floresta da Frequência" (cada árvore é uma reunião);
+                     Por desbravador = "Trilha" (cada pedra é uma reunião). -->
+                <div class="sp-area-heading">Painel de Frequência</div>
+                <div class="fq-card" id="fqCard">
+                  <div class="fq-tabs">
+                    <button type="button" class="fq-tab active" data-fq="geral">Geral do clube</button>
+                    <button type="button" class="fq-tab" data-fq="individual">Por desbravador</button>
+                  </div>
+                  <div class="fq-filtros">
+                    <select class="pl-input fq-sel" id="fqAno" aria-label="Ano"></select>
+                    <select class="pl-input fq-sel" id="fqPublico" aria-label="Quem entra na conta">
+                      <option value="desbravadores">Só desbravadores</option>
+                      <option value="todos">Todos da chamada</option>
+                    </select>
+                  </div>
+
+                  <div id="fqGeral">
+                    <div class="fq-kpis" id="fqKpis"></div>
+                    <div class="fq-cena-scroll" id="fqFlorestaWrap"></div>
+                    <p class="fq-legenda" id="fqFlorestaLegenda"></p>
+                    <div class="fq-subtitulo">Frequência por unidade</div>
+                    <div class="fq-unidades" id="fqUnidades"></div>
+                  </div>
+
+                  <div id="fqIndividual" style="display:none;">
+                    <select class="pl-input" id="fqPessoa" aria-label="Desbravador"></select>
+                    <div class="fq-ind-top">
+                      <div class="fq-anel" id="fqAnel"></div>
+                      <div class="fq-ind-stats" id="fqIndStats"></div>
+                    </div>
+                    <div class="fq-cena-scroll fq-trilha-wrap" id="fqTrilhaWrap"></div>
+                    <p class="fq-legenda"><span class="fq-bolinha" style="background:#3FCB6B"></span>Presente <span class="fq-bolinha" style="background:#D8A83E"></span>Atraso <span class="fq-bolinha fq-bolinha-falta"></span>Falta · cada pedra da trilha é uma reunião, na ordem em que aconteceram.</p>
+                    <div class="fq-subtitulo">Ranking de frequência</div>
+                    <div class="fq-ranking" id="fqRanking"></div>
+                  </div>
+
+                  <p class="at-empty-hint" id="fqVazio" style="display:none;">Nenhuma chamada que conta para a frequência neste ano.</p>
                 </div>
 
                 <div class="sp-area-heading">Histórico de Chamadas</div>
@@ -22895,9 +22993,9 @@
     // (mesma tabela `usuarios` usada pelo painel de admin), em vez de nomes fixos.
     async function loadRosterFromSupabase(){
       if(!supa) return;
-      const { data, error } = await supa.from('usuarios').select('id, nome, unidade').order('nome');
+      const { data, error } = await supa.from('usuarios').select('id, nome, unidade, papel').order('nome');
       if(error || !data) return;
-      roster = data.map(row => ({ id: row.id, name: row.nome, unit: row.unidade }));
+      roster = data.map(row => ({ id: row.id, name: row.nome, unit: row.unidade, papel: row.papel }));
       renderRoster();
       loadHistoryFromSupabase();
     }
@@ -22936,6 +23034,8 @@
         });
         return {
           id: c.id,
+          data: c.data,
+          ano: c.ano,
           day: String(parts[2]).padStart(2, '0'),
           mon: MONTHS_ABBR[parts[1] - 1],
           event: c.titulo,
@@ -23077,6 +23177,305 @@
         });
         historyList.appendChild(row);
       });
+      renderFrequencia();
+    }
+
+    // ---- Painel de Frequência ----
+    // Só entram chamadas que contam pra frequência anual (conta_presenca), como
+    // no selo de presenças do Início. Presente e atraso contam como presença.
+    const fqCard = document.getElementById('fqCard');
+    const fqAno = document.getElementById('fqAno');
+    const fqPublico = document.getElementById('fqPublico');
+    const fqPessoa = document.getElementById('fqPessoa');
+    const fqGeral = document.getElementById('fqGeral');
+    const fqIndividual = document.getElementById('fqIndividual');
+    const fqVazio = document.getElementById('fqVazio');
+    let fqAba = 'geral';
+    let fqPublicoEscolhido = false;
+
+    const FQ_COR = { presente: '#3FCB6B', atraso: '#D8A83E', falta: '#E0685A' };
+    function fqEsc(s){ return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+    function fqDataCurta(rec){ return rec.day + '/' + String(MONTHS_ABBR.indexOf(rec.mon) + 1).padStart(2, '0'); }
+    function fqPct(n, total){ return total ? Math.round((n / total) * 100) : 0; }
+    // Cor da árvore conforme a frequência daquela reunião.
+    function fqCorNivel(p){ return p >= 80 ? '#3FCB6B' : p >= 60 ? '#9CCB3F' : p >= 40 ? '#D8A83E' : '#E07A4F'; }
+
+    function fqAnosDisponiveis(){
+      const anos = Array.from(new Set(history.filter(r => r.ano).map(r => r.ano))).sort((a, b) => b - a);
+      return anos.length ? anos : [new Date().getFullYear()];
+    }
+
+    function fqPessoaEntra(id){
+      if(fqPublico.value === 'todos') return true;
+      const p = roster.find(m => m.id === id);
+      return !!(p && p.papel === 'Desbravador');
+    }
+
+    // Reuniões do ano, em ordem de data, já só com as pessoas do filtro.
+    function fqReunioes(){
+      const ano = parseInt(fqAno.value, 10);
+      return history
+        .filter(r => r.ano === ano && r.contaPresenca !== false)
+        .slice().sort((a, b) => (a.data || '').localeCompare(b.data || ''))
+        .map(r => {
+          const lista = r.members.filter(m => fqPessoaEntra(m.id));
+          const presentes = lista.filter(m => m.status === 'presente').length;
+          const atrasos = lista.filter(m => m.status === 'atraso').length;
+          return { rec: r, lista, presentes, atrasos, total: lista.length, pct: fqPct(presentes + atrasos, lista.length) };
+        })
+        .filter(x => x.total);
+    }
+
+    // Trajetória de uma pessoa: só as reuniões em que ela estava na lista.
+    function fqTrajetoria(reunioes, id){
+      const passos = [];
+      reunioes.forEach(x => {
+        const m = x.rec.members.find(mm => mm.id === id);
+        if(m) passos.push({ rec: x.rec, status: m.status });
+      });
+      const cont = { presente: 0, atraso: 0, falta: 0 };
+      let atual = 0, maior = 0, corrida = 0;
+      passos.forEach(p => {
+        cont[p.status] = (cont[p.status] || 0) + 1;
+        if(p.status === 'falta'){ corrida = 0; } else { corrida++; maior = Math.max(maior, corrida); }
+      });
+      for(let i = passos.length - 1; i >= 0 && passos[i].status !== 'falta'; i--) atual++;
+      return { passos, cont, total: passos.length, pct: fqPct(cont.presente + cont.atraso, passos.length), atual, maior };
+    }
+
+    function fqPessoasDoAno(reunioes){
+      const ids = new Set();
+      reunioes.forEach(x => x.lista.forEach(m => ids.add(m.id)));
+      return Array.from(ids).map(id => {
+        const p = roster.find(m => m.id === id);
+        const ref = reunioes.map(x => x.lista.find(m => m.id === id)).find(Boolean) || {};
+        return { id, nome: p ? p.name : (ref.name || '—'), unidade: p ? p.unit : (ref.unit || '—') };
+      });
+    }
+
+    function renderFrequencia(){
+      if(!fqCard) return;
+      // Na primeira vez, "Só desbravadores" só faz sentido se houver alguém com esse papel.
+      if(!fqPublicoEscolhido){
+        fqPublico.value = roster.some(m => m.papel === 'Desbravador') ? 'desbravadores' : 'todos';
+      }
+      const anoAnterior = parseInt(fqAno.value, 10);
+      const anos = fqAnosDisponiveis();
+      fqAno.innerHTML = anos.map(a => '<option value="' + a + '">' + a + '</option>').join('');
+      fqAno.value = String(anos.indexOf(anoAnterior) !== -1 ? anoAnterior : (anos.indexOf(new Date().getFullYear()) !== -1 ? new Date().getFullYear() : anos[0]));
+
+      const reunioes = fqReunioes();
+      fqVazio.style.display = reunioes.length ? 'none' : '';
+      fqGeral.style.display = reunioes.length && fqAba === 'geral' ? '' : 'none';
+      fqIndividual.style.display = reunioes.length && fqAba === 'individual' ? '' : 'none';
+      if(!reunioes.length) return;
+      if(fqAba === 'geral') renderFqGeral(reunioes);
+      else renderFqIndividual(reunioes);
+    }
+
+    function renderFqGeral(reunioes){
+      const soma = reunioes.reduce((acc, x) => {
+        acc.presentes += x.presentes; acc.atrasos += x.atrasos; acc.total += x.total; return acc;
+      }, { presentes: 0, atrasos: 0, total: 0 });
+      const media = fqPct(soma.presentes + soma.atrasos, soma.total);
+      const pontualidade = fqPct(soma.presentes, soma.presentes + soma.atrasos);
+      const melhor = reunioes.reduce((a, b) => (b.pct > a.pct ? b : a), reunioes[0]);
+      document.getElementById('fqKpis').innerHTML =
+        '<div class="fq-kpi"><b style="color:' + fqCorNivel(media) + '">' + media + '%</b><span>Frequência média</span></div>' +
+        '<div class="fq-kpi"><b>' + reunioes.length + '</b><span>' + (reunioes.length === 1 ? 'Reunião' : 'Reuniões') + '</span></div>' +
+        '<div class="fq-kpi"><b style="color:#D8A83E">' + pontualidade + '%</b><span>Chegaram no horário</span></div>' +
+        '<div class="fq-kpi fq-kpi-largo"><span>Melhor reunião</span><b>' + fqDataCurta(melhor.rec) + ' · ' + melhor.pct + '%</b></div>';
+
+      // Cena: céu noturno, lua, estrelas, morros e uma árvore por reunião.
+      const passo = 36, H = 200, chao = 162;
+      const W = Math.max(330, reunioes.length * passo + 40);
+      const alturaMax = 112;
+      let s = '<svg class="fq-cena" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="Floresta da Frequência">' +
+        '<defs><linearGradient id="fqCeu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1F2E"/><stop offset="1" stop-color="#1C3A2A"/></linearGradient>' +
+        '<linearGradient id="fqChao" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F4A2C"/><stop offset="1" stop-color="#10261A"/></linearGradient></defs>' +
+        '<rect width="' + W + '" height="' + H + '" fill="url(#fqCeu)"/>';
+      for(let i = 0; i < Math.ceil(W / 14); i++){
+        const x = (i * 53) % W, y = 8 + (i * 29) % 70;
+        s += '<circle cx="' + x + '" cy="' + y + '" r="' + (i % 3 === 0 ? 1.3 : 0.8) + '" fill="#F5EFE1" opacity="' + (0.35 + (i % 4) * 0.12) + '"/>';
+      }
+      s += '<circle cx="' + (W - 34) + '" cy="30" r="13" fill="#F5EFE1" opacity="0.9"/><circle cx="' + (W - 28) + '" cy="26" r="12" fill="#0F2530"/>' +
+        '<path d="M0 ' + (chao - 18) + ' Q ' + (W * 0.25) + ' ' + (chao - 46) + ' ' + (W * 0.5) + ' ' + (chao - 16) + ' T ' + W + ' ' + (chao - 24) + ' V ' + H + ' H 0 Z" fill="#173826" opacity="0.8"/>' +
+        '<rect x="0" y="' + chao + '" width="' + W + '" height="' + (H - chao) + '" fill="url(#fqChao)"/>';
+      // Linha da média
+      const yMedia = chao - (14 + (media / 100) * alturaMax);
+      s += '<line x1="8" x2="' + (W - 8) + '" y1="' + yMedia + '" y2="' + yMedia + '" stroke="#F5EFE1" stroke-opacity="0.45" stroke-dasharray="4 4"/>';
+      reunioes.forEach((x, i) => {
+        const cx = 30 + i * passo;
+        const h = 14 + (x.pct / 100) * alturaMax;
+        const topo = chao - h;
+        const cor = fqCorNivel(x.pct);
+        const larg = 13;
+        s += '<g class="fq-arvore"><title>' + fqEsc(x.rec.event) + ' · ' + fqDataCurta(x.rec) + ': ' + (x.presentes + x.atrasos) + ' de ' + x.total + ' presentes' + (x.atrasos ? ' (' + x.atrasos + ' com atraso)' : '') + '</title>' +
+          '<rect x="' + (cx - 2) + '" y="' + (chao - 8) + '" width="4" height="10" fill="#6B4A2B"/>';
+        // Três camadas de copa, da base pro topo.
+        for(let k = 0; k < 3; k++){
+          const base = chao - 6 - (h - 6) * (k / 3);
+          const ponta = chao - 6 - (h - 6) * ((k + 1.6) / 3);
+          const w = larg * (1 - k * 0.22);
+          s += '<polygon points="' + (cx - w) + ',' + base + ' ' + (cx + w) + ',' + base + ' ' + cx + ',' + Math.max(topo, ponta) + '" fill="' + cor + '" opacity="' + (0.75 + k * 0.1) + '"/>';
+        }
+        s += '<text x="' + cx + '" y="' + (topo - 5) + '" class="fq-t-pct">' + x.pct + '%</text>' +
+          '<text x="' + cx + '" y="' + (chao + 16) + '" class="fq-t-data">' + fqDataCurta(x.rec) + '</text></g>';
+      });
+      s += '</svg>';
+      const wrap = document.getElementById('fqFlorestaWrap');
+      wrap.innerHTML = s;
+      // Mostra as reuniões mais recentes primeiro (fim da floresta).
+      wrap.scrollLeft = wrap.scrollWidth;
+      document.getElementById('fqFlorestaLegenda').textContent =
+        'Cada árvore é uma reunião: quanto mais alta, mais gente presente. A linha tracejada é a média do ano (' + media + '%).' +
+        (reunioes.length > 9 ? ' Arraste para o lado para ver as reuniões anteriores.' : '');
+
+      // Por unidade: todas as marcações do ano de quem é daquela unidade.
+      const porUnidade = {};
+      reunioes.forEach(x => x.lista.forEach(m => {
+        const p = roster.find(r => r.id === m.id);
+        const u = (p && p.unit) || m.unit || '—';
+        const acc = porUnidade[u] || (porUnidade[u] = { pres: 0, total: 0 });
+        acc.total++;
+        if(m.status !== 'falta') acc.pres++;
+      }));
+      const unidadesEl = document.getElementById('fqUnidades');
+      unidadesEl.innerHTML = '';
+      Object.keys(porUnidade)
+        .map(u => ({ u, pct: fqPct(porUnidade[u].pres, porUnidade[u].total) }))
+        .sort((a, b) => b.pct - a.pct || a.u.localeCompare(b.u))
+        .forEach(({ u, pct }) => {
+          const row = document.createElement('div');
+          row.className = 'fq-uni-row';
+          row.innerHTML =
+            '<span class="fq-uni-top"><span class="cl-class-dot cl-color-' + (UNIT_COLOR[u] || 'gray') + '"></span><span class="fq-uni-nome"></span><b>' + pct + '%</b></span>' +
+            '<span class="fq-barra"><span class="cl-color-' + (UNIT_COLOR[u] || 'gray') + '" style="width:' + pct + '%"></span></span>';
+          row.querySelector('.fq-uni-nome').textContent = u;
+          unidadesEl.appendChild(row);
+        });
+    }
+
+    function renderFqIndividual(reunioes){
+      const pessoas = fqPessoasDoAno(reunioes).map(p => Object.assign(p, fqTrajetoria(reunioes, p.id)));
+      const anterior = fqPessoa.value;
+      const ordemAlfa = pessoas.slice().sort((a, b) => a.nome.localeCompare(b.nome));
+      fqPessoa.innerHTML = '';
+      ordemAlfa.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome + ' · ' + p.unidade;
+        fqPessoa.appendChild(opt);
+      });
+      // Quem entra primeiro é o próprio usuário, se ele estiver na lista.
+      const eu = window.__currentUsuario && window.__currentUsuario.id;
+      const escolhido = pessoas.find(p => p.id === anterior) || pessoas.find(p => p.id === eu) || ordemAlfa[0];
+      if(!escolhido) return;
+      fqPessoa.value = escolhido.id;
+
+      // Anel de frequência
+      const cor = fqCorNivel(escolhido.pct);
+      document.getElementById('fqAnel').innerHTML =
+        '<svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.915" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4.5"/>' +
+        '<circle cx="21" cy="21" r="15.915" fill="none" stroke="' + cor + '" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="' + escolhido.pct + ' ' + (100 - escolhido.pct) + '" stroke-dashoffset="25"/></svg>' +
+        '<span class="fq-anel-centro"><b>' + escolhido.pct + '%</b><em>frequência</em></span>';
+      const frase = escolhido.pct >= 90 ? 'Firme na trilha! 🏕️' : escolhido.pct >= 75 ? 'Bom ritmo, continue assim 👣' : escolhido.pct >= 50 ? 'Precisa de incentivo 🔥' : 'Atenção: muitas faltas ⚠️';
+      document.getElementById('fqIndStats').innerHTML =
+        '<p class="fq-frase"></p>' +
+        '<div class="fq-mini"><span style="color:#3FCB6B">' + escolhido.cont.presente + '</span>presenças</div>' +
+        '<div class="fq-mini"><span style="color:#D8A83E">' + escolhido.cont.atraso + '</span>atrasos</div>' +
+        '<div class="fq-mini"><span style="color:#E0685A">' + escolhido.cont.falta + '</span>faltas</div>' +
+        '<div class="fq-mini fq-mini-largo">🔥 Sequência atual: <b>' + escolhido.atual + '</b> · Maior: <b>' + escolhido.maior + '</b></div>';
+      document.querySelector('#fqIndStats .fq-frase').textContent = frase;
+
+      // Trilha em zigue-zague: 6 pedras por linha, curva no fim de cada linha,
+      // barraca e fogueira no ponto onde a trilha vai continuar.
+      const porLinha = 6, W = 340, mx = 44, dy = 62, topo = 34;
+      const dx = (W - mx * 2) / (porLinha - 1);
+      const n = escolhido.passos.length;
+      const pos = i => {
+        const linha = Math.floor(i / porLinha), col = i % porLinha;
+        return { x: linha % 2 === 0 ? mx + col * dx : W - mx - col * dx, y: topo + linha * dy };
+      };
+      const linhas = Math.floor(n / porLinha) + 1;
+      const H = topo + (linhas - 1) * dy + 44;
+      let d = '';
+      for(let i = 0; i <= n; i++){
+        const p = pos(i);
+        if(i === 0){ d = 'M ' + (p.x - 22) + ' ' + p.y + ' L ' + p.x + ' ' + p.y; continue; }
+        const q = pos(i - 1);
+        if(p.y !== q.y){
+          const ladoDireito = q.x > W / 2;
+          d += ' A ' + (dy / 2) + ' ' + (dy / 2) + ' 0 0 ' + (ladoDireito ? 1 : 0) + ' ' + p.x + ' ' + p.y;
+        } else {
+          d += ' L ' + p.x + ' ' + p.y;
+        }
+      }
+      let s = '<svg class="fq-cena" viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Trilha de frequência">' +
+        '<rect width="' + W + '" height="' + H + '" rx="14" fill="#13281B"/>' +
+        '<path d="' + d + '" fill="none" stroke="#3A2E1E" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="' + d + '" fill="none" stroke="#C9A66B" stroke-opacity="0.55" stroke-width="2" stroke-dasharray="3 6" stroke-linecap="round"/>';
+      // Bandeira de largada
+      const ini = pos(0);
+      s += '<line x1="' + (ini.x - 22) + '" y1="' + (ini.y + 2) + '" x2="' + (ini.x - 22) + '" y2="' + (ini.y - 24) + '" stroke="#F5EFE1" stroke-width="1.6"/>' +
+        '<polygon points="' + (ini.x - 21) + ',' + (ini.y - 24) + ' ' + (ini.x - 8) + ',' + (ini.y - 19) + ' ' + (ini.x - 21) + ',' + (ini.y - 14) + '" fill="#3FCB6B"/>';
+      escolhido.passos.forEach((p, i) => {
+        const c = pos(i);
+        const falta = p.status === 'falta';
+        const simbolo = p.status === 'presente' ? '✓' : p.status === 'atraso' ? '⏱' : '✕';
+        s += '<g><title>' + fqEsc(p.rec.event) + ' · ' + fqDataCurta(p.rec) + ': ' + (falta ? 'falta' : p.status) + '</title>' +
+          '<circle cx="' + c.x + '" cy="' + c.y + '" r="13" fill="' + (falta ? '#13281B' : FQ_COR[p.status]) + '" stroke="' + FQ_COR[p.status] + '" stroke-width="2.2"' + (falta ? ' stroke-dasharray="3 2.5"' : '') + '/>' +
+          '<text x="' + c.x + '" y="' + (c.y + 4) + '" class="fq-t-pedra' + (falta ? ' falta' : '') + '">' + simbolo + '</text>' +
+          '<text x="' + c.x + '" y="' + (c.y + 25) + '" class="fq-t-data">' + fqDataCurta(p.rec) + '</text></g>';
+      });
+      // Barraca + fogueira: a próxima reunião
+      const fim = pos(n);
+      s += '<g transform="translate(' + fim.x + ' ' + fim.y + ')"><title>Próxima reunião</title>' +
+        '<polygon points="-15,9 0,-15 15,9" fill="#D8A83E"/><polygon points="-4,9 0,-2 4,9" fill="#13281B"/>' +
+        '<circle cx="21" cy="6" r="4.5" fill="#FF9F43" opacity="0.85"/><circle cx="21" cy="5" r="2.3" fill="#FFDE17"/></g>';
+      s += '</svg>';
+      document.getElementById('fqTrilhaWrap').innerHTML = s;
+
+      // Ranking de todos: barra presente / atraso / falta.
+      const rankingEl = document.getElementById('fqRanking');
+      rankingEl.innerHTML = '';
+      pessoas.slice()
+        .sort((a, b) => b.pct - a.pct || b.cont.presente - a.cont.presente || a.nome.localeCompare(b.nome))
+        .forEach((p, i) => {
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'fq-rank-row' + (p.id === escolhido.id ? ' ativo' : '');
+          const seg = k => {
+            const w = p.total ? (p.cont[k] / p.total) * 100 : 0;
+            return w ? '<span style="width:' + w + '%;background:' + FQ_COR[k] + '"></span>' : '';
+          };
+          row.innerHTML =
+            '<span class="fq-rank-pos">' + (i + 1) + '</span>' +
+            '<span class="fq-rank-corpo"><span class="fq-rank-top"><span class="fq-rank-nome"></span><b style="color:' + fqCorNivel(p.pct) + '">' + p.pct + '%</b></span>' +
+            '<span class="fq-barra fq-barra-empilhada">' + seg('presente') + seg('atraso') + seg('falta') + '</span>' +
+            '<span class="fq-rank-meta"></span></span>';
+          row.querySelector('.fq-rank-nome').textContent = p.nome;
+          row.querySelector('.fq-rank-meta').textContent = p.unidade + ' · ' + (p.cont.presente + p.cont.atraso) + ' de ' + p.total + ' reuniões';
+          row.addEventListener('click', () => {
+            fqPessoa.value = p.id;
+            renderFrequencia();
+            fqCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+          rankingEl.appendChild(row);
+        });
+    }
+
+    if(fqCard){
+      fqCard.querySelectorAll('.fq-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          fqAba = tab.dataset.fq;
+          fqCard.querySelectorAll('.fq-tab').forEach(t => t.classList.toggle('active', t === tab));
+          renderFrequencia();
+        });
+      });
+      fqAno.addEventListener('change', renderFrequencia);
+      fqPublico.addEventListener('change', () => { fqPublicoEscolhido = true; renderFrequencia(); });
+      fqPessoa.addEventListener('change', renderFrequencia);
     }
 
     // Editar chamada já salva (corrigir presença por engano) + gerar PDF
@@ -23262,6 +23661,8 @@
 
       history.push({
         id: chamadaId,
+        data: callDate.value,
+        ano: dateObj.getFullYear(),
         day: String(dateObj.getDate()).padStart(2, '0'),
         mon: monthsAbbr[dateObj.getMonth()],
         event: callEvent.value.trim(),
