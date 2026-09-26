@@ -1,4 +1,4 @@
-package org.cedrosdigital.app;
+package org.clubedigital.app;
 
 import com.getcapacitor.BridgeActivity;
 

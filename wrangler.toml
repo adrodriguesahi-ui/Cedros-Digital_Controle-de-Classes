@@ -1,4 +1,5 @@
-name = "cedros-digital"
+# Nome do app na Cloudflare — vira o endereço <name>.<sua-conta>.workers.dev
+name = "clube-digital"
 compatibility_date = "2025-01-01"
 
 [assets]

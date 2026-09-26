@@ -12,3 +12,6 @@
 
 /
   Cache-Control: no-store
+
+/clube.js
+  Cache-Control: no-store

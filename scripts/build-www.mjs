@@ -11,6 +11,8 @@ const wwwDir = path.join(root, 'www');
 const FILES = [
   'index.html',
   'login.html',
+  'clube.js',
+  'logo.png',
   'manifest.json',
   'sw.js',
   'apple-touch-icon.png',

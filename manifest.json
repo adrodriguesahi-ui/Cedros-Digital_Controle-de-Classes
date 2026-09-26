@@ -1,7 +1,7 @@
 {
-  "name": "Cedros Digital",
-  "short_name": "Cedros",
-  "description": "App do Clube de Desbravadores Cedros",
+  "name": "Clube Digital",
+  "short_name": "Clube",
+  "description": "App do Clube de Desbravadores",
   "start_url": "./login.html",
   "scope": "./",
   "display": "fullscreen",

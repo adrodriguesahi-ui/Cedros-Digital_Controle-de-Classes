@@ -12,6 +12,8 @@ on:
     paths:
       - 'index.html'
       - 'login.html'
+      - 'clube.js'
+      - 'logo.png'
       - 'manifest.json'
       - 'sw.js'
       - 'icons/**'

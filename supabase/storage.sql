@@ -1,4 +1,4 @@
--- Cedros Digital — Storage de arquivos (fotos, documentos)
+-- Storage de arquivos do app do clube (fotos, documentos) — rode depois do schema.sql
 -- Rode este script no SQL Editor do Supabase, depois de rodar o schema.sql.
 --
 -- Por que separado do banco: o Postgres (schema.sql) tem cota de 500MB no
