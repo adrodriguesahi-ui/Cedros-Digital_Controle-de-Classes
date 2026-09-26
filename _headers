@@ -1,0 +1,14 @@
+/index.html
+  Cache-Control: no-store
+
+/login.html
+  Cache-Control: no-store
+
+/sw.js
+  Cache-Control: no-store
+
+/manifest.json
+  Cache-Control: no-store
+
+/
+  Cache-Control: no-store

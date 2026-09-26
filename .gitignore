@@ -1,6 +1,12 @@
 node_modules/
-.wrangler/
-.dev.vars
-*.log
-.DS_Store
-dev/*.sqlite
+www/
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+ios/DerivedData/
+ios/.build/

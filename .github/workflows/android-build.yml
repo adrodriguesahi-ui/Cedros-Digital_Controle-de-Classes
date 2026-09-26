@@ -1,0 +1,82 @@
+name: Build Android APK
+
+# Compila o app nativo (Capacitor) num runner do GitHub, que tem acesso
+# normal ao repositório do Google (dl.google.com) — diferente de ambientes
+# de rede restrita, onde o Android Gradle Plugin nem consegue baixar. O APK
+# gerado fica disponível como artifact desta execução (aba Actions do repo)
+# e também é publicado num Release fixo (tag apk-latest), com um link de
+# download direto que não expira e não pede login no GitHub.
+
+permissions:
+  contents: write
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'login.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'icons/**'
+      - 'icon-*.png'
+      - 'apple-touch-icon.png'
+      - '.well-known/**'
+      - 'android/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.json'
+      - 'scripts/**'
+      - '.github/workflows/android-build.yml'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Sem "packages", a action instala o pacote 'tools', que o Google tirou
+      # do repositório — o sdkmanager sai com erro antes de o build começar.
+      # O resto do SDK o Gradle baixa sozinho, com as licenças já aceitas aqui.
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Gerar www/ e sincronizar o projeto Android
+        run: npm run cap:sync
+
+      - name: Compilar APK de debug
+        working-directory: android
+        run: ./gradlew assembleDebug --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cedros-digital-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publicar/atualizar release com link fixo de download
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view apk-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload apk-latest android/app/build/outputs/apk/debug/app-debug.apk \
+              --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create apk-latest android/app/build/outputs/apk/debug/app-debug.apk \
+              --title "Cedros Digital — APK mais recente" \
+              --notes "Build automático a cada atualização do app. Este link nunca muda." \
+              --repo "$GITHUB_REPOSITORY"
+          fi

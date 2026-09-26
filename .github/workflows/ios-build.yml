@@ -1,0 +1,54 @@
+name: Build iOS (Simulator)
+
+# Compila o projeto iOS (Capacitor) num runner macOS do GitHub, só pro
+# Simulador — não precisa de conta Apple Developer nem assinatura de
+# código pra isso. Serve pra validar que o projeto compila de verdade
+# (Swift, CocoaPods, plugins) a cada mudança. NÃO gera um .ipa instalável
+# num iPhone físico — pra isso é preciso conta Apple Developer paga e
+# assinatura de código (ver README.md).
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'login.html'
+      - 'manifest.json'
+      - 'sw.js'
+      - 'icons/**'
+      - 'icon-*.png'
+      - 'apple-touch-icon.png'
+      - '.well-known/**'
+      - 'ios/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.json'
+      - 'scripts/**'
+      - '.github/workflows/ios-build.yml'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Gerar www/ e sincronizar o projeto iOS
+        run: npm run cap:sync
+
+      - name: Instalar CocoaPods
+        working-directory: ios/App
+        run: pod install
+
+      - name: Compilar pro Simulador (sem assinatura de código)
+        working-directory: ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App \
+            -sdk iphonesimulator -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO build

@@ -1,85 +1,92 @@
-# Cedros Digital · Controle de Classes
+# Cedros Digital
 
-Aplicativo web para acompanhar as **classes regulares** do Clube de Desbravadores: quem está em cada classe, quais requisitos cada desbravador já cumpriu e quem está pronto para a investidura.
+App do Clube de Desbravadores Cedros do Líbano — PWA (Progressive Web App).
 
-Ele funciona no celular e no computador e roda no **Cloudflare Workers**, com banco de dados **Cloudflare D1**, na mesma plataforma do Cedros Digital.
+Publicado em: https://cedros-digital.adrodrigues-ahi.workers.dev
 
-## O que o app faz
+## Como publicar
 
-| Área | O que faz |
-|---|---|
-| **Painel** | Mostra o total de desbravadores, o progresso médio, quantos estão prontos para a investidura e um resumo por classe |
-| **Desbravadores** | Cadastro com classe, unidade e data de nascimento (o app sugere a classe pela idade), com busca e filtros |
-| **Checklist** | Marca os requisitos cumpridos, um por um ou por seção inteira, e registra a data e quem marcou |
-| **Classes e requisitos** | As 6 classes regulares (Amigo → Guia). A diretoria cadastra os requisitos um a um ou **cola a lista inteira de uma vez** |
-| **Unidades** | Agrupa os desbravadores por unidade |
-| **Usuários** | Diretoria (acesso total) e conselheiros/instrutores (se tiverem uma unidade, veem só os desbravadores dela) |
-| **Relatórios** | Progresso por classe e por unidade, lista de prontos para a investidura, planilha em CSV (abre no Excel) e versão para impressão |
+Hospedado no **Cloudflare Workers** (Workers & Pages → "Connect to Git"), com deploy automático a cada `git push` na branch `main` — configurado via [wrangler.toml](wrangler.toml) (site estático, sem build, servido a partir da raiz do repositório).
 
-### Cadastrar requisitos em lote
+Pra publicar do zero:
+1. No painel da Cloudflare, vá em **Workers & Pages → Create → Connect to Git** e selecione este repositório.
+2. Build command: nenhum. Deploy command: `npx wrangler deploy` (usa o `wrangler.toml` já no repo).
+3. Depois do primeiro deploy, em **Domains**, ative o toggle da URL `*.workers.dev` (vem desativado por padrão).
 
-Em **Classes e requisitos → (classe) → Adicionar em lote**, cole o texto do cartão da classe. As linhas que começam com `#` definem a seção:
+## Como atualizar depois
 
+É só dar `git push` no repositório (branch `main`) — a Cloudflare detecta o commit e publica a nova versão automaticamente.
+
+## Backend (Supabase)
+
+Login, cadastro e o painel de Administração usam o Supabase (Postgres + Auth) — ver [supabase/schema.sql](supabase/schema.sql) para o schema (tabelas, função de permissões padrão e RLS).
+
+## Gerar APK
+
+Duas formas, dependendo do que você precisa:
+
+**PWABuilder (mais simples, sem recursos nativos)** — depois de publicado, use
+https://www.pwabuilder.com/ com a URL do site publicado pra gerar o APK.
+
+**App nativo Android via Capacitor (recursos nativos: vibração, câmera, barra
+de status)** — o mesmo HTML/CSS/JS é empacotado num app Android de verdade,
+usando [Capacitor](https://capacitorjs.com). O site publicado no Cloudflare
+não muda em nada — isso só gera o APK.
+
+Pré-requisitos: Node.js, [Android Studio](https://developer.android.com/studio)
+(ou Android SDK + Gradle) instalados.
+
+```bash
+npm install          # instala o Capacitor e os plugins (uma vez só)
+npm run android:open # gera www/, sincroniza o projeto android/ e abre no Android Studio
 ```
-# Gerais
-1. Primeiro requisito
-2. Segundo requisito
-# Descoberta Espiritual
-1. ...
-```
 
-> Os requisitos **não vêm pré-cadastrados**. Use sempre o cartão/manual oficial mais recente da sua Associação/União, porque os requisitos mudam de tempos em tempos.
+No Android Studio: **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
 
-## Criar uma instância para um clube (pelo painel da Cloudflare, sem terminal)
+Sempre que mudar `index.html`/`login.html`/etc., rode `npm run cap:sync`
+antes de gerar um novo APK (ou simplesmente `npm run android:open` de novo).
 
-Cada clube tem **o próprio banco de dados** e o próprio endereço, e os dados de um não se misturam com os de outro. As tabelas são criadas pelo próprio app no primeiro acesso, então basta criar um banco vazio.
+O app nativo já vem com:
+- Vibração leve (haptics) ao tocar em botões e na navegação inferior
+- Barra de status com a cor do tema do app
+- Câmera/galeria nos uploads de foto (já funcionam via `<input type="file">`,
+  sem precisar do plugin de câmera nativo)
 
-1. **Criar o banco:** em [dash.cloudflare.com](https://dash.cloudflare.com), abra **Storage & Databases → D1 SQL Database → Create Database**. Dê um nome (ex.: `controle-classes-nomedoclube`) e clique em **Create**. Na página do banco, copie o **Database ID**.
-2. **Ligar o banco ao app:** no GitHub, edite o arquivo `wrangler.toml`:
-   - `database_id` → cole o ID copiado
-   - `database_name` → o nome que você deu ao banco
-   - `NOME_CLUBE` → o nome do clube que vai aparecer no app
-   - `name` → o nome do app na Cloudflare, que vira o endereço (`<name>.<sua-conta>.workers.dev`)
-3. **Publicar:** em **Workers & Pages → Create → Import a repository**, conecte o GitHub, escolha este repositório e confirme. O comando de deploy é `npx wrangler deploy`, que já vem preenchido. A partir daí, cada alteração na branch `main` é publicada automaticamente.
-4. **Primeiro acesso:** abra o endereço do app. Ele pede para criar a conta da diretoria. Depois disso, cadastre as unidades e os requisitos das classes e crie os usuários dos conselheiros.
+O projeto Android fica em `android/` (versionado no repositório — só os
+diretórios de build/cache são ignorados, ver `.gitignore`). `package.json`,
+`android/`, `scripts/` e `capacitor.config.json` ficam de fora do site
+publicado (ver `.assetsignore`).
 
-**Outro clube?** Faça um *fork* ou uma cópia deste repositório e repita os passos com um banco novo.
+Toda vez que algo em `index.html`/`android/**` muda, o workflow
+`.github/workflows/android-build.yml` compila o APK automaticamente e
+disponibiliza como artifact na aba **Actions** do repositório — dá pra
+baixar e instalar sem precisar rodar nada localmente.
 
-### Pelo terminal (alternativa)
+## iOS
+
+**Sem conta Apple Developer (grátis, funciona hoje):** no Safari do iPhone,
+abra o site publicado → **Compartilhar → Adicionar à Tela de Início**. Vira
+um app instalado de verdade (ícone próprio, tela cheia, funciona offline) —
+as meta tags necessárias (`apple-mobile-web-app-capable`, `apple-touch-icon`
+etc.) já estão no `index.html`.
+
+**App nativo via Capacitor (recursos nativos, como o Android):** a estrutura
+já está pronta em `ios/` — mesmos plugins (haptics, câmera, barra de status).
+Mas compilar/assinar um app iOS **só é possível num Mac com Xcode**, e pra
+instalar em qualquer iPhone que não seja o seu (ex.: TestFlight) é preciso
+uma conta **Apple Developer paga (US$ 99/ano)** — isso eu não posso criar
+por você. Com a conta em mãos:
 
 ```bash
 npm install
-npx wrangler login
-npx wrangler d1 create controle-classes-nomedoclube   # copie o database_id para o wrangler.toml
-npm run deploy
+npm run ios:open   # gera www/, sincroniza o projeto ios/ e abre no Xcode
 ```
 
-## Desenvolvimento local
+No Xcode: configure o **Team** (sua conta Apple Developer) em Signing &
+Capabilities, e use **Product → Archive** pra gerar o build.
 
-```bash
-npm run dev        # usa o wrangler, com banco local em .wrangler/ (tabelas criadas automaticamente)
-```
-
-Sem o wrangler (só com Node 22+):
-
-```bash
-node dev/servidor-local.mjs   # http://localhost:8787, banco em dev/local.sqlite
-npm run teste                 # testes automáticos da API
-```
-
-## Estrutura
-
-```
-src/index.js          API (Worker): login, desbravadores, classes, requisitos, progresso, relatórios
-public/               interface (HTML, CSS e JavaScript, sem dependências)
-src/esquema.js        estrutura do banco (criada automaticamente pelo app)
-dev/                  servidor local e testes (não vão para produção)
-wrangler.toml         configuração do Cloudflare
-```
-
-## Segurança
-
-- As senhas são guardadas com hash PBKDF2-SHA256 e salt individual.
-- A sessão fica num cookie `HttpOnly`/`Secure` que vale por 30 dias.
-- Ao desativar um usuário ou trocar a senha dele, as sessões abertas são encerradas.
-- As permissões são verificadas no servidor: um conselheiro de uma unidade não consegue ver nem alterar desbravadores de outra.
+Sem conta paga, ainda dá pra rodar no **seu próprio** iPhone via Xcode
+(assinatura pessoal gratuita, válida por 7 dias, só nesse aparelho). O
+workflow `.github/workflows/ios-build.yml` compila o projeto pro Simulador
+a cada mudança (sem precisar de assinatura), só pra confirmar que nada
+quebrou — não gera um `.ipa` instalável num iPhone real.

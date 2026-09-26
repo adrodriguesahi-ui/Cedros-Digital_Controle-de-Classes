@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "dev.workers.adrodrigues_ahi.cedros_digital.twa",
+        "sha256_cert_fingerprints": ["A4:C3:78:63:41:5C:0F:3F:A5:1E:96:BF:B1:C1:2B:4A:61:4E:7C:32:0C:C1:90:23:62:DF:4D:3B:58:A4:2F:88"]
+      }
+    }]

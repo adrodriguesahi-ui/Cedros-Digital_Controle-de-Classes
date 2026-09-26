@@ -1,0 +1,9 @@
+{
+  "appId": "org.cedrosdigital.app",
+  "appName": "Cedros Digital",
+  "webDir": "www",
+  "backgroundColor": "#0A130C",
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -1,18 +1,6 @@
-# Nome do app na Cloudflare (vira o endereço: <name>.<sua-conta>.workers.dev)
-name = "cedros-controle-classes"
-main = "src/index.js"
-compatibility_date = "2026-09-01"
-
-[vars]
-# Nome do clube que aparece no app
-NOME_CLUBE = "Clube de Desbravadores"
+name = "cedros-digital"
+compatibility_date = "2025-01-01"
 
 [assets]
-directory = "./public"
-binding = "ASSETS"
-
-# Banco de dados deste clube. As tabelas são criadas pelo próprio app no primeiro acesso.
-[[d1_databases]]
-binding = "DB"
-database_name = "cedros-controle-classes"
-database_id = "COLOQUE-AQUI-O-ID-DO-BANCO"
+directory = "./"
+not_found_handling = "404-page"

@@ -1,15 +1,22 @@
 {
-  "name": "cedros-digital-controle-de-classes",
-  "version": "1.0.0",
+  "name": "cedros-digital",
   "private": true,
-  "description": "Cedros Digital · Controle de Classes — acompanhamento das classes regulares do clube de desbravadores",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "Wrapper nativo Android/iOS (Capacitor) do PWA Cedros Digital. O site em si (index.html, login.html) continua sendo servido direto pelo Cloudflare Workers — isto aqui só empacota o mesmo HTML/CSS/JS dentro de um app nativo de verdade.",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "teste": "node --no-warnings dev/testar-api.mjs"
+    "www:build": "node scripts/build-www.mjs",
+    "cap:sync": "npm run www:build && npx cap sync",
+    "android:open": "npm run cap:sync && npx cap open android",
+    "ios:open": "npm run cap:sync && npx cap open ios"
   },
   "devDependencies": {
-    "wrangler": "^4.0.0"
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/camera": "^6.1.2",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.2",
+    "@capacitor/ios": "^6.2.1",
+    "@capacitor/status-bar": "^6.0.2"
   }
 }

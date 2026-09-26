@@ -1,0 +1,15 @@
+.git
+.github
+.wrangler
+.claude
+node_modules
+www/
+android/
+ios/
+scripts/
+assets/
+supabase
+package.json
+package-lock.json
+capacitor.config.json
+*.md
