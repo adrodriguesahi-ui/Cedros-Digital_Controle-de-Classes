@@ -1,9 +1,10 @@
 {
-  "appId": "org.clubedigital.app",
-  "appName": "Clube Digital",
+  "appId": "org.cedrosdolibano.classes",
+  "appName": "Cedros Digital",
   "webDir": "www",
   "backgroundColor": "#0A130C",
   "server": {
+    "url": "https://adrodriguesahi-ui.github.io/Cedros-Digital_Controle-de-Classes/login.html",
     "androidScheme": "https"
   }
 }

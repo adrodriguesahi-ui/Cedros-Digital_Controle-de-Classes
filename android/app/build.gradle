@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "org.clubedigital.app"
+    namespace "org.cedrosdolibano.classes"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "org.clubedigital.app"
+        applicationId "org.cedrosdolibano.classes"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

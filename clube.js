@@ -6,10 +6,10 @@
 // =============================================================================
 window.CLUBE_CONFIG = {
   // Nome do app (aparece na abertura, no topo e nos PDFs). Ex.: "Cedros Digital"
-  appNome: 'Clube Digital',
+  appNome: 'Cedros Digital',
 
   // Nome do clube, sem o "Clube de Desbravadores" na frente. Ex.: "Cedros do Líbano"
-  nomeClube: 'Nome do Clube',
+  nomeClube: 'Cedros do Líbano',
 
   // Código do clube no SGC (aparece nas fichas em PDF). Deixe '' se não tiver.
   codigoClube: '',

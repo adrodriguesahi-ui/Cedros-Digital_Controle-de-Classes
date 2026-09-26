@@ -70,7 +70,7 @@ O APK é compilado **automaticamente pelo GitHub** sempre que o app muda (arquiv
 - abra a aba **Releases** do repositório → **"App do clube — APK mais recente"** (o link não muda), ou
 - abra a aba **Actions** → a execução mais recente de **Build Android APK** → **Artifacts**.
 
-O identificador do app Android é `org.clubedigital.app`, diferente do Cedros Digital, então os dois podem ficar instalados no mesmo celular. O APK é de **debug**: serve para instalar direto no celular, mas não para publicar na Play Store.
+O identificador do app Android é `org.cedrosdolibano.classes`, diferente do Cedros Digital, então os dois podem ficar instalados no mesmo celular. O APK é de **debug**: serve para instalar direto no celular, mas não para publicar na Play Store.
 
 Para gerar localmente (precisa do Node.js e do Android Studio):
 
@@ -83,7 +83,7 @@ npm run android:open   # gera www/, sincroniza android/ e abre no Android Studio
 
 Sem conta Apple Developer: abra o site no Safari → **Compartilhar → Adicionar à Tela de Início**. O app fica instalado com ícone próprio e tela cheia.
 
-O app nativo para iOS fica em `ios/` (bundle `org.clubedigital.app`). Compilar e assinar exige um Mac com Xcode e uma conta Apple Developer paga:
+O app nativo para iOS fica em `ios/` (bundle `org.cedrosdolibano.classes`). Compilar e assinar exige um Mac com Xcode e uma conta Apple Developer paga:
 
 ```bash
 npm install
@@ -96,7 +96,7 @@ npm run ios:open
 
 1. Crie um repositório novo e copie este código para ele (ou peça ao Claude para fazer isso).
 2. Repita os passos 1 a 5 com um **projeto Supabase novo**. Cada clube precisa do seu banco, para que os dados não se misturem.
-3. Para ter um APK separado, troque `org.clubedigital.app` por outro identificador em `capacitor.config.json`, `android/app/build.gradle` e `android/app/src/main/res/values/strings.xml`, e mova a pasta `android/app/src/main/java/org/clubedigital/app/` para o novo caminho.
+3. Para ter um APK separado, troque `org.cedrosdolibano.classes` por outro identificador em `capacitor.config.json`, `android/app/build.gradle` e `android/app/src/main/res/values/strings.xml`, e mova a pasta `android/app/src/main/java/org/clubedigital/app/` para o novo caminho.
 
 ## Segurança: ponto de atenção
 
