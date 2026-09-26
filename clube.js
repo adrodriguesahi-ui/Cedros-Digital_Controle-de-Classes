@@ -16,7 +16,7 @@ window.CLUBE_CONFIG = {
 
   // Endereço público do app depois de publicado (usado nos links e QR Codes).
   // Ex.: 'https://meu-clube.minha-conta.workers.dev'
-  urlPublica: '',
+  urlPublica: 'https://adrodriguesahi-ui.github.io/Cedros-Digital_Controle-de-Classes',
 
   // Projeto Supabase deste clube: Project Settings → API (ou "API Keys").
   supabaseUrl: 'https://ryxkwaybymeknadyfgay.supabase.co',
