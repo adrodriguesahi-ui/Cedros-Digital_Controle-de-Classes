@@ -2665,6 +2665,40 @@
   .pl-schedule-row-main .pl-schedule-time{ flex:0 0 92px; }
   .pl-schedule-row-main .pl-schedule-activity-select{ flex:1; min-width:0; }
   .pl-schedule-activity-custom{ margin:0; }
+  /* Responsáveis de cada atividade (e os Ideais da Abertura). */
+  .pl-schedule-list > .pl-schedule-row + .pl-schedule-row{ padding-top:10px; border-top:1px solid rgba(255,255,255,0.07); }
+  .pl-resp-box{ display:flex; flex-direction:column; gap:6px; padding-left:10px; margin-left:4px; border-left:2px solid rgba(63,203,107,0.25); }
+  .pl-resp-rotulo{ font-size:10.5px; font-weight:800; letter-spacing:0.03em; text-transform:uppercase; color:rgba(245,239,225,0.5); }
+  .pl-resp-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .pl-resp-chips:empty{ display:none; }
+  .pl-resp-chip{
+    display:inline-flex; align-items:center; gap:4px; max-width:100%;
+    padding:4px 4px 4px 10px; border-radius:14px; font-size:12px; font-weight:700;
+    background:rgba(63,203,107,0.12); border:1px solid rgba(63,203,107,0.3); color:var(--cream);
+  }
+  .pl-resp-chip > span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pl-resp-chip button, .pl-resp-mini-x{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%; border:none; cursor:pointer;
+    background:rgba(255,255,255,0.08); color:rgba(245,239,225,0.75); font-size:14px; line-height:1; font-weight:700;
+  }
+  .pl-resp-add-row{ display:flex; gap:8px; align-items:center; }
+  .pl-resp-add-row .pl-resp-select{ flex:1; min-width:0; }
+  .pl-resp-select{ padding:8px 10px; font-size:13px; }
+  .pl-resp-link{
+    flex-shrink:0; border:none; background:none; cursor:pointer; padding:4px 2px;
+    color:var(--accent); font-size:12px; font-weight:800; font-family:inherit; text-align:left;
+  }
+  .pl-ideais{ display:flex; flex-direction:column; gap:6px; margin-bottom:4px; }
+  .pl-ideais-list{ display:flex; flex-direction:column; gap:6px; }
+  /* Nome do ideal numa linha (editável, discreto) e quem conduz logo abaixo. */
+  .pl-ideal-row{ display:grid; grid-template-columns:1fr 22px; gap:2px 6px; align-items:center; }
+  .pl-ideal-row .pl-ideal-nome{
+    grid-column:1; grid-row:1; padding:2px 2px; font-size:12.5px; font-weight:800;
+    background:transparent; border-color:transparent; border-radius:6px;
+  }
+  .pl-ideal-row .pl-ideal-nome:focus{ border-color:var(--accent); }
+  .pl-ideal-row .pl-resp-mini-x{ grid-column:2; grid-row:1; }
+  .pl-ideal-row .pl-resp-select{ grid-column:1 / 3; grid-row:2; min-width:0; }
   .pl-checklist-row{ display:flex; gap:8px; align-items:center; }
   .pl-checklist-row .pl-checklist-done{ flex-shrink:0; width:19px; height:19px; accent-color:var(--accent); }
   .pl-checklist-row .pl-checklist-text{ flex:1; min-width:0; }
@@ -2697,6 +2731,10 @@
   .pl-view-schedule-icon{ flex:0 0 18px; font-size:14px; }
   .pl-view-schedule-time{ flex:0 0 52px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums; }
   .pl-view-schedule-activity{ flex:1; font-weight:600; color:rgba(245,239,225,0.8); }
+  .pl-view-schedule-ideal, .pl-view-schedule-resp{ display:block; margin-top:3px; font-size:12px; font-weight:600; line-height:1.4; color:rgba(245,239,225,0.55); }
+  .pl-view-schedule-ideal b{ font-weight:800; color:rgba(245,239,225,0.78); }
+  .pl-view-schedule-ideal b::after{ content:':'; }
+  .pl-view-schedule-resp{ color:var(--gold); }
   .pl-view-notice-block{
     margin-top:14px; padding:12px 14px; border-radius:16px;
     background:rgba(216,168,62,0.08); border:1px solid rgba(216,168,62,0.22);
@@ -13442,7 +13480,8 @@
     SCHEDULE_TEMPLATE_REGULAR.forEach(item => buildScheduleRow(container, item.horario, item.atividade));
   }
 
-  function buildScheduleRow(container, horario, atividade){
+  // extra: { responsaveis, ideais } do item salvo (opcional).
+  function buildScheduleRow(container, horario, atividade, extra){
     const row = document.createElement('div');
     row.className = 'pl-schedule-row';
 
@@ -13506,6 +13545,7 @@
     row.appendChild(mainRow);
     row.appendChild(customInput);
     container.appendChild(row);
+    montarResponsaveisDaLinha(row, extra);
     return row;
   }
 
@@ -13515,6 +13555,265 @@
     const select = row.querySelector('.pl-schedule-activity-select');
     if(select.value === '__custom__') return row.querySelector('.pl-schedule-activity-custom').value.trim();
     return select.value;
+  }
+
+  // ---- Responsáveis de cada atividade da Programação do Dia ----
+  // Cada item da programação pode ter "responsaveis" (lista) e, na Abertura,
+  // "ideais" (Voto, Lei, Alvo... cada um com o seu responsável). Tudo vai no
+  // mesmo JSON de programacao_dia, sem coluna nova. Um responsável é
+  // { tipo: 'unidade'|'conselheiro'|'instrutor'|'membro'|'texto', nome, detalhe }.
+  const ATIVIDADE_IDEAIS = 'Abertura, Ideais';
+  const IDEAIS_PADRAO = ['Voto', 'Lei', 'Alvo', 'Lema', 'Objetivo', 'Voto de Fidelidade à Bíblia'];
+  // Atividades em que dá pra puxar os responsáveis da própria área do clube.
+  const SUGESTAO_POR_ATIVIDADE = {
+    'Cantinho da Unidade': 'unidades',
+    'Cartão de Classes': 'classes'
+  };
+
+  let RESP_OPCOES = { unidades: [], conselheiros: [], instrutores: [], membros: [] };
+  let respOpcoesPromise = null;
+
+  function carregarOpcoesResponsaveis(){
+    if(respOpcoesPromise || !supa) return respOpcoesPromise;
+    respOpcoesPromise = (async () => {
+      const [{ data: unidades, error: errU }, { data: funcoes }, { data: vinculos }, { data: membros }] = await Promise.all([
+        supa.from('unidades').select('nome, status, ordem').order('ordem').order('nome'),
+        supa.from('unit_funcoes').select('unidade, funcao, nome').eq('funcao', 'Conselheiro(a)'),
+        supa.from('classe_instrutores').select('classe, usuario_id, funcao'),
+        supa.from('usuarios').select('id, nome').order('nome')
+      ]);
+      if(errU){ respOpcoesPromise = null; return; }
+      const nomePorId = {};
+      (membros || []).forEach(m => { nomePorId[m.id] = m.nome; });
+      RESP_OPCOES = {
+        unidades: (unidades || []).filter(u => u.status !== 'inativa')
+          .map(u => ({ tipo: 'unidade', nome: u.nome, detalhe: '' })),
+        conselheiros: (funcoes || []).filter(f => (f.nome || '').trim())
+          .map(f => ({ tipo: 'conselheiro', nome: f.nome.trim(), detalhe: 'Conselheiro(a) · ' + f.unidade }))
+          .sort((a, b) => a.detalhe.localeCompare(b.detalhe)),
+        instrutores: (vinculos || []).filter(v => nomePorId[v.usuario_id])
+          .map(v => ({ tipo: 'instrutor', nome: nomePorId[v.usuario_id], detalhe: 'Instrutor(a) · ' + v.classe }))
+          .sort((a, b) => a.detalhe.localeCompare(b.detalhe) || a.nome.localeCompare(b.nome)),
+        membros: (membros || []).map(m => ({ tipo: 'membro', nome: m.nome, detalhe: '' }))
+      };
+      // As linhas montadas antes da lista chegar ganham as opções agora.
+      document.querySelectorAll('select.pl-resp-select').forEach(preencherSelectResponsavel);
+    })();
+    return respOpcoesPromise;
+  }
+
+  function textoResponsavel(r){
+    if(!r || !r.nome) return '';
+    if(r.tipo === 'unidade') return 'Unidade ' + r.nome;
+    return r.nome + (r.detalhe ? ' (' + r.detalhe + ')' : '');
+  }
+  function chaveResponsavel(r){
+    return JSON.stringify({ tipo: r.tipo, nome: r.nome, detalhe: r.detalhe || '' });
+  }
+
+  // Monta as opções agrupadas. O valor escolhido fica em select.dataset.valor
+  // (JSON), pra sobreviver ao recarregar a lista.
+  function preencherSelectResponsavel(select){
+    const valorAtual = select.dataset.valor || '';
+    select.innerHTML = '';
+    const vazio = document.createElement('option');
+    vazio.value = '';
+    vazio.textContent = select.dataset.placeholder || 'Responsável';
+    select.appendChild(vazio);
+    [
+      ['Unidades', RESP_OPCOES.unidades],
+      ['Conselheiros', RESP_OPCOES.conselheiros],
+      ['Instrutores de Classes', RESP_OPCOES.instrutores],
+      ['Membros', RESP_OPCOES.membros]
+    ].forEach(([rotulo, lista]) => {
+      if(!lista.length) return;
+      const grupo = document.createElement('optgroup');
+      grupo.label = rotulo;
+      lista.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = chaveResponsavel(r);
+        opt.textContent = textoResponsavel(r);
+        grupo.appendChild(opt);
+      });
+      select.appendChild(grupo);
+    });
+    const outro = document.createElement('option');
+    outro.value = '__texto__';
+    outro.textContent = 'Outro (digitar)';
+    select.appendChild(outro);
+    if(valorAtual){
+      // Responsável que não está mais na lista (unidade renomeada, texto livre)
+      // continua aparecendo como estava salvo.
+      if(!Array.from(select.options).some(o => o.value === valorAtual)){
+        const opt = document.createElement('option');
+        opt.value = valorAtual;
+        opt.textContent = textoResponsavel(JSON.parse(valorAtual));
+        select.insertBefore(opt, outro);
+      }
+      select.value = valorAtual;
+    } else {
+      select.value = '';
+    }
+  }
+
+  function criarSelectResponsavel(placeholder, valor){
+    const select = document.createElement('select');
+    select.className = 'pl-input pl-resp-select';
+    select.dataset.placeholder = placeholder;
+    select.dataset.valor = valor ? chaveResponsavel(valor) : '';
+    preencherSelectResponsavel(select);
+    return select;
+  }
+
+  // Lê a escolha de um select de responsável; "Outro" pergunta o nome.
+  function escolhaDoSelect(select){
+    if(select.value === '__texto__'){
+      const nome = (prompt('Nome do responsável:') || '').trim();
+      return nome ? { tipo: 'texto', nome: nome.slice(0, 60), detalhe: '' } : null;
+    }
+    return select.value ? JSON.parse(select.value) : null;
+  }
+
+  function adicionarChipResponsavel(box, r){
+    const chips = box.querySelector('.pl-resp-chips');
+    const chave = chaveResponsavel(r);
+    if(Array.from(chips.children).some(c => c.dataset.valor === chave)) return;
+    const chip = document.createElement('span');
+    chip.className = 'pl-resp-chip';
+    chip.dataset.valor = chave;
+    chip.innerHTML = '<span></span><button type="button" aria-label="Remover responsável">×</button>';
+    chip.querySelector('span').textContent = textoResponsavel(r);
+    chip.querySelector('button').addEventListener('click', () => chip.remove());
+    chips.appendChild(chip);
+  }
+
+  function adicionarLinhaIdeal(lista, item, responsavel){
+    const linha = document.createElement('div');
+    linha.className = 'pl-ideal-row';
+    const nome = document.createElement('input');
+    nome.type = 'text';
+    nome.className = 'pl-input pl-ideal-nome';
+    nome.placeholder = 'Item';
+    nome.maxLength = 40;
+    nome.value = item || '';
+    const select = criarSelectResponsavel('Quem conduz', responsavel);
+    select.addEventListener('change', () => {
+      const r = escolhaDoSelect(select);
+      // Cancelar o "Outro (digitar)" mantém quem já estava escolhido.
+      if(r || select.value !== '__texto__') select.dataset.valor = r ? chaveResponsavel(r) : '';
+      preencherSelectResponsavel(select);
+    });
+    const remover = document.createElement('button');
+    remover.type = 'button';
+    remover.className = 'pl-resp-mini-x';
+    remover.setAttribute('aria-label', 'Remover item');
+    remover.textContent = '×';
+    remover.addEventListener('click', () => linha.remove());
+    linha.appendChild(nome);
+    linha.appendChild(select);
+    linha.appendChild(remover);
+    lista.appendChild(linha);
+  }
+
+  // Preenche os responsáveis a partir da área: no Cantinho, o conselheiro de
+  // cada unidade (ou a própria unidade, se não tiver conselheiro); no Cartão
+  // de Classes, os instrutores de cada classe.
+  async function sugerirResponsaveis(box, area){
+    await carregarOpcoesResponsaveis();
+    if(area === 'unidades'){
+      RESP_OPCOES.unidades.forEach(u => {
+        const doUnidade = RESP_OPCOES.conselheiros.filter(c => c.detalhe === 'Conselheiro(a) · ' + u.nome);
+        if(doUnidade.length) doUnidade.forEach(c => adicionarChipResponsavel(box, c));
+        else adicionarChipResponsavel(box, u);
+      });
+    } else if(area === 'classes'){
+      RESP_OPCOES.instrutores.forEach(i => adicionarChipResponsavel(box, i));
+    }
+  }
+
+  // Parte de responsáveis de uma linha da programação (abaixo da atividade).
+  function montarResponsaveisDaLinha(row, extra){
+    carregarOpcoesResponsaveis();
+    const box = document.createElement('div');
+    box.className = 'pl-resp-box';
+    box.innerHTML =
+      '<div class="pl-ideais" style="display:none;">' +
+        '<span class="pl-resp-rotulo">Ideais e quem conduz cada um</span>' +
+        '<div class="pl-ideais-list"></div>' +
+        '<button type="button" class="pl-resp-link pl-ideal-add">+ Item</button>' +
+      '</div>' +
+      '<span class="pl-resp-rotulo">Responsáveis</span>' +
+      '<div class="pl-resp-chips"></div>' +
+      '<div class="pl-resp-add-row"></div>';
+    const addSelect = criarSelectResponsavel('+ Adicionar responsável', null);
+    addSelect.addEventListener('change', () => {
+      const r = escolhaDoSelect(addSelect);
+      if(r) adicionarChipResponsavel(box, r);
+      addSelect.value = '';
+    });
+    const sugerir = document.createElement('button');
+    sugerir.type = 'button';
+    sugerir.className = 'pl-resp-link pl-resp-sugerir';
+    sugerir.textContent = 'Sugerir pela área';
+    sugerir.addEventListener('click', () => sugerirResponsaveis(box, SUGESTAO_POR_ATIVIDADE[getScheduleRowActivity(row)]));
+    box.querySelector('.pl-resp-add-row').appendChild(addSelect);
+    box.querySelector('.pl-resp-add-row').appendChild(sugerir);
+
+    const ideaisWrap = box.querySelector('.pl-ideais');
+    const ideaisList = box.querySelector('.pl-ideais-list');
+    box.querySelector('.pl-ideal-add').addEventListener('click', () => adicionarLinhaIdeal(ideaisList, '', null));
+
+    ((extra && extra.responsaveis) || []).forEach(r => adicionarChipResponsavel(box, r));
+    ((extra && extra.ideais) || []).forEach(i => adicionarLinhaIdeal(ideaisList, i.item, i.responsavel));
+
+    // A lista de Ideais só existe na Abertura; ao escolher a Abertura pela
+    // primeira vez, já vem com os seis ideais do clube.
+    function atualizarPelaAtividade(){
+      const atividade = getScheduleRowActivity(row);
+      const ehAbertura = atividade === ATIVIDADE_IDEAIS;
+      ideaisWrap.style.display = ehAbertura ? '' : 'none';
+      if(ehAbertura && !ideaisList.children.length){
+        IDEAIS_PADRAO.forEach(item => adicionarLinhaIdeal(ideaisList, item, null));
+      }
+      sugerir.style.display = SUGESTAO_POR_ATIVIDADE[atividade] ? '' : 'none';
+    }
+    row.querySelector('.pl-schedule-activity-select').addEventListener('change', atualizarPelaAtividade);
+    row.appendChild(box);
+    atualizarPelaAtividade();
+  }
+
+  // Lê uma linha inteira da programação: horário, atividade e responsáveis.
+  // Os campos novos só entram quando têm conteúdo.
+  function lerLinhaDaProgramacao(row){
+    const item = {
+      horario: row.querySelector('.pl-schedule-time').value || '',
+      atividade: getScheduleRowActivity(row)
+    };
+    const responsaveis = Array.from(row.querySelectorAll('.pl-resp-chip')).map(c => JSON.parse(c.dataset.valor));
+    if(responsaveis.length) item.responsaveis = responsaveis;
+    if(item.atividade === ATIVIDADE_IDEAIS){
+      const ideais = Array.from(row.querySelectorAll('.pl-ideal-row')).map(l => {
+        const valor = l.querySelector('.pl-resp-select').dataset.valor;
+        return { item: l.querySelector('.pl-ideal-nome').value.trim(), responsavel: valor ? JSON.parse(valor) : null };
+      }).filter(i => i.item);
+      if(ideais.length) item.ideais = ideais;
+    }
+    return item;
+  }
+
+  function lerProgramacaoDaLista(container){
+    return Array.from(container.querySelectorAll('.pl-schedule-row'))
+      .map(lerLinhaDaProgramacao)
+      .filter(item => item.horario || item.atividade);
+  }
+
+  // Texto pronto pra ficha do evento e pro PDF.
+  function resumoResponsaveisDoItem(item){
+    const nomes = (item.responsaveis || []).map(textoResponsavel).filter(Boolean);
+    return {
+      responsaveis: nomes.length ? (nomes.length === 1 ? 'Responsável: ' : 'Responsáveis: ') + nomes.join(', ') : '',
+      ideais: (item.ideais || []).map(i => ({ item: i.item, quem: textoResponsavel(i.responsavel) || 'a definir' }))
+    };
   }
 
   // Desenha um emoji num <canvas> e devolve como PNG (data URL) — jsPDF não
@@ -13630,11 +13929,25 @@
     }
 
     const rowH = 12;
+    const extraH = 4.6;
     (data.schedule || []).forEach((item, i) => {
-      if(y > 265){ doc.addPage(); y = 24; }
+      // Ideais e responsáveis ficam em linhas menores logo abaixo da atividade.
+      const resumo = resumoResponsaveisDoItem(item);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const larguraExtra = pageWidth - marginX * 2 - 40;
+      const extras = [];
+      resumo.ideais.forEach(ideal => {
+        doc.splitTextToSize('• ' + ideal.item + ': ' + ideal.quem, larguraExtra).forEach(l => extras.push(l));
+      });
+      if(resumo.responsaveis){
+        doc.splitTextToSize(resumo.responsaveis, larguraExtra).forEach(l => extras.push(l));
+      }
+      const altura = rowH + extras.length * extraH;
+      if(y + altura > 280){ doc.addPage(); y = 24; }
       if(i % 2 === 0){
         doc.setFillColor(240, 248, 242);
-        doc.rect(marginX, y - 7.5, pageWidth - marginX * 2, rowH, 'F');
+        doc.rect(marginX, y - 7.5, pageWidth - marginX * 2, altura, 'F');
       }
       try {
         const iconData = emojiToPngDataURL(scheduleActivityIcon(item.atividade), 64);
@@ -13648,7 +13961,12 @@
       doc.setFontSize(11);
       doc.setTextColor(30, 30, 30);
       doc.text(item.atividade || '', marginX + 36, y);
-      y += rowH;
+      if(extras.length){
+        doc.setFontSize(9);
+        doc.setTextColor(95, 95, 95);
+        extras.forEach((linha, k) => doc.text(linha, marginX + 36, y + 5 + k * extraH));
+      }
+      y += altura;
     });
 
     y += 6;
@@ -13757,10 +14075,7 @@
     }
 
     function lerProgramacaoDaTela(){
-      return Array.from(scheduleList.querySelectorAll('.pl-schedule-row')).map(row => ({
-        horario: row.querySelector('.pl-schedule-time').value || '',
-        atividade: getScheduleRowActivity(row)
-      })).filter(item => item.horario || item.atividade);
+      return lerProgramacaoDaLista(scheduleList);
     }
 
     function lerOficiaisDaTela(){
@@ -13781,7 +14096,7 @@
     function mostrarDia(chave){
       diaEmEdicao = chave;
       scheduleList.innerHTML = '';
-      (progPorDia[chave] || []).forEach(item => buildScheduleRow(scheduleList, item.horario, item.atividade));
+      (progPorDia[chave] || []).forEach(item => buildScheduleRow(scheduleList, item.horario, item.atividade, item));
       const of = oficiaisPorDia[chave] || { ids: [] };
       fieldOfficer1.value = of.ids[0] || '';
       fieldOfficer2.value = of.ids[1] || '';
@@ -13821,7 +14136,7 @@
         diasDoPeriodo = [];
         if(diasPeriodoEl) diasPeriodoEl.style.display = 'none';
         scheduleList.innerHTML = '';
-        unico.forEach(item => buildScheduleRow(scheduleList, item.horario, item.atividade));
+        unico.forEach(item => buildScheduleRow(scheduleList, item.horario, item.atividade, item));
         fieldOfficer1.value = (ofUnico.ids || [])[0] || '';
         fieldOfficer2.value = (ofUnico.ids || [])[1] || '';
         return;
@@ -13997,7 +14312,23 @@
         row.innerHTML = '<span class="pl-view-schedule-icon"></span><span class="pl-view-schedule-time"></span><span class="pl-view-schedule-activity"></span>';
         row.querySelector('.pl-view-schedule-icon').textContent = scheduleActivityIcon(item.atividade);
         row.querySelector('.pl-view-schedule-time').textContent = item.horario || '';
-        row.querySelector('.pl-view-schedule-activity').textContent = item.atividade || '';
+        const atividadeEl = row.querySelector('.pl-view-schedule-activity');
+        atividadeEl.textContent = item.atividade || '';
+        const resumo = resumoResponsaveisDoItem(item);
+        resumo.ideais.forEach(i => {
+          const linha = document.createElement('span');
+          linha.className = 'pl-view-schedule-ideal';
+          linha.innerHTML = '<b></b> <span></span>';
+          linha.querySelector('b').textContent = i.item;
+          linha.querySelector('span').textContent = i.quem;
+          atividadeEl.appendChild(linha);
+        });
+        if(resumo.responsaveis){
+          const linha = document.createElement('span');
+          linha.className = 'pl-view-schedule-resp';
+          linha.textContent = resumo.responsaveis;
+          atividadeEl.appendChild(linha);
+        }
         viewSchedule.appendChild(row);
       });
     }
@@ -14162,6 +14493,8 @@
     function applyProgramacaoDoDiaLock(allowed){
       scheduleList.querySelectorAll('input, select').forEach(el => { el.disabled = !allowed; });
       scheduleList.querySelectorAll('.pl-list-remove-btn').forEach(btn => { btn.style.display = allowed ? '' : 'none'; });
+      // Responsáveis: remover chip, "+ Item" dos Ideais e "Sugerir pela área".
+      scheduleList.querySelectorAll('.pl-resp-box button').forEach(btn => { btn.disabled = !allowed; });
       scheduleAddBtn.style.display = allowed ? '' : 'none';
       if(scheduleTemplateBtn) scheduleTemplateBtn.style.display = allowed ? '' : 'none';
       checklistList.querySelectorAll('input').forEach(el => { el.disabled = !allowed; });
@@ -14206,13 +14539,13 @@
           const chave = item.dia
             ? chaveDoDia(item.mes || parseInt(card.dataset.monIndex, 10), item.dia)
             : chavePrimeiro;
-          (progPorDia[chave] || (progPorDia[chave] = [])).push({ horario: item.horario, atividade: item.atividade });
+          (progPorDia[chave] || (progPorDia[chave] = [])).push({ horario: item.horario, atividade: item.atividade, responsaveis: item.responsaveis, ideais: item.ideais });
         });
         // Oficiais do evento inteiro (formato antigo) viram os do primeiro dia.
         if(!oficiaisPorDia[chavePrimeiro] && editOfficerIds.length){
           oficiaisPorDia[chavePrimeiro] = { ids: editOfficerIds, nomes: parseJSONSafe(card.dataset.officerNames) };
         }
-        (progPorDia[chavePrimeiro] || []).forEach(item => buildScheduleRow(scheduleList, item.horario, item.atividade));
+        (progPorDia[chavePrimeiro] || []).forEach(item => buildScheduleRow(scheduleList, item.horario, item.atividade, item));
         checklistList.innerHTML = '';
         parseJSONSafe(card.dataset.checklist).forEach(item => addChecklistRowEl(item.texto, item.feito));
         fieldShowGallery.checked = card.dataset.showGallery !== '0';
@@ -15198,7 +15531,7 @@
         diasDoPeriodo.forEach(d => {
           (progPorDia[d.chave] || []).forEach(item => {
             if(item.horario || item.atividade){
-              schedule.push({ dia: d.dia, mes: d.mes, horario: item.horario, atividade: item.atividade });
+              schedule.push({ dia: d.dia, mes: d.mes, horario: item.horario, atividade: item.atividade, responsaveis: item.responsaveis, ideais: item.ideais });
             }
           });
         });
@@ -28040,7 +28373,7 @@ const REQ_SUMMARIES = {
         if(!officerCurrentCard) return;
         officerFillEventLabel.textContent = (officerCurrentCard.dataset.title || '') + ' · ' + (officerCurrentCard.dataset.local || '');
         officerScheduleList.innerHTML = '';
-        officerParseJSON(officerCurrentCard.dataset.schedule).forEach(item => buildScheduleRow(officerScheduleList, item.horario, item.atividade));
+        officerParseJSON(officerCurrentCard.dataset.schedule).forEach(item => buildScheduleRow(officerScheduleList, item.horario, item.atividade, item));
         officerNoticeField.value = officerCurrentCard.dataset.notice || '';
         officerChecklistList.innerHTML = '';
         officerParseJSON(officerCurrentCard.dataset.checklist).forEach(item => addOfficerChecklistRow(item.texto, item.feito));
@@ -28053,10 +28386,7 @@ const REQ_SUMMARIES = {
         officerFillPdfBtn.addEventListener('click', () => {
           if(!officerCurrentCard) return;
           const data = buildProgramacaoPDFDataFromCard(officerCurrentCard);
-          data.schedule = Array.from(officerScheduleList.querySelectorAll('.pl-schedule-row')).map(row => ({
-            horario: row.querySelector('.pl-schedule-time').value || '',
-            atividade: getScheduleRowActivity(row)
-          })).filter(item => item.horario || item.atividade);
+          data.schedule = lerProgramacaoDaLista(officerScheduleList);
           data.notice = officerNoticeField.value.trim();
           generateProgramacaoPDF(data);
         });
@@ -28064,10 +28394,7 @@ const REQ_SUMMARIES = {
 
       officerFillSaveBtn.addEventListener('click', async () => {
         if(!officerCurrentCard || !supa) return;
-        const schedule = Array.from(officerScheduleList.querySelectorAll('.pl-schedule-row')).map(row => ({
-          horario: row.querySelector('.pl-schedule-time').value || '',
-          atividade: getScheduleRowActivity(row)
-        })).filter(item => item.horario || item.atividade);
+        const schedule = lerProgramacaoDaLista(officerScheduleList);
         const notice = officerNoticeField.value.trim();
         const checklist = Array.from(officerChecklistList.querySelectorAll('.pl-checklist-row')).map(row => ({
           texto: row.querySelector('.pl-checklist-text').value.trim(),
