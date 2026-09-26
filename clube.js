@@ -23,7 +23,8 @@ window.CLUBE_CONFIG = {
   supabaseAnonKey: 'sb_publishable_82yLwYxh2BQ_DB_9D7K5oA_3xS7CiVi',
 
   // Logo do clube (arquivo na raiz do site, de preferência PNG quadrado com fundo transparente).
-  logo: 'logo.png',
+  // Ao trocar o logo, aumente o ?v= para os celulares não mostrarem o antigo do cache.
+  logo: 'logo.png?v=3',
 };
 
 // =============================================================================
