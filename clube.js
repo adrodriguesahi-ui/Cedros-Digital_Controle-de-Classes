@@ -19,7 +19,7 @@ window.CLUBE_CONFIG = {
   urlPublica: '',
 
   // Projeto Supabase deste clube: Project Settings → API (ou "API Keys").
-  supabaseUrl: 'https://COLE_AQUI.supabase.co',
+  supabaseUrl: 'https://ryxkwaybymeknadyfgay.supabase.co',
   supabaseAnonKey: 'COLE_AQUI_A_CHAVE_PUBLICA',
 
   // Logo do clube (arquivo na raiz do site, de preferência PNG quadrado com fundo transparente).
