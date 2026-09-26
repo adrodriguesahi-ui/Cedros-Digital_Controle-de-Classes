@@ -104,6 +104,7 @@
     <h2>O app já está instalado ✅</h2>
     <p>Você já está usando o app. Ele se atualiza sozinho — é só abrir.</p>
     <a class="btn btn-primary" href="login.html">Abrir o app</a>
+    <a class="btn btn-secondary apk-link" id="apk-instalado" href="#" hidden>Baixar a versão APK (Android)</a>
   </section>
 
   <!-- Aberto dentro do WhatsApp / Instagram / Facebook -->
@@ -119,25 +120,28 @@
   <!-- Android -->
   <section class="card" id="sec-android" hidden>
     <h2>Instalar no Android</h2>
-    <p>Um toque e o app aparece na tela inicial, como qualquer outro.</p>
-    <button class="btn btn-primary" id="btn-instalar" type="button" hidden>
+    <p>Baixe o app e instale como qualquer outro aplicativo.</p>
+    <a class="btn btn-primary apk-link" href="#" download>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-      Instalar app
-    </button>
-    <div id="android-manual">
-      <ol class="steps">
-        <li>Abra esta página no <b>Chrome</b>.</li>
-        <li>Toque nos <b>três pontinhos ⋮</b> no canto superior direito.</li>
-        <li>Escolha <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b> e confirme.</li>
-      </ol>
-    </div>
+      Baixar o app (APK · 11 MB)
+    </a>
+    <ol class="steps">
+      <li>Toque em <b>Baixar o app</b>. Se o Chrome perguntar, toque em <b>Baixar mesmo assim</b>.</li>
+      <li>Quando terminar, toque em <b>Abrir</b> na notificação (ou abra o arquivo em <b>Downloads</b>).</li>
+      <li>Se aparecer <b>"Por segurança, seu telefone não permite instalar apps desta fonte"</b>, toque em <b>Configurações</b> e ative <b>Permitir desta fonte</b>. Depois volte.</li>
+      <li>Toque em <b>Instalar</b>. Se o Play Protect avisar, toque em <b>Mais detalhes → Instalar mesmo assim</b>.</li>
+    </ol>
     <details>
-      <summary>Prefere baixar o APK?</summary>
-      <p>Também funciona e se atualiza sozinho. O Android vai pedir para permitir a instalação de <b>fontes desconhecidas</b> — é só autorizar para o navegador.</p>
-      <a class="btn btn-secondary apk-link" href="#">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-        Baixar APK
-      </a>
+      <summary>Não conseguiu? Instale pelo navegador</summary>
+      <p>Funciona igual e também se atualiza sozinho, sem baixar arquivo.</p>
+      <button class="btn btn-secondary" id="btn-instalar" type="button" hidden>Instalar pelo navegador</button>
+      <div id="android-manual">
+        <ol class="steps">
+          <li>Abra esta página no <b>Chrome</b>.</li>
+          <li>Toque nos <b>três pontinhos ⋮</b> no canto superior direito.</li>
+          <li>Escolha <b>"Instalar app"</b> ou <b>"Adicionar à tela inicial"</b> e confirme.</li>
+        </ol>
+      </div>
     </details>
   </section>
 
@@ -209,6 +213,7 @@
 
   if (standalone) {
     show('sec-instalado');
+    if (isAndroid) show('apk-instalado');
   } else if (isInApp) {
     show('sec-inapp');
     if (isIOS) document.getElementById('inapp-nav').textContent = '"Abrir no Safari"';
@@ -246,6 +251,7 @@
   window.addEventListener('appinstalled', () => {
     ['sec-android', 'sec-desktop', 'sec-ios', 'sec-inapp'].forEach((id) => { const el = document.getElementById(id); if (el) el.hidden = true; });
     show('sec-instalado');
+    if (isAndroid) show('apk-instalado');
   });
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
