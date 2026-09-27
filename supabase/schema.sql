@@ -176,6 +176,9 @@ create table if not exists desbravadores (
 -- Administração → editar usuário (ver usuarios.classe abaixo); índice
 -- parcial porque a maioria das linhas antigas não tem esse vínculo.
 alter table desbravadores add column if not exists usuario_id uuid references usuarios(id) on delete set null;
+-- Data de nascimento do aluno SEM conta no app (cadastrado direto em Classes
+-- Regulares → "+ Aluno"). Quem tem conta usa usuarios.data_nascimento.
+alter table desbravadores add column if not exists data_nascimento date;
 create unique index if not exists desbravadores_usuario_id_key on desbravadores(usuario_id) where usuario_id is not null;
 
 create table if not exists progresso_requisitos (

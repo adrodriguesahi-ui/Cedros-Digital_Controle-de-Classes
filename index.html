@@ -2366,6 +2366,10 @@
   }
   .cl-idade-aviso b{ color:var(--cream); }
   .cl-status-pick-btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .cl-idade-info{ margin:12px 0; padding:9px 12px; border-radius:12px; font-size:12.5px; font-weight:700; line-height:1.45; }
+  .cl-idade-info.ok{ background:rgba(63,203,107,0.1); border:1px solid rgba(63,203,107,0.3); color:var(--accent); }
+  .cl-idade-info.baixo{ background:rgba(255,107,92,0.1); border:1px solid rgba(255,107,92,0.3); color:#FF6B5C; }
+  .cl-idade-info.sem{ background:rgba(255,255,255,0.05); border:1px dashed rgba(255,255,255,0.2); color:rgba(245,239,225,0.65); font-weight:600; }
 
   /* Frequência do ano no requisito "Membro ativo" (mínimo 75%). */
   .cl-freq-bloco{ margin:4px 0 14px; padding:11px 12px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); }
@@ -9398,6 +9402,9 @@
           </div>
           <label class="pl-field-label">Nome do aluno</label>
           <input type="text" class="pl-input" id="clStudentNameInput" placeholder="Nome do desbravador" maxlength="60">
+          <label class="pl-field-label">Data de nascimento</label>
+          <input type="text" class="pl-input" id="clStudentNascInput" placeholder="DD/MM/AAAA" inputmode="numeric" maxlength="10">
+          <p class="pl-reminder-hint" id="clStudentNascHint">Usada para conferir a idade mínima da classe (requisito GE-1).</p>
           <div class="pl-modal-actions">
             <button type="button" class="pl-btn pl-btn-danger" id="clStudentDeleteBtn" style="display:none;">Excluir</button>
             <button type="button" class="pl-btn pl-btn-primary" id="clStudentSaveBtn">Adicionar</button>
@@ -9596,6 +9603,7 @@
 
           <!-- Só no requisito de idade mínima (GE-1) das classes regulares, para
                quem não é da Secretaria. Ver requisitoDeIdade() no script. -->
+          <p class="cl-idade-info" id="clIdadeInfo" style="display:none;"></p>
           <p class="cl-idade-aviso" id="clIdadeSecretariaAviso" style="display:none;">🔒 A comprovação de idade é validada pela <b>Secretaria do clube</b>, que confere a data de nascimento.</p>
 
           <!-- Marcador por requisito: quem gerencia a classe decide quais exigem
@@ -17178,6 +17186,8 @@
     // livros lidos são gravados por usuário, não por desbravador, então o
     // requisito do Curso de Leitura precisa deste caminho pra achar a leitura.
     const STUDENT_USUARIOS = {};
+    // STUDENT_NASC[className][studentName] = 'AAAA-MM-DD' — ver carregarNascimentos().
+    const STUDENT_NASC = {};
     // CLASS_COMPROVANTES[className][studentName][activityTitle] = [{ id, foto, nome }, ...]
     // (um requisito pode ter vários comprovantes) — cache separado do CLASS_PROGRESS
     // acima (que só guarda status) pra não arriscar mexer no que já tá testado;
@@ -17341,6 +17351,25 @@
       gruposParaReagrupar.forEach(g => regroupByArea(g));
     }
 
+    // Datas de nascimento dos alunos: do cadastro do usuário (quem tem conta)
+    // ou do próprio aluno. Consulta à parte e tolerante: se a coluna
+    // desbravadores.data_nascimento ainda não existir, a lista carrega igual.
+    async function carregarNascimentos(alunos){
+      Object.keys(STUDENT_NASC).forEach(k => delete STUDENT_NASC[k]);
+      const porAluno = {}, porUsuario = {};
+      const { data: proprios, error: errProprios } = await supa.from('desbravadores').select('id, data_nascimento');
+      if(!errProprios) (proprios || []).forEach(r => { if(r.data_nascimento) porAluno[r.id] = r.data_nascimento; });
+      const usuarioIds = alunos.map(a => a.usuario_id).filter(Boolean);
+      if(usuarioIds.length){
+        const { data: us } = await supa.from('usuarios').select('id, data_nascimento').in('id', usuarioIds);
+        (us || []).forEach(u => { if(u.data_nascimento) porUsuario[u.id] = u.data_nascimento; });
+      }
+      alunos.forEach(a => {
+        if(!STUDENT_NASC[a.classe]) STUDENT_NASC[a.classe] = {};
+        STUDENT_NASC[a.classe][a.nome] = (a.usuario_id && porUsuario[a.usuario_id]) || porAluno[a.id] || '';
+      });
+    }
+
     async function loadClassDataFromSupabase(){
       if(!supa) return;
       const { data: alunos, error: alunosErr } = await supa.from('desbravadores').select('id, nome, classe, usuario_id');
@@ -17400,6 +17429,7 @@
         CLASS_COMPROVANTES[aluno.classe][aluno.nome] = comprovanteByAluno[aluno.id] || {};
         CLASS_RESUMOS[aluno.classe][aluno.nome] = resumoByAluno[aluno.id] || {};
       });
+      await carregarNascimentos(alunos);
 
       updateHubCounts();
       if(selectedStudent) await carregarAnexosDoAluno();
@@ -17510,10 +17540,76 @@
       });
     }
 
+    // ---- Data de nascimento do aluno ----
+    // Aluno ligado a um usuário usa a data do cadastro (Administração →
+    // Usuários); aluno sem conta guarda em desbravadores.data_nascimento.
+    // STUDENT_NASC[classe][nome] = 'AAAA-MM-DD' (ou vazio).
+    const studentNascInput = document.getElementById('clStudentNascInput');
+    const studentNascHint = document.getElementById('clStudentNascHint');
+    const NASC_HINT_PADRAO = studentNascHint ? studentNascHint.textContent : '';
+
+    function nascIsoToBr(iso){
+      if(!iso) return '';
+      const [a, m, d] = String(iso).slice(0, 10).split('-');
+      return d + '/' + m + '/' + a;
+    }
+    function nascBrToIso(br){
+      const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec((br || '').trim());
+      if(!m) return null;
+      const dia = +m[1], mes = +m[2], ano = +m[3];
+      const dt = new Date(ano, mes - 1, dia);
+      if(dt.getFullYear() !== ano || dt.getMonth() !== mes - 1 || dt.getDate() !== dia || dt > new Date()) return null;
+      return m[3] + '-' + m[2] + '-' + m[1];
+    }
+    function idadeHoje(iso){
+      if(!iso) return null;
+      const [a, m, d] = String(iso).slice(0, 10).split('-').map(Number);
+      const hoje = new Date();
+      let idade = hoje.getFullYear() - a;
+      if(hoje.getMonth() + 1 < m || (hoje.getMonth() + 1 === m && hoje.getDate() < d)) idade--;
+      return idade;
+    }
+    function nascimentoDe(className, nome){ return (STUDENT_NASC[className] || {})[nome] || ''; }
+
+    if(studentNascInput){
+      studentNascInput.addEventListener('input', () => {
+        studentNascInput.style.borderColor = '';
+        const dig = studentNascInput.value.replace(/\D/g, '').slice(0, 8);
+        studentNascInput.value = dig.length > 4 ? dig.slice(0, 2) + '/' + dig.slice(2, 4) + '/' + dig.slice(4)
+          : dig.length > 2 ? dig.slice(0, 2) + '/' + dig.slice(2) : dig;
+        const iso = nascBrToIso(studentNascInput.value);
+        if(studentNascHint) studentNascHint.textContent = iso ? ('Idade hoje: ' + idadeHoje(iso) + ' anos.') : NASC_HINT_PADRAO;
+      });
+    }
+
+    // Grava a data: no cadastro do usuário, se o aluno tiver conta; senão no
+    // próprio aluno. Devolve uma mensagem de erro (ou '').
+    async function salvarNascimento(className, nome, iso){
+      if(!STUDENT_NASC[className]) STUDENT_NASC[className] = {};
+      STUDENT_NASC[className][nome] = iso || '';
+      if(!supa) return '';
+      const usuarioId = (STUDENT_USUARIOS[className] || {})[nome];
+      const alunoId = (STUDENT_IDS[className] || {})[nome];
+      const { error } = usuarioId
+        ? await supa.from('usuarios').update({ data_nascimento: iso || null }).eq('id', usuarioId)
+        : (alunoId ? await supa.from('desbravadores').update({ data_nascimento: iso || null }).eq('id', alunoId) : { error: null });
+      if(!error) return '';
+      console.error('Erro ao salvar data de nascimento:', error.message);
+      return /data_nascimento/.test(error.message)
+        ? 'A coluna de data de nascimento ainda não existe no banco. Rode o trecho novo de supabase/schema.sql no Supabase.'
+        : error.message;
+    }
+
     function openEditStudentModal(name){
       editingStudentName = name;
       studentModalTitle.textContent = 'Editar Aluno';
       studentNameInput.value = name;
+      if(studentNascInput){
+        const iso = nascimentoDe(currentClass, name);
+        studentNascInput.value = nascIsoToBr(iso);
+        studentNascInput.style.borderColor = '';
+        if(studentNascHint) studentNascHint.textContent = iso ? ('Idade hoje: ' + idadeHoje(iso) + ' anos.') : NASC_HINT_PADRAO;
+      }
       studentSaveBtn.textContent = 'Salvar';
       studentDeleteBtn.style.display = '';
       studentModalOverlay.classList.add('show');
@@ -17641,8 +17737,10 @@
           studentProgressSummary.querySelector('.cl-student-panel-name').textContent = selectedStudent;
           studentProgressSummary.querySelector('.cl-student-panel-pct').textContent = pct + '%';
           studentProgressSummary.querySelector('.cl-student-panel-bar > span').style.width = pct + '%';
+          const nasc = nascimentoDe(currentClass, selectedStudent);
           studentProgressSummary.querySelector('.cl-student-panel-sub').textContent =
-            doneCount + ' de ' + totalCount + ' requisitos concluídos · faltam ' + (totalCount - doneCount);
+            doneCount + ' de ' + totalCount + ' requisitos concluídos · faltam ' + (totalCount - doneCount) +
+            (nasc ? ' · ' + idadeHoje(nasc) + ' anos' : ' · sem data de nascimento');
         } else {
           studentProgressSummary.style.display = 'none';
         }
@@ -17657,6 +17755,8 @@
       editingStudentName = null;
       studentModalTitle.textContent = 'Adicionar Aluno';
       studentNameInput.value = '';
+      if(studentNascInput){ studentNascInput.value = ''; studentNascInput.style.borderColor = ''; }
+      if(studentNascHint) studentNascHint.textContent = NASC_HINT_PADRAO;
       studentSaveBtn.textContent = 'Adicionar';
       studentDeleteBtn.style.display = 'none';
       studentModalOverlay.classList.add('show');
@@ -17667,6 +17767,10 @@
     studentSaveBtn.addEventListener('click', async () => {
       const name = studentNameInput.value.trim();
       if(!name){ studentNameInput.style.borderColor = '#FF6B5C'; return; }
+      // Data opcional; se digitada, precisa ser válida.
+      const nascTexto = studentNascInput ? studentNascInput.value.trim() : '';
+      const nascIso = nascTexto ? nascBrToIso(nascTexto) : '';
+      if(nascTexto && !nascIso){ studentNascInput.style.borderColor = '#FF6B5C'; studentNascInput.focus(); return; }
       ensureClassData(currentClass);
 
       if(editingStudentName){
@@ -17679,6 +17783,10 @@
           delete CLASS_PROGRESS[currentClass][oldName];
           STUDENT_IDS[currentClass][name] = STUDENT_IDS[currentClass][oldName];
           delete STUDENT_IDS[currentClass][oldName];
+          if(STUDENT_USUARIOS[currentClass]){
+            STUDENT_USUARIOS[currentClass][name] = STUDENT_USUARIOS[currentClass][oldName];
+            delete STUDENT_USUARIOS[currentClass][oldName];
+          }
           if(selectedStudent === oldName) selectedStudent = name;
 
           const id = STUDENT_IDS[currentClass][name];
@@ -17686,6 +17794,12 @@
             const { error } = await supa.from('desbravadores').update({ nome: name }).eq('id', id);
             if(error) console.error('Erro ao renomear desbravador:', error.message);
           }
+        }
+        if(nascIso !== nascimentoDe(currentClass, oldName)){
+          const erroNasc = await salvarNascimento(currentClass, name, nascIso);
+          if(erroNasc) alert('O nome foi salvo, mas a data de nascimento não: ' + erroNasc);
+        } else if(oldName !== name && STUDENT_NASC[currentClass]){
+          STUDENT_NASC[currentClass][name] = STUDENT_NASC[currentClass][oldName] || '';
         }
         studentModalOverlay.classList.remove('show');
         selectStudent(selectedStudent);
@@ -17702,6 +17816,10 @@
         const { data, error } = await supa.from('desbravadores').insert({ nome: name, classe: currentClass }).select('id').single();
         if(error) console.error('Erro ao salvar desbravador:', error.message);
         else STUDENT_IDS[currentClass][name] = data.id;
+      }
+      if(nascIso){
+        const erroNasc = await salvarNascimento(currentClass, name, nascIso);
+        if(erroNasc) alert('O aluno foi adicionado, mas a data de nascimento não: ' + erroNasc);
       }
     });
     studentNameInput.addEventListener('input', () => { studentNameInput.style.borderColor = ''; });
@@ -18717,6 +18835,25 @@
       const ehIdade = requisitoDeIdade(currentClass, card);
       const validaIdade = ehIdade && podeValidarIdade();
       if(idadeSecretariaAviso) idadeSecretariaAviso.style.display = (ehIdade && !validaIdade) ? '' : 'none';
+      // Data de nascimento e idade do aluno, pra Secretaria conferir.
+      const idadeInfo = document.getElementById('clIdadeInfo');
+      if(idadeInfo){
+        idadeInfo.style.display = ehIdade ? '' : 'none';
+        if(ehIdade){
+          const nasc = nascimentoDe(currentClass, selectedStudent);
+          const minima = parseInt(((card.dataset.desc || '').match(/(\d+)\s*anos/) || [])[1], 10);
+          if(nasc){
+            const idade = idadeHoje(nasc);
+            const ok = !minima || idade >= minima;
+            idadeInfo.className = 'cl-idade-info ' + (ok ? 'ok' : 'baixo');
+            idadeInfo.textContent = 'Nascimento: ' + nascIsoToBr(nasc) + ' · ' + idade + ' anos' +
+              (minima ? (ok ? ' ✓ (mínimo ' + minima + ')' : ' — abaixo do mínimo de ' + minima) : '');
+          } else {
+            idadeInfo.className = 'cl-idade-info sem';
+            idadeInfo.textContent = 'Sem data de nascimento cadastrada. Informe em Editar Aluno (lápis no nome) ou em Administração → Usuários.';
+          }
+        }
+      }
       statusPickOverlay.querySelectorAll('.cl-status-pick-btn').forEach(btn => {
         btn.disabled = ehIdade && !validaIdade;
       });
