@@ -2327,6 +2327,21 @@
     margin:12px 0 0; font-size:13px; line-height:1.55; color:rgba(245,239,225,0.78);
     white-space:pre-line;
   }
+  /* Frequência do ano no requisito "Membro ativo" (mínimo 75%). */
+  .cl-freq-bloco{ margin:4px 0 14px; padding:11px 12px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); }
+  .cl-freq-topo{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .cl-freq-titulo{ font-size:11px; font-weight:900; letter-spacing:0.03em; text-transform:uppercase; color:rgba(245,239,225,0.6); }
+  .cl-freq-selo{ flex-shrink:0; padding:3px 9px; border-radius:10px; font-size:11px; font-weight:900; }
+  .cl-freq-selo.ok{ background:rgba(63,203,107,0.16); color:var(--accent); }
+  .cl-freq-selo.baixo{ background:rgba(255,107,92,0.16); color:#FF6B5C; }
+  .cl-freq-selo.sem{ background:rgba(255,255,255,0.08); color:rgba(245,239,225,0.6); }
+  .cl-freq-barra{ position:relative; height:9px; border-radius:6px; background:rgba(255,255,255,0.08); overflow:visible; }
+  .cl-freq-fill{ display:block; height:100%; width:0; border-radius:6px; background:#FF6B5C; transition:width .4s ease; }
+  .cl-freq-fill.ok{ background:var(--accent); }
+  .cl-freq-meta{ position:absolute; left:75%; top:-4px; bottom:-4px; width:2px; border-radius:2px; background:var(--gold); }
+  .cl-freq-texto{ margin:8px 0 0; font-size:12px; font-weight:600; line-height:1.45; color:rgba(245,239,225,0.75); }
+  .cl-freq-texto b{ color:var(--cream); }
+
   .cl-req-observacao{
     margin:10px 0 0; padding:10px 12px; border-radius:12px;
     background:rgba(216,168,62,0.09); border:1px solid rgba(216,168,62,0.22);
@@ -9510,6 +9525,18 @@
             <div class="un-mini-list" id="clLivrosLidosLista"></div>
           </div>
 
+          <!-- Só no requisito "Membro ativo" (GE-2) das classes regulares: a
+               frequência do ano na Chamada de Presença, com o mínimo de 75%.
+               Ver atualizarBlocoFrequencia() no script. -->
+          <div class="cl-freq-bloco" id="clFreqBloco" style="display:none;">
+            <div class="cl-freq-topo">
+              <span class="cl-freq-titulo" id="clFreqTitulo">Frequência na Chamada de Presença</span>
+              <span class="cl-freq-selo" id="clFreqSelo"></span>
+            </div>
+            <div class="cl-freq-barra"><span class="cl-freq-fill" id="clFreqFill"></span><span class="cl-freq-meta" title="Mínimo: 75%"></span></div>
+            <p class="cl-freq-texto" id="clFreqTexto">Carregando frequência…</p>
+          </div>
+
           <div class="cl-status-pick-options">
             <button type="button" class="cl-status-pick-btn" data-status="todo" data-color="gray" data-label="Não iniciada">Não iniciada</button>
             <button type="button" class="cl-status-pick-btn" data-status="progress" data-color="gold" data-label="Em andamento">Em andamento</button>
@@ -9537,6 +9564,7 @@
           <label class="pl-field-label" id="clFieldResumoLabel">Resumo do que foi feito</label>
           <textarea class="pl-input" id="clFieldResumo" rows="3" maxlength="500" placeholder="Ex.: acampou duas noites no sítio, montou a barraca sozinho e cozinhou no fogo de chão."></textarea>
           <p class="pl-reminder-hint" id="clResumoHint">Fica guardado na ficha do desbravador junto com o comprovante.</p>
+          <button type="button" class="pl-btn pl-list-template-btn" id="clRelatorioAnualBtn" style="display:none; width:100%; margin:10px 0 0; color:var(--accent);"><svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>Preencher resumo com o relatório anual</button>
 
           <label class="pl-field-label" id="clComprovanteLabel"><svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Comprovação (opcional)</label>
           <div class="cl-photo-row">
@@ -18558,6 +18586,9 @@
       if(fieldResumo){
         fieldResumo.value = (CLASS_RESUMOS[currentClass][selectedStudent] || {})[card.dataset.title] || '';
         fieldResumo.style.borderColor = '';
+        // O relatório anual do "Membro ativo" pode passar dos 500 caracteres.
+        fieldResumo.maxLength = Math.max(500, fieldResumo.value.length);
+        fieldResumo.rows = fieldResumo.value.indexOf('\n') !== -1 ? Math.min(10, fieldResumo.value.split('\n').length + 2) : 3;
       }
       pintarLivrosDoRequisito(card);
       // Só quem gerencia a classe define o que exige comprovação.
@@ -18565,8 +18596,153 @@
       if(reqExigirToggle) reqExigirToggle.checked = exigeComprovacao(currentClass, card.dataset.title);
       applyExigenciaUI();
       if(declaracaoIdadeBtn) declaracaoIdadeBtn.style.display = dadosDeclaracaoIdade(currentClass, card) ? '' : 'none';
+      atualizarBlocoFrequencia(card);
 
       statusPickOverlay.classList.add('show');
+    }
+
+    // ---- Membro ativo (GE-2 das classes regulares): frequência mínima de 75% ----
+    // A frequência vem da Chamada de Presença do ano: reuniões que contam pra
+    // frequência em que o desbravador estava na lista (presente e atraso contam
+    // como presença), a mesma conta do Painel de Frequência da Secretaria.
+    const FREQ_MINIMA = 75;
+    const freqBloco = document.getElementById('clFreqBloco');
+    const freqTitulo = document.getElementById('clFreqTitulo');
+    const freqSelo = document.getElementById('clFreqSelo');
+    const freqFill = document.getElementById('clFreqFill');
+    const freqTexto = document.getElementById('clFreqTexto');
+    const relatorioAnualBtn = document.getElementById('clRelatorioAnualBtn');
+    let freqAtual = null; // { chave, pct, ... } do requisito aberto
+
+    function ehMembroAtivo(className, card){
+      return !!(CLASSE_AVANCADA[className] && card && /^GE-2\./.test(card.dataset.title || '') && /membro ativo/i.test(card.dataset.title || ''));
+    }
+
+    // Tudo o que o relatório anual usa: frequência, eventos, especialidades.
+    async function coletarAtividadesDoAno(className, alunoNome){
+      const ano = new Date().getFullYear();
+      const res = { ano, usuarioId: null, nome: alunoNome, unidade: '', total: 0, presente: 0, atraso: 0, falta: 0, pct: null, eventos: [], especialidades: [] };
+      const alunoId = (STUDENT_IDS[className] || {})[alunoNome];
+      if(!supa || !alunoId) return res;
+      const { data: desb } = await supa.from('desbravadores').select('usuario_id').eq('id', alunoId).maybeSingle();
+      if(!desb || !desb.usuario_id) return res;
+      res.usuarioId = desb.usuario_id;
+      const [{ data: usuario }, { data: chamadas }, { data: especialidades }] = await Promise.all([
+        supa.from('usuarios').select('nome, unidade').eq('id', desb.usuario_id).maybeSingle(),
+        supa.from('chamadas').select('id, data, titulo, conta_presenca').eq('ano', ano).order('data'),
+        supa.from('especialidades_concluidas').select('especialidade').eq('usuario_id', desb.usuario_id).eq('ano', ano)
+      ]);
+      if(usuario){ res.nome = usuario.nome || alunoNome; res.unidade = usuario.unidade || ''; }
+      res.especialidades = (especialidades || []).map(e => e.especialidade);
+      const ids = (chamadas || []).map(c => c.id);
+      if(!ids.length) return res;
+      const { data: presencas } = await supa.from('chamada_presencas').select('chamada_id, presente, status')
+        .eq('usuario_id', desb.usuario_id).in('chamada_id', ids);
+      const porChamada = {};
+      (presencas || []).forEach(p => { porChamada[p.chamada_id] = p; });
+      (chamadas || []).forEach(c => {
+        const p = porChamada[c.id];
+        if(!p) return;
+        const status = p.status === 'atrasado' ? 'atraso' : p.status === 'pontual' ? 'presente'
+          : (p.status || (p.presente === false ? 'falta' : 'presente'));
+        if(c.conta_presenca !== false){
+          res.total++;
+          res[status === 'falta' ? 'falta' : status === 'atraso' ? 'atraso' : 'presente']++;
+        } else if(status !== 'falta'){
+          // Eventos que não contam pra frequência (acampamentos etc.) entram no relatório.
+          const [, m, d] = c.data.split('-');
+          res.eventos.push(c.titulo + ' (' + d + '/' + m + ')');
+        }
+      });
+      res.pct = res.total ? Math.round(((res.presente + res.atraso) / res.total) * 100) : null;
+      return res;
+    }
+
+    async function atualizarBlocoFrequencia(card){
+      const mostrar = ehMembroAtivo(currentClass, card);
+      if(freqBloco) freqBloco.style.display = mostrar ? '' : 'none';
+      if(relatorioAnualBtn) relatorioAnualBtn.style.display = mostrar ? '' : 'none';
+      freqAtual = null;
+      if(!mostrar || !freqBloco) return;
+      const chave = currentClass + '|' + selectedStudent + '|' + card.dataset.title;
+      freqTitulo.textContent = 'Frequência na Chamada de Presença · ' + new Date().getFullYear();
+      freqSelo.className = 'cl-freq-selo sem'; freqSelo.textContent = '…';
+      freqFill.style.width = '0%'; freqFill.className = 'cl-freq-fill';
+      freqTexto.textContent = 'Carregando frequência…';
+      let dados;
+      try { dados = await coletarAtividadesDoAno(currentClass, selectedStudent); }
+      catch(e){ console.error('Erro ao calcular frequência:', e); dados = { total: 0, pct: null, usuarioId: null }; }
+      // O modal pode ter sido trocado de requisito/aluno enquanto carregava.
+      if(!statusPickCard || currentClass + '|' + selectedStudent + '|' + statusPickCard.dataset.title !== chave) return;
+      freqAtual = Object.assign({ chave }, dados);
+      if(!dados.usuarioId){
+        freqSelo.textContent = 'Sem cadastro';
+        freqTexto.textContent = 'Este desbravador não está ligado a um usuário do app, então a frequência da Chamada de Presença não pode ser conferida. Vincule o cartão em Administração → Usuários.';
+        return;
+      }
+      if(!dados.total){
+        freqSelo.textContent = 'Sem chamadas';
+        freqTexto.textContent = 'Nenhuma chamada que conta para a frequência em ' + dados.ano + ' com este desbravador na lista.';
+        return;
+      }
+      const ok = dados.pct >= FREQ_MINIMA;
+      freqSelo.className = 'cl-freq-selo ' + (ok ? 'ok' : 'baixo');
+      freqSelo.textContent = ok ? '✓ Em conformidade' : 'Abaixo de ' + FREQ_MINIMA + '%';
+      freqFill.className = 'cl-freq-fill' + (ok ? ' ok' : '');
+      freqFill.style.width = dados.pct + '%';
+      freqTexto.innerHTML = '<b></b> — <span></span>';
+      freqTexto.querySelector('b').textContent = dados.pct + '% de frequência';
+      freqTexto.querySelector('span').textContent =
+        (dados.presente + dados.atraso) + ' de ' + dados.total + ' reuniões (' + contagemFrequencia(dados, ', ') +
+        '). Mínimo exigido: ' + FREQ_MINIMA + '%.';
+    }
+
+    function plural(n, singular, plural){ return n + ' ' + (n === 1 ? singular : plural); }
+    function contagemFrequencia(d, ultimoSeparador){
+      return plural(d.presente, 'presença', 'presenças') + ', ' + plural(d.atraso, 'atraso', 'atrasos') +
+        ultimoSeparador + plural(d.falta, 'falta', 'faltas');
+    }
+
+    // Monta o texto do relatório de atividades do ano pro campo de resumo.
+    function textoRelatorioAnual(d, className, alunoNome){
+      const group = findClassGroup(className);
+      const cards = group ? Array.from(group.querySelectorAll('.cl-activity-card')) : [];
+      const progresso = (CLASS_PROGRESS[className] || {})[alunoNome] || {};
+      const concluidos = cards.filter(c => progresso[c.dataset.title] === 'done').length;
+      const lista = (itens, max) => itens.length <= max ? itens.join(', ') : itens.slice(0, max).join(', ') + ' e mais ' + (itens.length - max);
+      const linhas = ['Relatório de atividades ' + d.ano + ' — ' + d.nome + (d.unidade ? ' (Unidade ' + d.unidade + ')' : '') + '.'];
+      if(d.total){
+        linhas.push('Frequência nas reuniões: ' + (d.presente + d.atraso) + ' de ' + d.total + ' (' + d.pct + '%), com ' +
+          contagemFrequencia(d, ' e ') + '.');
+      }
+      if(d.eventos.length) linhas.push('Participou de: ' + lista(d.eventos, 4) + '.');
+      if(d.especialidades.length) linhas.push('Especialidades concluídas no ano: ' + lista(d.especialidades, 4) + '.');
+      linhas.push('Requisitos concluídos no cartão de ' + className + ': ' + concluidos + ' de ' + cards.length + '.');
+      if(d.pct != null){
+        linhas.push(d.pct >= FREQ_MINIMA
+          ? 'Situação: membro ativo, com frequência acima do mínimo de ' + FREQ_MINIMA + '%.'
+          : 'Situação: frequência abaixo do mínimo de ' + FREQ_MINIMA + '%.');
+      }
+      return linhas.join('\n');
+    }
+
+    if(relatorioAnualBtn){
+      relatorioAnualBtn.addEventListener('click', async () => {
+        if(!statusPickCard || !selectedStudent || !fieldResumo) return;
+        const chave = currentClass + '|' + selectedStudent + '|' + statusPickCard.dataset.title;
+        const dados = (freqAtual && freqAtual.chave === chave) ? freqAtual : await coletarAtividadesDoAno(currentClass, selectedStudent);
+        if(!dados.usuarioId){
+          alert('Este desbravador não está ligado a um usuário do app, então não há chamadas nem especialidades para o relatório.');
+          return;
+        }
+        const texto = textoRelatorioAnual(dados, currentClass, selectedStudent);
+        if(fieldResumo.value.trim() && !confirm('Substituir o resumo atual pelo relatório de atividades do ano?')) return;
+        // O relatório pode passar do limite normal do resumo.
+        fieldResumo.maxLength = Math.max(500, texto.length + 200);
+        fieldResumo.value = texto;
+        fieldResumo.rows = Math.min(14, Math.ceil(texto.length / 38) + 2);
+        fieldResumo.style.borderColor = '';
+      });
     }
 
     // ---- Declaração de Verificação de Idade (requisito GE-1 das classes regulares) ----
@@ -18982,6 +19158,18 @@
           }
           if(resumoHint) resumoHint.textContent = 'Escreva um resumo do que foi feito pra poder concluir este requisito.';
           return;
+        }
+
+        // "Membro ativo" pede 75% de frequência na Chamada de Presença.
+        if(status === 'done' && ehMembroAtivo(currentClass, statusPickCard)){
+          const chave = currentClass + '|' + selectedStudent + '|' + requisitoTitulo;
+          const f = (freqAtual && freqAtual.chave === chave) ? freqAtual : null;
+          let aviso = '';
+          if(!f) aviso = 'A frequência ainda está sendo carregada.';
+          else if(!f.usuarioId) aviso = 'Não foi possível conferir a frequência: o desbravador não está ligado a um usuário do app.';
+          else if(!f.total) aviso = 'Não há chamadas que contam para a frequência em ' + f.ano + ' com este desbravador.';
+          else if(f.pct < FREQ_MINIMA) aviso = 'A frequência de ' + f.nome + ' é de ' + f.pct + '%, abaixo do mínimo de ' + FREQ_MINIMA + '%.';
+          if(aviso && !confirm(aviso + '\n\nMarcar "Membro ativo" como concluído mesmo assim?')) return;
         }
 
         await aplicarStatusRequisito(statusPickCard, status, { resumo: resumo, fecharModal: true });
