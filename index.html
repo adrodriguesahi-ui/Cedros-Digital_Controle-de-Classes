@@ -2327,6 +2327,26 @@
     margin:12px 0 0; font-size:13px; line-height:1.55; color:rgba(245,239,225,0.78);
     white-space:pre-line;
   }
+  /* Dicas e ideias para cumprir o requisito (seção recolhível). */
+  .cl-dicas{ margin:4px 0 14px; border-radius:14px; background:rgba(216,168,62,0.08); border:1px solid rgba(216,168,62,0.3); }
+  .cl-dicas summary{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; list-style:none;
+    padding:11px 12px; font-size:13px; font-weight:900; color:var(--gold);
+  }
+  .cl-dicas summary::-webkit-details-marker{ display:none; }
+  .cl-dicas summary svg{ flex-shrink:0; transition:transform .2s ease; }
+  .cl-dicas[open] summary svg{ transform:rotate(180deg); }
+  .cl-dicas-corpo{ padding:0 12px 12px; display:flex; flex-direction:column; gap:12px; }
+  .cl-dicas-sec h5{ margin:0 0 6px; font-size:11px; font-weight:900; letter-spacing:0.03em; text-transform:uppercase; color:rgba(245,239,225,0.65); }
+  .cl-dicas-sec ul, .cl-dicas-sec ol{ margin:0; padding-left:18px; display:flex; flex-direction:column; gap:5px; }
+  .cl-dicas-sec li{ font-size:12.5px; line-height:1.45; color:rgba(245,239,225,0.85); }
+  .cl-dicas-sec li b{ color:var(--cream); }
+  .cl-dicas-citacao{
+    margin:0; padding:9px 11px; border-radius:10px; background:rgba(0,0,0,0.22); border-left:3px solid var(--gold);
+    font-size:12.5px; line-height:1.5; color:var(--cream); white-space:pre-line;
+  }
+  .cl-dicas-citacao + .cl-dicas-citacao{ margin-top:6px; }
+
   /* Frequência do ano no requisito "Membro ativo" (mínimo 75%). */
   .cl-freq-bloco{ margin:4px 0 14px; padding:11px 12px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); }
   .cl-freq-topo{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
@@ -9505,6 +9525,13 @@
           <p class="cl-req-subtitulo" id="clStatusPickSub" style="display:none;"></p>
           <p class="cl-req-descricao" id="clStatusPickDesc" style="display:none;"></p>
           <p class="cl-req-observacao" id="clStatusPickObs" style="display:none;"></p>
+
+          <!-- Dicas e ideias de como cumprir o requisito (catálogo DICAS_REQUISITOS
+               no script). Fechado por padrão, pra não empurrar o resto da tela. -->
+          <details class="cl-dicas" id="clDicasBloco" style="display:none;">
+            <summary><span>💡 Dicas e ideias para cumprir</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></summary>
+            <div class="cl-dicas-corpo" id="clDicasCorpo"></div>
+          </details>
 
           <!-- Sub-itens do requisito, quando o Coordenador definiu algum. Cada um
                guarda sua marcação, seu resumo e seus anexos, e juntos decidem o
@@ -18597,8 +18624,105 @@
       applyExigenciaUI();
       if(declaracaoIdadeBtn) declaracaoIdadeBtn.style.display = dadosDeclaracaoIdade(currentClass, card) ? '' : 'none';
       atualizarBlocoFrequencia(card);
+      renderDicasRequisito(currentClass, card);
 
       statusPickOverlay.classList.add('show');
+    }
+
+    // ---- Dicas e ideias para cumprir cada requisito ----
+    // Chave: "Classe|título do requisito" (o título original do catálogo). Cada
+    // seção tem um título e/ou citações (texto destacado) e itens (lista). Pra
+    // dar dicas a outro requisito, é só acrescentar uma entrada aqui.
+    const DICAS_REQUISITOS = {
+      'Amigo|GE-3. Voto e Lei do Desbravador': [
+        { titulo: 'Texto do Voto e da Lei', citacoes: [
+          'VOTO: Pela graça de Deus, serei puro, bondoso e leal. Guardarei a Lei do Desbravador. Serei servo de Deus e amigo de todos.',
+          'LEI: A Lei do Desbravador ordena-me:\n1. Observar a devoção matinal.\n2. Cumprir fielmente a parte que me corresponde.\n3. Cuidar de meu corpo.\n4. Manter a consciência limpa.\n5. Ser cortês e obediente.\n6. Andar com reverência na casa de Deus.\n7. Ter sempre um cântico no coração.\n8. Ir aonde Deus mandar.'
+        ] },
+        { titulo: 'O que o caderno de Amigo pede', ordenada: true, itens: [
+          '<b>Memorizar e recitar o Voto</b> sem ajuda.',
+          '<b>Explicar o Voto</b> com suas palavras (linhas do caderno).',
+          '<b>Ilustrar o Voto</b> com fotos, desenhos ou colagem.',
+          '<b>Encontrar um verso bíblico</b> que confirme o significado do Voto.',
+          '<b>Memorizar e recitar a Lei</b> (os 8 itens).',
+          '<b>Explicar a Lei</b> com suas palavras (no caderno está escrito "significado do voto", mas a página é da Lei).',
+          '<b>Ilustrar a Lei</b> com fotos, desenhos ou colagem.'
+        ] },
+        { titulo: 'Para memorizar', itens: [
+          '<b>Palavras embaralhadas:</b> cartões com as palavras do Voto ou os itens da Lei; a unidade monta na ordem certa contra o relógio.',
+          '<b>Voto com gestos:</b> um gesto para cada parte (puro = mão no coração, bondoso = mão estendida, leal = continência).',
+          '<b>Cantar:</b> o Voto e a Lei com uma melodia conhecida ou o hino.',
+          '<b>Complete a frase:</b> o instrutor começa ("Cuidar de…") e o desbravador termina.',
+          '<b>Na abertura:</b> os desbravadores de Amigo recitam o Voto e a Lei no momento dos Ideais da Reunião Regular.',
+          '<b>Cartão de bolso:</b> ler antes de dormir e na devoção matinal (item 1 da Lei).'
+        ] },
+        { titulo: 'Para explicar', itens: [
+          '<b>Perguntas-guia:</b> o que é ser puro? Como posso ser bondoso esta semana? A quem sou leal?',
+          '<b>Roda de conversa</b> com o conselheiro: cada um explica com as próprias palavras.',
+          '<b>Teatro da unidade:</b> encenar uma situação e os outros descobrem qual item da Lei aparece.',
+          '<b>Diário de 8 dias:</b> um item da Lei por dia, anotando como praticou.'
+        ] },
+        { titulo: 'Para ilustrar (fotos, desenhos ou colagem)', itens: [
+          '<b>Oficina de colagem:</b> uma reunião com revistas, tesoura e cola para ilustrar o Voto e a Lei em unidade.',
+          '<b>Fotos em ação:</b> o desbravador se fotografa praticando cada item (ajudando em casa, na igreja, cantando).',
+          '<b>Mural da Lei:</b> as ilustrações dos 8 itens viram um painel no Cantinho da Unidade.'
+        ] },
+        { titulo: 'Versos bíblicos para o Voto', itens: [
+          '<b>Puro:</b> Mateus 5:8',
+          '<b>Bondoso:</b> Efésios 4:32',
+          '<b>Leal:</b> Provérbios 17:17',
+          '<b>Servo de Deus:</b> Josué 24:15',
+          '<b>Amigo de todos:</b> Provérbios 18:24',
+          '<b>O do caderno:</b> Salmo 71:17, "Desde a minha juventude, ó Deus, tens me ensinado…"'
+        ] },
+        { titulo: 'Versos para explicar a Lei', itens: [
+          '<b>1. Devoção matinal:</b> Salmo 5:3',
+          '<b>2. Cumprir fielmente:</b> Colossenses 3:23',
+          '<b>3. Cuidar do corpo:</b> 1 Coríntios 6:19-20',
+          '<b>4. Consciência limpa:</b> Atos 24:16',
+          '<b>5. Cortês e obediente:</b> Efésios 6:1',
+          '<b>6. Reverência:</b> Eclesiastes 5:1',
+          '<b>7. Cântico no coração:</b> Efésios 5:19',
+          '<b>8. Ir aonde Deus mandar:</b> Isaías 6:8'
+        ] },
+        { titulo: 'Como registrar aqui no app', itens: [
+          '<b>Foto da página do caderno</b> preenchida, em Comprovação.',
+          '<b>Vídeo curto</b> do desbravador recitando o Voto e a Lei.',
+          '<b>Resumo</b> com a data e onde foi feito, ex.: "Recitou na abertura de 06/09 e apresentou colagem da Lei."'
+        ] }
+      ]
+    };
+
+    const dicasBloco = document.getElementById('clDicasBloco');
+    const dicasCorpo = document.getElementById('clDicasCorpo');
+
+    function renderDicasRequisito(className, card){
+      if(!dicasBloco) return;
+      const secoes = card ? DICAS_REQUISITOS[className + '|' + card.dataset.title] : null;
+      dicasBloco.style.display = secoes ? '' : 'none';
+      dicasBloco.open = false;
+      dicasCorpo.innerHTML = '';
+      if(!secoes) return;
+      secoes.forEach(sec => {
+        const el = document.createElement('div');
+        el.className = 'cl-dicas-sec';
+        const h = document.createElement('h5');
+        h.textContent = sec.titulo;
+        el.appendChild(h);
+        (sec.citacoes || []).forEach(texto => {
+          const p = document.createElement('p');
+          p.className = 'cl-dicas-citacao';
+          p.textContent = texto;
+          el.appendChild(p);
+        });
+        if(sec.itens){
+          // Os itens são texto fixo do catálogo acima (com <b>), nunca dado de usuário.
+          const lista = document.createElement(sec.ordenada ? 'ol' : 'ul');
+          lista.innerHTML = sec.itens.map(i => '<li>' + i + '</li>').join('');
+          el.appendChild(lista);
+        }
+        dicasCorpo.appendChild(el);
+      });
     }
 
     // ---- Membro ativo (GE-2 das classes regulares): frequência mínima de 75% ----
