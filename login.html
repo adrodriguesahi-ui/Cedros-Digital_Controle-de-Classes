@@ -9230,11 +9230,9 @@
         </div>
       </div>
 
-      <!-- Escondido: o cartão criado por aqui só existia na tela (sumia ao
-           recarregar) e, editado, gravava o texto numa chave que não é de
-           requisito nenhum — dois cartões com o mesmo nome saíam iguais.
-           Para mudar um requisito, toque no cartão dele. -->
-      <button type="button" class="pl-fab" id="clAddBtn" aria-label="Adicionar atividade" style="display:none">
+      <!-- Novo requisito do cartão: grava em requisitos_personalizados com
+           criado = true (ver criarRequisito). Só aparece pra quem gerencia a classe. -->
+      <button type="button" class="pl-fab" id="clAddBtn" aria-label="Novo requisito" style="display:none">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
 
@@ -9430,6 +9428,8 @@
           <p class="sp-disclaimer" style="margin-top:14px;">As áreas agrupam os requisitos deste cartão, e valem só aqui. Para mudar um requisito de área, volte e toque no lápis dele no cronograma.</p>
           <div class="cl-areas-lista" id="clAreasLista"></div>
           <button type="button" class="pl-btn pl-btn-primary" id="clAreasNovaBtn" style="width:100%; margin-top:16px;">+ Nova área</button>
+          <!-- Requisitos do catálogo excluídos do cartão (oculto = true), pra restaurar. -->
+          <div id="clReqOcultosWrap"></div>
         </div>
       </div>
 
@@ -11437,7 +11437,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <p class="pl-reminder-hint" style="margin-top:0;">Requisito do catálogo: <b id="cpReqTextoChave"></b>. Campo em branco volta ao texto original.</p>
+        <p class="pl-reminder-hint" style="margin-top:0;" id="cpReqTextoOrigem">Requisito do catálogo: <b id="cpReqTextoChave"></b>. Campo em branco volta ao texto original.</p>
+        <p class="pl-reminder-hint" style="margin-top:0; display:none;" id="cpReqTextoOrigemCriado">Requisito criado neste cartão.</p>
 
         <label class="pl-field-label" for="cpReqTextoTitulo">Título</label>
         <input type="text" class="pl-input" id="cpReqTextoTitulo" placeholder="Como aparece na lista">
@@ -11472,6 +11473,7 @@
         <p class="pl-reminder-hint" id="cpReqTextoLeitura" style="display:none;">Só o Coordenador desta classe (ou o Administrador) pode mudar este texto.</p>
 
         <div class="pl-modal-actions">
+          <button type="button" class="pl-btn pl-btn-danger" id="cpReqTextoExcluir">Excluir</button>
           <button type="button" class="pl-btn pl-btn-neutral" id="cpReqTextoReset">Restaurar original</button>
           <button type="button" class="pl-btn pl-btn-primary" id="cpReqTextoSalvar">Salvar</button>
         </div>
@@ -17108,7 +17110,7 @@
       hub.style.display = 'none';
       content.style.display = '';
       titleEl.textContent = className;
-      addBtn.style.display = '';
+      addBtn.style.display = podeCriarRequisito(className) ? '' : 'none';
       applyClassFilter();
       // Os cabeçalhos de área carregam o lápis de renomear, que depende do
       // papel de quem entrou. Eles são montados na carga da página, quando o
@@ -17535,6 +17537,7 @@
     }
     window.__clTituloExibicao = tituloExibicao;
     window.__clTextoDoRequisito = textoDoRequisito;
+    window.__clReqNoBanco = (className, titulo) => !!REQ_TEXTOS[requisitoKey(className, titulo)];
 
     // Sub-itens por requisito: REQ_SUBITENS["classe|título"] = [{id, ordem, texto}]
     const REQ_SUBITENS = {};
@@ -17576,8 +17579,10 @@
 
     async function loadRequisitosPersonalizados(){
       if(!supa) return;
-      const { data, error } = await supa.from('requisitos_personalizados')
-        .select('classe, requisito_titulo, titulo, subtitulo, descricao, observacao, subitens_modo, area');
+      const colunas = 'classe, requisito_titulo, titulo, subtitulo, descricao, observacao, subitens_modo, area';
+      let { data, error } = await supa.from('requisitos_personalizados').select(colunas + ', criado, oculto');
+      // Banco sem as colunas criado/oculto (SQL ainda não rodado): carrega o resto igual.
+      if(error) ({ data, error } = await supa.from('requisitos_personalizados').select(colunas));
       if(error){ console.error('Erro ao carregar textos de requisitos:', error.message); return; }
       Object.keys(REQ_TEXTOS).forEach(k => delete REQ_TEXTOS[k]);
       (data || []).forEach(r => {
@@ -17586,16 +17591,73 @@
           // null = usa a descrição do catálogo; '' = o Coordenador apagou de propósito.
           descricao: r.descricao == null ? null : r.descricao, observacao: r.observacao || '',
           modo: r.subitens_modo === 'um' ? 'um' : 'todos',
-          area: r.area || ''
+          area: r.area || '',
+          criado: !!r.criado, oculto: !!r.oculto
         };
       });
       await loadSubitens();
       await loadProgressoSubitens();
+      sincronizarCardsCriadosEOcultos();
       aplicarTextosNosCards();
       if(currentClass) applyStudentProgressToCards();
       if(window.__cpRefresh) window.__cpRefresh();
     }
     window.__clReloadTextosRequisitos = loadRequisitosPersonalizados;
+
+    // Requisitos criados pelo Coordenador viram cartões; os do catálogo que ele
+    // excluiu saem da lista (guardados aqui pra voltarem se forem restaurados).
+    // Tirar do DOM, e não só esconder, mantém certos os totais e o rendimento.
+    const CARDS_OCULTOS = {}; // chave -> card
+    function sincronizarCardsCriadosEOcultos(){
+      const mexidos = new Set();
+      document.querySelectorAll('#view-classes .cl-activity-card[data-criado="1"]').forEach(card => {
+        const t = REQ_TEXTOS[requisitoKey(card.dataset.class, card.dataset.title)];
+        if(t && t.criado && !t.oculto) return;
+        mexidos.add(card.closest('.pl-month-group'));
+        card.remove();
+      });
+      Object.keys(REQ_TEXTOS).forEach(chave => {
+        const t = REQ_TEXTOS[chave];
+        if(!t.criado || t.oculto) return;
+        const i = chave.indexOf('|');
+        const classe = chave.slice(0, i), titulo = chave.slice(i + 1);
+        if(!CLASS_COLORS[classe]) return;
+        if(document.querySelector('#view-classes .cl-activity-card[data-class="' + CSS.escape(classe) + '"][data-title="' + CSS.escape(titulo) + '"]')) return;
+        const card = buildCardHTML({ title: titulo, className: classe, area: 'Geral', status: 'todo',
+          statusColor: 'gray', statusLabel: 'Não iniciada', desc: '', photo: '' });
+        card.dataset.criado = '1';
+        if(classe === 'Classe Agrupada') card.dataset.ages = '11,12,13,14,15';
+        const grupo = findOrCreateClassGroup(classe);
+        grupo.appendChild(card);
+        mexidos.add(grupo);
+      });
+      document.querySelectorAll('#view-classes .cl-activity-card[data-title]').forEach(card => {
+        const chave = requisitoKey(card.dataset.class, card.dataset.title);
+        const t = REQ_TEXTOS[chave];
+        if(!t || !t.oculto || t.criado) return;
+        mexidos.add(card.closest('.pl-month-group'));
+        CARDS_OCULTOS[chave] = card;
+        card.remove();
+      });
+      Object.keys(CARDS_OCULTOS).forEach(chave => {
+        const t = REQ_TEXTOS[chave];
+        if(t && t.oculto) return;
+        const card = CARDS_OCULTOS[chave];
+        delete CARDS_OCULTOS[chave];
+        const grupo = findOrCreateClassGroup(card.dataset.class);
+        grupo.appendChild(card);
+        mexidos.add(grupo);
+      });
+      mexidos.forEach(g => { if(g && g.isConnected){ updateClassCount(g); regroupByArea(g); updateGroupVisibleCount(g); } });
+      if(mexidos.size) updateHubCounts();
+    }
+
+    // Requisitos do catálogo excluídos do cartão, pra lista de restaurar.
+    function requisitosOcultos(className){
+      return Object.keys(REQ_TEXTOS)
+        .filter(k => k.indexOf(className + '|') === 0 && REQ_TEXTOS[k].oculto && !REQ_TEXTOS[k].criado)
+        .map(k => k.slice(className.length + 1));
+    }
 
     // Reescreve o que está visível no card sem encostar no data-title.
     function aplicarTextosNosCards(){
@@ -20187,6 +20249,41 @@
         linha.querySelector('[data-acao="excluir"]').addEventListener('click', () => pedirExclusaoDeArea(area, n, ehCriada));
         areasListaEl.appendChild(linha);
       });
+      renderRequisitosOcultos(classe);
+    }
+
+    function renderRequisitosOcultos(classe){
+      const wrap = document.getElementById('clReqOcultosWrap');
+      if(!wrap) return;
+      wrap.innerHTML = '';
+      const ocultos = requisitosOcultos(classe);
+      if(!ocultos.length) return;
+      const titulo = document.createElement('p');
+      titulo.className = 'sp-disclaimer';
+      titulo.style.marginTop = '22px';
+      titulo.textContent = 'Requisitos excluídos deste cartão (' + ocultos.length + '). Toque na seta para trazer de volta.';
+      wrap.appendChild(titulo);
+      ocultos.forEach(chave => {
+        const t = textoDoRequisito(classe, chave) || {};
+        const linha = document.createElement('div');
+        linha.className = 'cl-area-linha';
+        linha.innerHTML =
+          '<span class="cl-area-linha-body"><span class="cl-area-linha-nome"></span><span class="cl-area-linha-meta"></span></span>' +
+          '<button type="button" class="cl-area-acao" aria-label="Restaurar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 9 9 9"/></svg></button>';
+        linha.querySelector('.cl-area-linha-nome').textContent = t.titulo || chave;
+        linha.querySelector('.cl-area-linha-meta').textContent = t.subtitulo || chave;
+        const btn = linha.querySelector('button');
+        btn.addEventListener('click', async () => {
+          if(!supa) return;
+          btn.disabled = true;
+          const { error } = await supa.from('requisitos_personalizados')
+            .update({ oculto: false }).eq('classe', classe).eq('requisito_titulo', chave);
+          if(error){ btn.disabled = false; alert('Não consegui restaurar: ' + error.message); return; }
+          await loadRequisitosPersonalizados();
+          renderAreasLista();
+        });
+        wrap.appendChild(linha);
+      });
     }
 
     // Estes overlays são `position:absolute` dentro de uma <section class="view">,
@@ -20439,7 +20536,29 @@
       card.addEventListener('click', (e) => { e.preventDefault(); handleActivityCardClick(card); });
     });
 
-    addBtn.addEventListener('click', () => openModal('create'));
+    // O "+" antigo montava um cartão só na tela (sumia ao recarregar) e, editado,
+    // gravava o texto numa chave solta. Agora o requisito nasce no banco, com
+    // chave própria, e abre direto no editor de texto.
+    function podeCriarRequisito(className){
+      return !!(supa && window.__cpCanManageRoster && window.__cpCanManageRoster(className));
+    }
+    async function criarRequisito(){
+      const classe = currentClass;
+      if(!classe || !podeCriarRequisito(classe)) return;
+      const nome = (prompt('Título do novo requisito:') || '').trim();
+      if(!nome) return;
+      const chave = 'NOVO-' + Date.now().toString(36).toUpperCase();
+      const { error } = await supa.from('requisitos_personalizados').insert({
+        classe: classe, requisito_titulo: chave, titulo: nome, criado: true,
+        subitens_modo: 'todos',
+        atualizado_por: (window.__currentUsuario && window.__currentUsuario.nome) || null
+      });
+      if(error){ alert('Não consegui criar o requisito: ' + error.message); return; }
+      await loadRequisitosPersonalizados();
+      if(window.__cpAbrirEditorDeTexto) window.__cpAbrirEditorDeTexto(chave, classe);
+    }
+
+    addBtn.addEventListener('click', criarRequisito);
     closeBtn.addEventListener('click', closeModal);
     overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
     saveBtn.addEventListener('click', saveActivity);
@@ -20460,6 +20579,7 @@
       // aqui, o Coordenador só via o lápis depois de salvar alguma coisa.
       document.querySelectorAll('#view-classes .pl-month-group').forEach(g => regroupByArea(g));
       if(!currentClass) return;
+      addBtn.style.display = podeCriarRequisito(currentClass) ? '' : 'none';
       renderStudentBar(currentClass);
       applyStudentProgressToCards();
     };
@@ -21261,6 +21381,10 @@
     const rtClose = document.getElementById('cpReqTextoClose');
     const rtSalvar = document.getElementById('cpReqTextoSalvar');
     const rtReset = document.getElementById('cpReqTextoReset');
+    const rtExcluir = document.getElementById('cpReqTextoExcluir');
+    const rtOrigem = document.getElementById('cpReqTextoOrigem');
+    const rtOrigemCriado = document.getElementById('cpReqTextoOrigemCriado');
+    let rtCriado = false;
     const rtLeituraHint = document.getElementById('cpReqTextoLeitura');
     const rtSubitens = document.getElementById('cpReqTextoSubitens');
     const rtSepararBtn = document.getElementById('cpReqTextoSepararBtn');
@@ -21334,7 +21458,12 @@
       if(rtSepararBtn) rtSepararBtn.style.display = pode ? '' : 'none';
       if(rtSubHint) rtSubHint.style.display = pode ? '' : 'none';
       if(rtSalvar) rtSalvar.style.display = pode ? '' : 'none';
-      if(rtReset) rtReset.style.display = pode ? '' : 'none';
+      // Requisito criado não tem "original" pra onde voltar — lá só existe excluir.
+      rtCriado = !!(atual && atual.criado);
+      if(rtOrigem) rtOrigem.style.display = rtCriado ? 'none' : '';
+      if(rtOrigemCriado) rtOrigemCriado.style.display = rtCriado ? '' : 'none';
+      if(rtExcluir) rtExcluir.style.display = pode ? '' : 'none';
+      if(rtReset) rtReset.style.display = (pode && !rtCriado) ? '' : 'none';
       if(rtLeituraHint) rtLeituraHint.style.display = pode ? 'none' : '';
 
       rtOverlay.classList.add('show');
@@ -21484,6 +21613,45 @@
       // Os sub-itens também eram texto do Coordenador, então voltam com ele.
       await supa.from('requisito_subitens').delete()
         .eq('classe', rtClasse).eq('requisito_titulo', rtRequisito);
+      fecharEditorDeTexto();
+      if(window.__clReloadTextosRequisitos) await window.__clReloadTextosRequisitos();
+    });
+
+    // Excluir: o requisito criado some do banco (com os sub-itens); o do
+    // catálogo fica marcado como oculto e pode voltar em Áreas → Requisitos excluídos.
+    if(rtExcluir) rtExcluir.addEventListener('click', async () => {
+      if(!rtRequisito || !rtClasse || !supa) return;
+      const nome = rtCampos.titulo.value.trim() || rtRequisito;
+      const aviso = rtCriado
+        ? 'Excluir o requisito "' + nome + '"? Ele sai do cartão de vez, com os sub-itens e o que os alunos marcaram nele.'
+        : 'Excluir o requisito "' + nome + '" deste cartão? Ele some da lista, e dá pra trazer de volta em Áreas → Requisitos excluídos.';
+      if(!confirm(aviso)) return;
+      rtExcluir.disabled = true;
+      let error;
+      if(rtCriado){
+        ({ error } = await supa.from('requisitos_personalizados').delete()
+          .eq('classe', rtClasse).eq('requisito_titulo', rtRequisito));
+        if(!error) await supa.from('requisito_subitens').delete()
+          .eq('classe', rtClasse).eq('requisito_titulo', rtRequisito);
+      } else {
+        const linha = {
+          classe: rtClasse, requisito_titulo: rtRequisito, oculto: true,
+          atualizado_por: (window.__currentUsuario && window.__currentUsuario.nome) || null
+        };
+        // Sem linha no banco, leva junto o texto padrão do cartão — senão, ao
+        // restaurar, a linha vazia passaria por cima dele (ver REQ_TEXTOS_PADRAO).
+        if(window.__clReqNoBanco && !window.__clReqNoBanco(rtClasse, rtRequisito)){
+          const t = (window.__clTextoDoRequisito && window.__clTextoDoRequisito(rtClasse, rtRequisito)) || {};
+          linha.titulo = t.titulo || null;
+          linha.subtitulo = t.subtitulo || null;
+          linha.observacao = t.observacao || null;
+          linha.subitens_modo = t.modo === 'um' ? 'um' : 'todos';
+          linha.area = t.area || null;
+        }
+        ({ error } = await supa.from('requisitos_personalizados').upsert(linha));
+      }
+      rtExcluir.disabled = false;
+      if(error){ alert('Não consegui excluir: ' + error.message); return; }
       fecharEditorDeTexto();
       if(window.__clReloadTextosRequisitos) await window.__clReloadTextosRequisitos();
     });

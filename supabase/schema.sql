@@ -1081,6 +1081,12 @@ alter table requisitos_personalizados add column if not exists subitens_modo tex
 -- catálogo. Não mexe na chave do requisito, então o progresso segue intacto.
 alter table requisitos_personalizados add column if not exists area text;
 
+-- criado: requisito que o Coordenador criou no cartão (botão "+"), sem par no
+-- catálogo — a chave é gerada no app. oculto: requisito do catálogo que o
+-- Coordenador excluiu do cartão; a linha fica pra poder restaurar depois.
+alter table requisitos_personalizados add column if not exists criado boolean default false;
+alter table requisitos_personalizados add column if not exists oculto boolean default false;
+
 -- Nome que a área recebe naquele cartão ("Vida Espiritual" virar outro título).
 -- A coluna area é sempre o nome do catálogo, que é o que agrupa a lista; titulo
 -- é só o que aparece no cabeçalho.

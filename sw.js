@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clube-digital-v16';
+const CACHE_NAME = 'clube-digital-v17';
 const ASSETS = [
   './login.html',
   './manifest.json',
