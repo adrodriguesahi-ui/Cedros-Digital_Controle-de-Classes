@@ -2652,13 +2652,23 @@
   .cl-req-filter{ display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
   .cl-req-filter .cl-req-search{ margin:0; }
   .cl-req-chips{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; -webkit-overflow-scrolling:touch; }
-  .cl-req-chip{
+  .cl-req-chip, .cl-req-ordenar{
     flex-shrink:0; white-space:nowrap; cursor:pointer;
     background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
     color:rgba(245,239,225,0.75); border-radius:20px; padding:7px 13px;
     font-size:12px; font-weight:800;
   }
-  .cl-req-chip.active{ background:var(--accent); border-color:var(--accent); color:#08130A; }
+  .cl-req-chip.active, .cl-req-ordenar.active{ background:var(--accent); border-color:var(--accent); color:#08130A; }
+  /* Modo Ordenar: setas em cada requisito, dentro da própria área. */
+  .cl-ordem-btns{ display:none; flex-direction:column; gap:4px; margin-left:8px; flex-shrink:0; }
+  .cl-modo-ordenar .cl-ordem-btns{ display:flex; }
+  .cl-modo-ordenar .cl-activity-card .pl-event-tag{ display:none; }
+  .cl-ordem-btns button{
+    width:34px; height:28px; border-radius:8px; cursor:pointer;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    color:var(--cream); font-size:13px; line-height:1;
+  }
+  .cl-ordem-btns button:active{ background:var(--accent); color:#08130A; }
   .cl-activity-card.cl-hide-age, .cl-activity-card.cl-hide-filter{ display:none; }
 
   .cl-status-pick-options{ display:flex; flex-direction:column; gap:8px; margin-top:4px; }
@@ -5087,6 +5097,8 @@
             <button type="button" class="cl-req-chip" data-status="todo">Faltam</button>
             <button type="button" class="cl-req-chip" data-status="progress">Em andamento</button>
             <button type="button" class="cl-req-chip" data-status="done">Concluídos</button>
+            <!-- Fora de .cl-req-chip de propósito: não é filtro de status. -->
+            <button type="button" class="cl-req-ordenar" id="clReqOrdenarBtn" style="display:none;">⇅ Ordenar</button>
           </div>
           <p class="un-empty-hint" id="clReqEmpty" style="display:none; margin:2px 0 0;">Nenhum requisito encontrado com esse filtro.</p>
         </div>
@@ -17097,6 +17109,8 @@
       content.style.display = 'none';
       titleEl.textContent = 'Classes Regulares';
       addBtn.style.display = 'none';
+      sairDoModoOrdenar();
+      atualizarBotaoOrdenar();
       if(studentBar) studentBar.style.display = 'none';
       if(reqFilterBar) reqFilterBar.style.display = 'none';
       selectedStudent = null;
@@ -17111,6 +17125,8 @@
       content.style.display = '';
       titleEl.textContent = className;
       addBtn.style.display = podeCriarRequisito(className) ? '' : 'none';
+      sairDoModoOrdenar();
+      atualizarBotaoOrdenar();
       applyClassFilter();
       // Os cabeçalhos de área carregam o lápis de renomear, que depende do
       // papel de quem entrou. Eles são montados na carga da página, quando o
@@ -17580,8 +17596,8 @@
     async function loadRequisitosPersonalizados(){
       if(!supa) return;
       const colunas = 'classe, requisito_titulo, titulo, subtitulo, descricao, observacao, subitens_modo, area';
-      let { data, error } = await supa.from('requisitos_personalizados').select(colunas + ', criado, oculto');
-      // Banco sem as colunas criado/oculto (SQL ainda não rodado): carrega o resto igual.
+      let { data, error } = await supa.from('requisitos_personalizados').select(colunas + ', criado, oculto, ordem');
+      // Banco sem as colunas criado/oculto/ordem (SQL ainda não rodado): carrega o resto igual.
       if(error) ({ data, error } = await supa.from('requisitos_personalizados').select(colunas));
       if(error){ console.error('Erro ao carregar textos de requisitos:', error.message); return; }
       Object.keys(REQ_TEXTOS).forEach(k => delete REQ_TEXTOS[k]);
@@ -17592,13 +17608,17 @@
           descricao: r.descricao == null ? null : r.descricao, observacao: r.observacao || '',
           modo: r.subitens_modo === 'um' ? 'um' : 'todos',
           area: r.area || '',
-          criado: !!r.criado, oculto: !!r.oculto
+          criado: !!r.criado, oculto: !!r.oculto,
+          ordem: r.ordem == null ? null : r.ordem
         };
       });
       await loadSubitens();
       await loadProgressoSubitens();
       sincronizarCardsCriadosEOcultos();
       aplicarTextosNosCards();
+      // A ordem escolhida pelo Coordenador só vale depois de remontar as áreas.
+      document.querySelectorAll('#view-classes .pl-month-group').forEach(g => regroupByArea(g));
+      if(currentClass) applyRequisitoFilter();
       if(currentClass) applyStudentProgressToCards();
       if(window.__cpRefresh) window.__cpRefresh();
     }
@@ -19909,6 +19929,8 @@
     });
 
     function handleActivityCardClick(card){
+      // No modo Ordenar o toque é das setas; o cartão não abre nada.
+      if(content.classList.contains('cl-modo-ordenar')) return;
       if(selectedStudent){
         openStatusPick(card);
         return;
@@ -20465,6 +20487,13 @@
         section.appendChild(heading);
         const cardsWrap = document.createElement('div');
         cardsWrap.className = 'cl-area-cards';
+        // Com posição definida (modo Ordenar) vai por ela; sem, fica no fim na
+        // ordem em que já estava (o sort é estável).
+        const posicao = c => {
+          const t = REQ_TEXTOS[requisitoKey(className, c.dataset.title)];
+          return (t && t.ordem != null) ? t.ordem : Infinity;
+        };
+        byArea[area].sort((a, b) => { const x = posicao(a), y = posicao(b); return x === y ? 0 : (x < y ? -1 : 1); });
         byArea[area].forEach(card => cardsWrap.appendChild(card));
         section.appendChild(cardsWrap);
 
@@ -20558,6 +20587,93 @@
       if(window.__cpAbrirEditorDeTexto) window.__cpAbrirEditorDeTexto(chave, classe);
     }
 
+    // ---- Modo Ordenar: ▲▼ em cada requisito, dentro da própria área ----
+    // A posição vai pra requisitos_personalizados.ordem (1, 2, 3… por área).
+    const ordenarBtn = document.getElementById('clReqOrdenarBtn');
+    let filaDeOrdem = Promise.resolve();
+
+    function atualizarBotaoOrdenar(){
+      if(!ordenarBtn) return;
+      const pode = !!currentClass && podeCriarRequisito(currentClass);
+      ordenarBtn.style.display = pode ? '' : 'none';
+      if(!pode) sairDoModoOrdenar();
+    }
+
+    function sairDoModoOrdenar(){
+      content.classList.remove('cl-modo-ordenar');
+      if(ordenarBtn){ ordenarBtn.classList.remove('active'); ordenarBtn.textContent = '⇅ Ordenar'; }
+    }
+
+    function entrarNoModoOrdenar(){
+      const grupo = currentClass && findClassGroup(currentClass);
+      if(!grupo) return;
+      // Busca/status escondem cartões e deixariam o "sobe um" pular posições.
+      resetRequisitoFilter();
+      applyRequisitoFilter();
+      grupo.querySelectorAll('.cl-activity-card').forEach(card => {
+        if(card.querySelector('.cl-ordem-btns')) return;
+        const setas = document.createElement('span');
+        setas.className = 'cl-ordem-btns';
+        setas.innerHTML = '<button type="button" data-dir="-1" aria-label="Subir">▲</button><button type="button" data-dir="1" aria-label="Descer">▼</button>';
+        setas.querySelectorAll('button').forEach(b => b.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          moverRequisito(card, Number(b.dataset.dir));
+        }));
+        card.appendChild(setas);
+      });
+      content.classList.add('cl-modo-ordenar');
+      ordenarBtn.classList.add('active');
+      ordenarBtn.textContent = '✓ Concluir';
+    }
+
+    if(ordenarBtn) ordenarBtn.addEventListener('click', () => {
+      if(content.classList.contains('cl-modo-ordenar')) sairDoModoOrdenar();
+      else entrarNoModoOrdenar();
+    });
+
+    function moverRequisito(card, dir){
+      const wrap = card.parentElement;
+      if(!wrap) return;
+      // Na Classe Agrupada o filtro de idade esconde cartões: pula por cima deles.
+      const visivel = c => !c.classList.contains('cl-hide-age') && !c.classList.contains('cl-hide-filter');
+      let alvo = dir < 0 ? card.previousElementSibling : card.nextElementSibling;
+      while(alvo && !visivel(alvo)) alvo = dir < 0 ? alvo.previousElementSibling : alvo.nextElementSibling;
+      if(!alvo) return;
+      wrap.insertBefore(card, dir < 0 ? alvo : alvo.nextSibling);
+      card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      // Em fila: toques rápidos gravam um de cada vez, sempre a partir da tela.
+      filaDeOrdem = filaDeOrdem.then(() => salvarOrdemDaArea(wrap, card.dataset.class));
+    }
+
+    async function salvarOrdemDaArea(wrap, classe){
+      const cards = Array.from(wrap.querySelectorAll('.cl-activity-card'));
+      const usuario = (window.__currentUsuario && window.__currentUsuario.nome) || null;
+      for(let i = 0; i < cards.length; i++){
+        const chave = cards[i].dataset.title;
+        const k = requisitoKey(classe, chave);
+        const atual = REQ_TEXTOS[k];
+        if(atual && atual.ordem === i + 1) continue;
+        const linha = { classe: classe, requisito_titulo: chave, ordem: i + 1, atualizado_por: usuario };
+        // Sem linha no banco, leva o texto padrão junto — senão a linha nova,
+        // só com a posição, apagaria o título/subtítulo do cartão.
+        if(!atual){
+          const t = textoDoRequisito(classe, chave) || {};
+          linha.titulo = t.titulo || null;
+          linha.subtitulo = t.subtitulo || null;
+          linha.observacao = t.observacao || null;
+          linha.subitens_modo = t.modo === 'um' ? 'um' : 'todos';
+          linha.area = t.area || null;
+          REQ_TEXTOS[k] = Object.assign({}, t, { ordem: i + 1 });
+        } else {
+          atual.ordem = i + 1;
+        }
+        if(!supa) continue;
+        const { error } = await supa.from('requisitos_personalizados').upsert(linha);
+        if(error){ alert('Não consegui salvar a nova ordem: ' + error.message); return; }
+      }
+    }
+
     addBtn.addEventListener('click', criarRequisito);
     closeBtn.addEventListener('click', closeModal);
     overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
@@ -20580,6 +20696,7 @@
       document.querySelectorAll('#view-classes .pl-month-group').forEach(g => regroupByArea(g));
       if(!currentClass) return;
       addBtn.style.display = podeCriarRequisito(currentClass) ? '' : 'none';
+      atualizarBotaoOrdenar();
       renderStudentBar(currentClass);
       applyStudentProgressToCards();
     };

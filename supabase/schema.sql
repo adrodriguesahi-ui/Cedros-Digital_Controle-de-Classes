@@ -1087,6 +1087,10 @@ alter table requisitos_personalizados add column if not exists area text;
 alter table requisitos_personalizados add column if not exists criado boolean default false;
 alter table requisitos_personalizados add column if not exists oculto boolean default false;
 
+-- Posição do requisito dentro da área, definida pelo Coordenador no modo
+-- "Ordenar". Nulo segue a ordem do catálogo, depois dos que têm número.
+alter table requisitos_personalizados add column if not exists ordem int;
+
 -- Nome que a área recebe naquele cartão ("Vida Espiritual" virar outro título).
 -- A coluna area é sempre o nome do catálogo, que é o que agrupa a lista; titulo
 -- é só o que aparece no cabeçalho.
