@@ -1023,6 +1023,18 @@
   .lv-det-autor{ margin:0 0 8px; font-size:12.5px; color:rgba(245,239,225,0.6); }
   .lv-det-desc{ margin:0 0 14px; font-size:12.5px; line-height:1.6; color:rgba(245,239,225,0.78); white-space:pre-wrap; }
   .lv-botoes{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  /* Livro do ano dentro do requisito "Curso de Leitura" das classes. */
+  .cl-livro-ano-lista{ display:flex; flex-direction:column; gap:8px; margin-bottom:4px; }
+  .cl-livro-ano{
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left; cursor:pointer; font:inherit; color:inherit;
+    padding:10px 12px; border-radius:12px; background:rgba(63,203,107,0.08); border:1px solid rgba(63,203,107,0.3);
+  }
+  .cl-livro-ano-icone{ flex-shrink:0; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:rgba(63,203,107,0.16); color:var(--accent); overflow:hidden; }
+  .cl-livro-ano-icone img{ width:100%; height:100%; object-fit:cover; }
+  .cl-livro-ano-info{ flex:1; min-width:0; }
+  .cl-livro-ano-info b{ display:block; font-size:13px; font-weight:800; color:var(--cream); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cl-livro-ano-info span{ display:block; font-size:11px; font-weight:600; color:rgba(245,239,225,0.55); margin-top:1px; }
+  .cl-livro-ano-acao{ flex-shrink:0; font-size:11.5px; font-weight:900; color:var(--accent); }
   .lv-player{
     position:relative; width:100%; aspect-ratio:16/9; margin-bottom:14px;
     border-radius:12px; overflow:hidden; background:#000;
@@ -9548,7 +9560,11 @@
           <!-- Só nos requisitos do Curso de Leitura: o que este desbravador já
                marcou como lido na área Curso de Leitura. Ver window.__lvLidosDe. -->
           <div id="clLivrosLidos" style="display:none; margin:4px 0 14px;">
-            <label class="pl-field-label" style="margin-top:0;">Livros marcados como lidos</label>
+            <!-- O livro do Curso de Leitura desta classe no ano, com PDF, áudio e
+                 compartilhar — abre a mesma ficha da área Curso de Leitura. -->
+            <label class="pl-field-label" style="margin-top:0;" id="clLivroAnoLabel">Livro do Curso de Leitura</label>
+            <div class="cl-livro-ano-lista" id="clLivroAnoLista"></div>
+            <label class="pl-field-label">Livros marcados como lidos</label>
             <div class="un-mini-list" id="clLivrosLidosLista"></div>
           </div>
 
@@ -11275,6 +11291,7 @@
           <div class="lv-botoes">
             <button type="button" class="pl-btn pl-btn-primary" id="lvLerBtn" style="display:none;">Ler o PDF</button>
             <button type="button" class="pl-btn pl-btn-neutral" id="lvOuvirBtn" style="display:none;">Abrir o áudio no YouTube</button>
+            <button type="button" class="pl-btn pl-btn-neutral" id="lvCompartilharBtn" style="display:none;">Compartilhar PDF e áudio</button>
             <button type="button" class="pl-btn" id="lvLiBtn">Já li este livro</button>
             <button type="button" class="pl-list-add-btn" id="lvEditarBtn" style="display:none; margin:0;">Editar este livro</button>
           </div>
@@ -18543,6 +18560,50 @@
     // A marcação é gravada por login (usuarios), não por desbravador — quem
     // ainda não tem login aparece dizendo isso, em vez de uma lista vazia que
     // pareceria "não leu nada".
+    // O livro do ano desta classe (área Curso de Leitura), pra ler, ouvir e
+    // compartilhar sem sair do requisito.
+    async function pintarLivroDoAno(card){
+      const lista = document.getElementById('clLivroAnoLista');
+      const label = document.getElementById('clLivroAnoLabel');
+      if(!lista || !window.__lvLivrosDaClasse) return;
+      lista.innerHTML = '<p class="un-empty-hint" style="margin:0;">Buscando o livro do ano…</p>';
+      const livros = await window.__lvLivrosDaClasse(currentClass);
+      if(statusPickCard !== card) return;
+      lista.innerHTML = '';
+      if(label) label.textContent = livros.length > 1 ? 'Livros do Curso de Leitura' : 'Livro do Curso de Leitura';
+      if(!livros.length){
+        lista.innerHTML = '<p class="un-empty-hint" style="margin:0;">Nenhum livro de ' + currentClass +
+          ' cadastrado para este ano. Cadastre na área Curso de Leitura, com o PDF e/ou o link do áudio.</p>';
+        return;
+      }
+      livros.forEach(livro => {
+        const recursos = [];
+        if(livro.pdf_path || livro.pdf_url) recursos.push('PDF');
+        if(livro.audio_url) recursos.push('áudio');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cl-livro-ano';
+        btn.innerHTML =
+          '<span class="cl-livro-ano-icone"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></span>' +
+          '<span class="cl-livro-ano-info"><b></b><span></span></span>' +
+          '<span class="cl-livro-ano-acao">Abrir ›</span>';
+        if(livro.capa && /^(data:image\/|https:\/\/)/.test(livro.capa)){
+          const img = document.createElement('img');
+          img.src = livro.capa;
+          img.alt = '';
+          const icone = btn.querySelector('.cl-livro-ano-icone');
+          icone.innerHTML = '';
+          icone.appendChild(img);
+        }
+        btn.querySelector('b').textContent = livro.titulo;
+        btn.querySelector('.cl-livro-ano-info span').textContent =
+          [livro.autor, livro.ano].filter(Boolean).join(' · ') +
+          (recursos.length ? ' · ' + recursos.join(' e ') + ' disponível' : ' · sem PDF nem áudio ainda');
+        btn.addEventListener('click', () => window.__lvAbrirLivro(livro));
+        lista.appendChild(btn);
+      });
+    }
+
     async function pintarLivrosDoRequisito(card){
       const bloco = document.getElementById('clLivrosLidos');
       const lista = document.getElementById('clLivrosLidosLista');
@@ -18551,6 +18612,7 @@
       if(!/curso de leitura/i.test(card.dataset.title || '')) return;
       if(!selectedStudent || !window.__lvLidosDe) return;
       bloco.style.display = '';
+      pintarLivroDoAno(card);
       lista.innerHTML = '<p class="un-empty-hint" style="margin:0;">Buscando…</p>';
       const usuarioId = (STUDENT_USUARIOS[currentClass] || {})[selectedStudent];
       if(!usuarioId){
@@ -27180,6 +27242,12 @@ const REQ_SUMMARIES = {
       lerBtn.textContent = 'Ler o PDF';
       lerBtn.disabled = false;
 
+      const compartilharBtn = document.getElementById('lvCompartilharBtn');
+      compartilharBtn.style.display = (livro.pdf_path || livro.pdf_url || livro.audio_url) ? '' : 'none';
+      compartilharBtn.textContent = (livro.pdf_path || livro.pdf_url) && livro.audio_url ? 'Compartilhar PDF e áudio'
+        : livro.audio_url ? 'Compartilhar o áudio' : 'Compartilhar o PDF';
+      compartilharBtn.disabled = false;
+
       const liBtn = document.getElementById('lvLiBtn');
       pintarBotaoLi(liBtn, LIDOS.has(livro.id));
       liBtn.style.display = window.__currentUsuario ? '' : 'none';
@@ -27189,7 +27257,7 @@ const REQ_SUMMARIES = {
 
       const hint = document.getElementById('lvDetHint');
       hint.textContent = (livro.pdf_path && !livro.pdf_url)
-        ? 'O PDF abre por um endereço temporário, que vale uma hora e só funciona pra quem está logado.'
+        ? 'O PDF abre por um endereço temporário, que vale uma hora. Ao compartilhar, o link enviado vale ' + DIAS_LINK_COMPARTILHADO + ' dias.'
         : '';
       hint.style.display = hint.textContent ? '' : 'none';
 
@@ -27233,6 +27301,64 @@ const REQ_SUMMARIES = {
     document.getElementById('lvOuvirBtn').addEventListener('click', () => {
       if(livroAberto && livroAberto.audio_url) window.open(livroAberto.audio_url, '_blank');
     });
+
+    // ---- Compartilhar ----
+    // O PDF do bucket privado vai por um link temporário de 7 dias (quem
+    // recebe não precisa de login), pra não deixar um endereço fixo do arquivo
+    // circulando. PDF de link externo e áudio do YouTube vão como estão.
+    const DIAS_LINK_COMPARTILHADO = 7;
+    document.getElementById('lvCompartilharBtn').addEventListener('click', async () => {
+      const livro = livroAberto;
+      if(!livro) return;
+      const btn = document.getElementById('lvCompartilharBtn');
+      const rotulo = btn.textContent;
+      let pdf = livro.pdf_url || '';
+      if(!pdf && livro.pdf_path && supa){
+        btn.disabled = true;
+        btn.textContent = 'Gerando link…';
+        const { data, error } = await supa.storage.from(BUCKET_LIVROS)
+          .createSignedUrl(livro.pdf_path, DIAS_LINK_COMPARTILHADO * 24 * 3600);
+        btn.disabled = false;
+        btn.textContent = rotulo;
+        if(error || !data || !data.signedUrl){
+          alert('Não consegui gerar o link do PDF.\n\nDetalhe: ' + ((error && error.message) || 'sem resposta do servidor'));
+          return;
+        }
+        pdf = data.signedUrl;
+      }
+      const linhas = ['📚 Curso de Leitura' + (livro.ano ? ' ' + livro.ano : '') + ': ' + livro.titulo + (livro.autor ? ' (' + livro.autor + ')' : '')];
+      if(pdf) linhas.push('📄 Ler o PDF: ' + pdf + (livro.pdf_path && !livro.pdf_url ? ' (link válido por ' + DIAS_LINK_COMPARTILHADO + ' dias)' : ''));
+      if(livro.audio_url) linhas.push('🎧 Ouvir o áudio: ' + livro.audio_url);
+      linhas.push('Enviado pelo ' + window.CLUBE_CONFIG.appNome + ' · ' + window.CLUBE_CONFIG.nomeCompleto);
+      const texto = linhas.join('\n');
+      if(navigator.share){
+        try { await navigator.share({ title: livro.titulo, text: texto }); return; }
+        catch(e){ if(e && e.name === 'AbortError') return; }
+      }
+      // Sem a folha de compartilhamento do celular (app instalado, desktop):
+      // abre o WhatsApp com a mensagem pronta, que é por onde o clube conversa.
+      window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+    });
+
+    // ---- Usado pela tela do requisito "Curso de Leitura" das classes ----
+    function normalizarTexto(s){ return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+    // Livros da classe: primeiro os do ano atual; sem nenhum, os do ano mais
+    // recente cadastrado pra ela; sem nenhum pra classe, os do ano atual sem
+    // classe definida (vale pra todo mundo).
+    window.__lvLivrosDaClasse = async function(className){
+      if(!LIVROS.length) await carregar();
+      const alvo = normalizarTexto(className);
+      const anoAtual = String(new Date().getFullYear());
+      const daClasse = LIVROS.filter(l => normalizarTexto(l.classes).split(/[,;/]| e /).map(s => s.trim()).indexOf(alvo) !== -1);
+      if(daClasse.length){
+        const doAno = daClasse.filter(l => String(l.ano || '').indexOf(anoAtual) !== -1);
+        if(doAno.length) return doAno;
+        const maisRecente = daClasse.map(l => String(l.ano || '')).sort().pop();
+        return daClasse.filter(l => String(l.ano || '') === maisRecente);
+      }
+      return LIVROS.filter(l => !normalizarTexto(l.classes) && String(l.ano || '').indexOf(anoAtual) !== -1);
+    };
+    window.__lvAbrirLivro = function(livro){ if(livro) abrirDetalhe(livro); };
 
     // ---- Marcar que leu ----
     document.getElementById('lvLiBtn').addEventListener('click', async () => {
