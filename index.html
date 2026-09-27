@@ -9230,7 +9230,11 @@
         </div>
       </div>
 
-      <button type="button" class="pl-fab" id="clAddBtn" aria-label="Adicionar atividade">
+      <!-- Escondido: o cartão criado por aqui só existia na tela (sumia ao
+           recarregar) e, editado, gravava o texto numa chave que não é de
+           requisito nenhum — dois cartões com o mesmo nome saíam iguais.
+           Para mudar um requisito, toque no cartão dele. -->
+      <button type="button" class="pl-fab" id="clAddBtn" aria-label="Adicionar atividade" style="display:none">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
 
@@ -17229,10 +17233,284 @@
     // O catálogo de requisitos é fixo no HTML e o data-title de cada card é a
     // CHAVE que amarra progresso, planejamento e comprovação. Então o que o
     // Coordenador reescreve fica aqui, só para exibição — a chave nunca muda.
+    // ---- Padrão dos cartões das classes (Amigo, Companheiro, Pesquisador, Pioneiro, Excursionista, Guia) ----
+    // Textos, áreas e nomes de área que os Coordenadores de cada classe
+    // montaram no app
+    // (conferidos no banco em 27/09/2026). Valem sempre que o banco não tiver
+    // texto próprio para o requisito/área — assim o cartão continua igual
+    // mesmo se os dados forem apagados ou o app for instalado em outro clube.
+    // O banco (requisitos_personalizados / areas_personalizadas) continua
+    // mandando: o que estiver lá passa por cima disto.
+    const REQ_TEXTOS_PADRAO = {
+      "Amigo|AC-1. Nós e amarras": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "1. Demonstrar como cuidar corretamente de uma corda. Fazer e explicar o uso prático dos seguintes nós:", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Amigo|AC-2. Especialidade Acampamento I": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "2. Completar a especialidade de Acampamento I.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Amigo|AC-3. Regras para caminhada": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "3. Apresentar dez regras para uma caminhada e explicar o que fazer quando estiver perdido.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Amigo|AC-4. Pista com sinais": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "4. Aprender os sinais para seguir uma pista. Preparar e seguir uma pista de no mínimo 10 sinais, que também possa ser seguida por outros.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Amigo|CA-1. Hino dos Desbravadores": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "1. Memorizar, cantar ou tocar o Hino dos Desbravadores e conhecer a história do hino.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-2. Personagem do Antigo Testamento": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "2. Em consulta com seu líder, escolher um dos seguintes personagens do Antigo Testamento e conversar com seu grupo sobre o amor e cuidado de Deus e o livramento demonstrado na vida do personagem escolhido:", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-3. Amigos não adventistas": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "3. Levar pelo menos dois amigos não adventistas à Escola Sabatina ou ao Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-4. Boas maneiras à mesa": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: '', descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-5. Especialidade Arte de Acampar": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "5. Completar a especialidade de Arte de acampar.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-6. Flores e insetos da região": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "6. Conhecer e identificar 10 flores silvestres e 10 insetos de sua região.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-7. Fogueira com um fósforo": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "7. Começar uma fogueira usando materiais naturais, e mantê-la acesa.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-8. Uso seguro de faca, facão ou machadinha": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "8. Usar corretamente uma faca, facão ou uma machadinha e conhecer 10 regras para usá-los com segurança.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|CA-9. Especialidade Missionária ou Agrícola": { titulo: "CLASSE AVANÇADA – AMIGO DA NATUREZA", subtitulo: "9. Escolher e completar uma especialidade em uma das áreas abaixo:", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – AMIGO DA NATUREZA" },
+      "Amigo|DA-1. Qualidades de um bom amigo": { titulo: "IV. DESENVOLVIMENTO AMIZADE", subtitulo: "1. Mencionar dez qualidades de um bom amigo e apresentar quatro situações diárias onde você praticou a Regra Áurea de Mateus 7:12.", descricao: null, observacao: '', modo: 'todos', area: "Estudo da Natureza" },
+      "Amigo|DA-2. Hino Nacional": { titulo: "IV. DESENVOLVIMENTO AMIZADE", subtitulo: "2. Saber cantar o Hino Nacional de seu país e conhecer sua história. Saber o nome do autor da letra e da música do hino.", descricao: null, observacao: '', modo: 'todos', area: "Estudo da Natureza" },
+      "Amigo|DE-1. Criação, Pragas, Tribos e Antigo Testamento": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "1. Memorizar e demonstrar o seu conhecimento:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Amigo|DE-2. Leitura e explicação bíblica": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "2. Ler e explicar os versos abaixo:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|DE-3. Leitura bíblica de Gênesis e Êxodo": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "3. Leitura bíblica:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|DOL-1. Planejamento de uma caminhada": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "1. Através da observação, acompanhar todo o processo de planejamento até a execução de uma caminhada de 5 km.", descricao: null, observacao: '', modo: 'todos', area: "Vida em Sociedade" },
+      "Amigo|EEV-1. Especialidade de Artes": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Completar uma especialidade na área de Artes e habilidades manuais.", descricao: null, observacao: '', modo: 'todos', area: "IX. ESTILO DE VIDA" },
+      "Amigo|EN-1. Especialidade de Natureza": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Completar uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'todos', area: "Amigo da Natureza" },
+      "Amigo|EN-2. Purificação de água": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "2. Aprender e demonstrar uma maneira para purificar a água e escrever um parágrafo destacando o significado de Jesus como a água da vida.", descricao: null, observacao: '', modo: 'todos', area: "Amigo da Natureza" },
+      "Amigo|EN-3. Montagem de barraca": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "3. Aprender e montar uma barraca em local apropriado.", descricao: null, observacao: '', modo: 'todos', area: "Amigo da Natureza" },
+      "Amigo|GE-1. Idade mínima": { titulo: "I. GERAIS", subtitulo: "1. Ter, no mínimo, 10 anos de idade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|GE-2. Membro ativo do Clube": { titulo: "I. GERAIS", subtitulo: "2. Ser membro ativo do Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|GE-3. Voto e Lei do Desbravador": { titulo: "I. GERAIS", subtitulo: "3. Memorizar e explicar o Voto e a Lei do Desbravador.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|GE-4. Curso de Leitura": { titulo: "I. GERAIS", subtitulo: "4. Ler o livro do Curso de Leitura do ano.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|GE-5. Livro Vaso de Barro": { titulo: "I. GERAIS", subtitulo: "5. Ler o livro Vaso de Barro.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|GE-6. Classe Bíblica": { titulo: "I. GERAIS", subtitulo: "6. Participar ativamente da Classe Bíblica do seu Clube.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|SAF-1. Especialidade de Saúde": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "1. Completar uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|SAF-2. Temperança com Daniel": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "2. Utilizando a experiência de Daniel:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|SAF-3. Dieta saudável": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "3. Aprender os princípios de uma dieta saudável e ajudar a preparar um quadro com os grupos básicos de alimentos.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Amigo|SO-1. Ajudando a comunidade": { titulo: "III. SERVINDO A OUTROS", subtitulo: "1. Dedicar duas horas ajudando alguém em sua comunidade, através de duas das seguintes atividades:", descricao: null, observacao: '', modo: 'todos', area: "Vida ao Ar Livre" },
+      "Amigo|SO-2. Bom cidadão no lar e na escola": { titulo: "III. SERVINDO A OUTROS", subtitulo: "2. Escrever uma redação explicando como ser um bom cidadão no lar e na escola.", descricao: null, observacao: '', modo: 'todos', area: "Vida ao Ar Livre" },
+      "Companheiro|AC-1. Pontos cardeais": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "3. Recapitular o estudo da Criação e fazer um diário por sete dias registrando suas observações do que foi criado em cada dia correspondente.", descricao: null, observacao: '', modo: 'todos', area: "Estudo da Natureza" },
+      "Companheiro|AC-2. Acampamento de fim de semana": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "1. Descobrir os pontos cardeais sem a ajuda de uma bússola e desenhar a Rosa dos Ventos.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|AC-3. Nós": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "2. Participar de um acampamento de final de semana e fazer um relatório destacando o que mais lhe impressionou positivamente.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-1. Bandeira Nacional": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "3. Aprender ou recapitular os seguintes nós:", descricao: null, observacao: '', modo: 'todos', area: "Vida ao Ar Livre" },
+      "Companheiro|CE-10. Quadro de nós": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "8. Participar de uma das seguintes cerimônias e sugerir ideias criativas de como realizá-las:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Companheiro|CE-11. Especialidade Excursionismo Pedestre": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "9. Preparar uma refeição em uma fogueira durante um acampamento do Clube ou Unidade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-12. Especialidade adicional": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "10. Preparar um quadro com 15 nós diferentes.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-2. Primeira visão": { titulo: "IX. ESTILO DE VIDA", subtitulo: "1. Completar uma especialidade não realizada anteriormente na seção de Artes e habilidades manuais.", descricao: null, observacao: '', modo: 'todos', area: "IX. ESTILO DE VIDA" },
+      "Companheiro|CE-3. Atividade missionária": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "1. Aprender e demonstrar a composição, significado e uso correto da Bandeira Nacional.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-4. Respeito aos pais": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "2. Ler a primeira visão de Ellen White e discutir como Deus usa os profetas para apresentar Sua mensagem à igreja (Primeiros Escritos, págs. 13 à 20).", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-5. Caminhada de 6 km": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "3. Participar de uma atividade missionária ou comunitária, envolvendo também um amigo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-6. Atividade de saúde": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "4. Conversar com seu Conselheiro ou Unidade sobre como demonstrar respeito pelos seus pais ou responsáveis e fazer uma lista mostrando como cuidam de você.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-7. Coleções de aves e árvores": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "5. Participar de uma caminhada de 6 km, preparando, ao final, um relatório de uma página.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-8. Cerimônia do clube": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "6. Escolher um dos seguintes itens:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CE-9. Fogueira": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "7. Identificar e descrever 12 aves nativas e 12 árvores nativas.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO": { titulo: "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO", subtitulo: "12. Completar uma especialidade não realizada anteriormente:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Companheiro|DA-1. Respeito às diferenças": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "1. Conversar com seu Conselheiro ou Unidade sobre como respeitar pessoas de diferentes culturas, raça e sexo.", descricao: null, observacao: '', modo: 'todos', area: "IV. DESENVOLVENDO AMIZADE" },
+      "Companheiro|DE-1. Mandamentos e Novo Testamento": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "1. Memorizar e demonstrar o seu conhecimento:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|DE-2. Textos bíblicos": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "2. Ler e explicar os versos abaixo:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|DE-3. Leitura bíblica": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "3. Leitura bíblica:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|DE-4. Tema espiritual": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "4. Em consulta com o seu conselheiro, escolher um dos seguintes temas:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|EEV-1. Especialidade de Artes": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "1. Dirigir ou colaborar em uma meditação criativa para sua Unidade ou Clube.", descricao: null, observacao: '', modo: 'todos', area: "VI. ORGANIZAÇÃO E LIDERANÇA" },
+      "Companheiro|EN-1. Caminhada ecológica": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "2. Ajudar no planejamento de uma excursão ou acampamento com sua Unidade ou Clube, envolvendo pelo menos um pernoite.", descricao: null, observacao: '', modo: 'todos', area: "VI. ORGANIZAÇÃO E LIDERANÇA" },
+      "Companheiro|EN-2. Especialidades de fauna/flora": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Participar de jogos na natureza ou caminhada ecológica, pelo período de uma hora.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|EN-3. Diário da Criação": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "2. Completar uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Companheiro|GE-1. Idade mínima": { titulo: "I. GERAIS", subtitulo: "1. Ter, no mínimo, 11 anos de idade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|GE-2. Membro ativo": { titulo: "I. GERAIS", subtitulo: "2. Ser membro ativo do Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|GE-3. Ilustrar o Voto": { titulo: "I. GERAIS", subtitulo: "3. Ilustrar de forma criativa o significado do Voto do Desbravador.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|GE-4. Curso de Leitura": { titulo: "I. GERAIS", subtitulo: "4. Ler o livro do Curso de Leitura do ano e escrever um parágrafo sobre o que mais lhe chamou atenção ou considerou importante.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|GE-5. Um Simples Lanche": { titulo: "I. GERAIS", subtitulo: "5. Ler o livro Um simples lanche.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|GE-6. Classe Bíblica": { titulo: "I. GERAIS", subtitulo: "6. Participar ativamente da Classe Bíblica do seu Clube.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|SAF-1. I Coríntios 9:24-27": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "1. Memorizar e explicar I Coríntios 9:24-27.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|SAF-2. Aptidão física": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "2. Conversar com seu líder sobre a aptidão física e os exercícios físicos regulares que se relacionam com uma vida saudável.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|SAF-3. Compromisso antitabaco": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "3. Aprender sobre os prejuízos que o cigarro causa à saúde e escrever seu compromisso de não fazer uso do fumo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|SAF-4. Especialidade": { titulo: "4. Completar uma das seguintes especialidades:", subtitulo: "4. Completar uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|SO-1. Serviço comunitário": { titulo: "III. SERVINDO A OUTROS", subtitulo: "1. Planejar e dedicar pelo menos duas horas servindo sua comunidade e demonstrando companheirismo a alguém, de maneira prática.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Companheiro|SO-2. Projeto beneficente": { titulo: "III. SERVINDO A OUTROS", subtitulo: "2. Participar de um projeto que beneficiará sua comunidade ou igreja.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|AC-1. Seis segredos e acampamento": { titulo: "III. SERVINDO A OUTROS", subtitulo: "1. Conhecer os projetos comunitários desenvolvidos em sua cidade e participar de, pelo menos, um deles com sua Unidade ou Clube.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|AC-2. Especialidades de acampamento": { titulo: "III. SERVINDO A OUTROS", subtitulo: "2. Participar em três atividades missionárias da igreja.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|AC-3. Bússola ou GPS": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "1. Participar de um debate ou representação sobre a pressão de grupo e identificar a influência que isso exerce sobre suas decisões.", descricao: null, observacao: '', modo: 'todos', area: "Saúde e Segurança" },
+      "Pesquisador|DA-1. Pressão de grupo": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "3. Aprender a usar uma bússola ou GPS (urbano ou de campo) e demonstrar sua habilidade encontrando endereços em uma zona urbana.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Pesquisador|DA-2. Órgão público": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "2. Completar uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'um', area: "VIII. ARTE DE ACAMPAR" },
+      "Pesquisador|DE-1. Levítico 11": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "1. Memorizar e demonstrar o seu conhecimento:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|DE-2. Textos bíblicos": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "2. Ler e explicar os versos abaixo:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|DE-3. Leitura bíblica": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "3. Leitura bíblica:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|DE-4. História da salvação": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "4. Conversar com seu líder e escolher uma das seguintes histórias:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Pesquisador|DOL-1. Dirigir cerimônia": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "2. Ler a história de J. N. Andrews ou de um pioneiro do seu país e discutir a importância do trabalho missionário e por que Cristo ordenou a grande comissão (Mateus 28:18-20).", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|DOL-2. Organizar classe bíblica": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "1. Conhecer e saber usar de forma adequada a bandeira dos Desbravadores e o bandeirim de Unidade.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|EEV-1. Especialidade manual": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "1. Dirigir uma cerimônia de abertura da reunião semanal do seu Clube ou um programa da Escola Sabatina.", descricao: null, observacao: '', modo: 'todos', area: "Pesquisador de Campo e Bosque" },
+      "Pesquisador|EN-1. Constelações": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "1. Escolher uma das atividades abaixo e escrever um texto pessoal para um estilo de vida livre do álcool:", descricao: null, observacao: '', modo: 'um', area: "Vida em Sociedade" },
+      "Pesquisador|EN-2. Especialidade da natureza": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "2. Ajudar a organizar a Classe Bíblica do seu Clube.", descricao: null, observacao: '', modo: 'todos', area: "Pesquisador de Campo e Bosque" },
+      "Pesquisador|GE-1. Idade mínima": { titulo: "I. GERAIS", subtitulo: "1. Ter, no mínimo, 12 anos de idade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|GE-2. Membro ativo": { titulo: "I. GERAIS", subtitulo: "2. Ser membro ativo do Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|GE-3. Lei do Desbravador": { titulo: "I. GERAIS", subtitulo: "3. Demonstrar sua compreensão do significado da Lei do Desbravador através de uma das seguintes atividades:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Pesquisador|GE-4. Curso de Leitura": { titulo: "I. GERAIS", subtitulo: "4. Ler o livro do Curso de Leitura do ano e escrever dois parágrafos sobre o que mais lhe chamou atenção ou considerou importante.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|GE-5. Livro Além da Magia": { titulo: "I. GERAIS", subtitulo: "5. Ler o livro Além da magia.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|GE-6. Classe bíblica": { titulo: "I. GERAIS", subtitulo: "6. Participar ativamente da Classe Bíblica do seu Clube.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|PCB-1. Bandeira e Bandeirim": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "1. Apresentar seis segredos para um bom acampamento. Participar de um acampamento de final de semana, planejando e cozinhando duas refeições.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Pesquisador|PCB-10. Comunicação": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "4. Fazer uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-11. Especialidade adicional": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "3. Convidar uma pessoa para assistir um dos seguintes programas:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-2. J.N. Andrews": { titulo: "IX. ESTILO DE VIDA", subtitulo: "1. Completar uma especialidade, não realizada anteriormente, em Artes e habilidades manuais.", descricao: null, observacao: '', modo: 'todos', area: "IX. ESTILO DE VIDA" },
+      "Pesquisador|PCB-3. Convidar para programa": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "11. Completar uma especialidade, não realizada anteriormente, em uma das áreas abaixo:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-4. Especialidade de caráter": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "10. Enviar e receber uma mensagem através de uma das formas de comunicação abaixo:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-5. Caminhada 10 km": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "9. Planejar um cardápio vegetariano para sua Unidade para um acampamento de três dias e apresentá-lo ao seu instrutor.", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-6. Evento do clube": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "8. Aprender a fazer as quatro amarras básicas e construir um móvel de acampamento.", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-7. Pegadas de animais": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "7. Identificar seis pegadas de animais ou aves. Fazer um modelo em gesso, massa de modelar ou biscuit de três dessas pegadas.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-8. Amarras e móvel": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "5. Participar de uma caminhada de 10 km e fazer uma lista dos equipamentos necessários, incluindo roupa e calçado que devem ser usados.", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|PCB-9. Cardápio vegetariano": { titulo: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE", subtitulo: "6. Participar na organização de um dos eventos especiais do Clube:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE" },
+      "Pesquisador|SAF-1. Álcool e drogas": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "2. Visitar um órgão público de sua cidade ou bairro e descobrir de que maneiras o Clube pode ser útil à sua comunidade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pesquisador|SO-1. Projeto comunitário": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "2. Completar uma das especialidades abaixo:", descricao: null, observacao: '', modo: 'um', area: "VII. ESTUDO DA NATUREZA" },
+      "Pesquisador|SO-2. Atividades missionárias": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Identificar a estrela Alfa da constelação de Centauro e a constelação de Órion. Conhecer o significado espiritual de Órion, como descrito no livro Primeiros Escritos, pág. 41.", descricao: null, observacao: '', modo: 'um', area: "VII. ESTUDO DA NATUREZA" },
+      "Pioneiro|AC-1. Fogo refletor": { titulo: "III. SERVINDO A OUTROS", subtitulo: "1. Participar em dois projetos missionários definidos por seu Clube.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|AC-2. Acampamento e mochila": { titulo: "III. SERVINDO A OUTROS", subtitulo: "2. Trabalhar em um projeto comunitário de sua igreja, escola ou comunidade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|AC-3. Especialidade Resgate Básico": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "8. Completar uma especialidade, não realizada anteriormente, em Atividades recreativas.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|DA-1. Debate e avaliação pessoal": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "5. Demonstrar habilidade no uso correto de uma machadinha.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|DE-1. Bem-aventuranças": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "3. Conversar em seu Clube ou Unidade sobre:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|DE-2. Versos bíblicos": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "4. Participar de um estudo especial sobre a inspiração da Bíblia, com a ajuda de um pastor, trabalhando os conceitos de inspiração, revelação e iluminação.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|DE-3. Cristianismo": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "5. Convidar três ou mais pessoas para assistirem a uma Classe Bíblica ou Pequeno Grupo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|DE-4. Inspiração da Bíblia": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "6. Leitura bíblica:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|DE-5. Convidar para classe bíblica": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "10. Completar a especialidade de Fogueiras e cozinha ao ar livre.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|DE-6. Leitura bíblica": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "9. Pesquisar e identificar, através de fotografia, exposição ou ao vivo, um dos seguintes itens:", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|DOL-1. Seminário": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "2. Ler e explicar os versos abaixo:", descricao: null, observacao: '', modo: 'todos', area: "Vida Espiritual" },
+      "Pioneiro|DOL-2. Atividade social": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "1. Memorizar e demonstrar o seu conhecimento:", descricao: null, observacao: '', modo: 'todos', area: "Vida Espiritual" },
+      "Pioneiro|EEV-1. Especialidade": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "7. Completar um dos seguintes itens:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|EN-1. Dilúvio e fossilização": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "1. Participar de um debate e fazer uma avaliação pessoal sobre suas atitudes em dois dos seguintes temas:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Pioneiro|EN-2. Especialidade de Estudo da Natureza": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "6. Ser capaz de acender uma fogueira em dia de chuva, saber como conseguir lenha seca e manter o fogo aceso.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|GE-1. Idade mínima": { titulo: "I. GERAIS", subtitulo: "1. Ter, no mínimo, 13 anos de idade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|GE-2. Membro ativo": { titulo: "I. GERAIS", subtitulo: "2. Ser membro ativo do Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|GE-3. Alvo e Lema": { titulo: "I. GERAIS", subtitulo: "3. Memorizar e entender o Alvo e o Lema JA.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|GE-4. Curso de Leitura": { titulo: "I. GERAIS", subtitulo: "4. Ler o livro do Curso de Leitura do ano e resumi-lo em uma página.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|GE-5. Expedição Galápagos": { titulo: "I. GERAIS", subtitulo: "5. Ler o livro Expedição Galápagos.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|PNF-1. Cidadania Cristã": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Estudar a história do dilúvio e o processo de fossilização.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|PNF-10. Fogueira e Cozinha": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "1. Fazer um fogo refletor e demonstrar seu uso.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Pioneiro|PNF-2. Bom Samaritano": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "2. Completar uma especialidade não realizada anteriormente em Estudo da natureza.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|PNF-3. Atividade física": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "4. Completar a especialidade de Mapa e bússola.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|PNF-4. Mapa e Bússola": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "2. Encenar a história do bom samaritano, demonstrando como ajudar as pessoas e auxiliar de forma prática três pessoas ou mais.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|PNF-5. Machadinha": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "3. Participar de uma das seguintes atividades, apresentando ao final um relatório escrito contendo, no mínimo, duas páginas:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|PNF-6. Fogueira na chuva": { titulo: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS", subtitulo: "1. Completar a especialidade de Cidadania cristã, caso não tenha sido realizada anteriormente.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS" },
+      "Pioneiro|PNF-7. Habilidade à escolha": { titulo: "IX. ESTILO DE VIDA", subtitulo: "1. Completar uma especialidade não realizada anteriormente em uma das seguintes áreas:", descricao: null, observacao: '', modo: 'um', area: "IX. ESTILO DE VIDA" },
+      "Pioneiro|PNF-8. Especialidade Recreativa": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "3. Completar a especialidade de Resgate básico.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Pioneiro|PNF-9. 25 espécies": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "2. Participar de um acampamento de final de semana, arrumando de forma apropriada sua bolsa ou mochila com o equipamento pessoal necessário.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Pioneiro|SAF-1. Programa de exercícios": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "1. Preparar um programa pessoal de exercícios físicos diários e conversar com seu líder ou conselheiro sobre os princípios de aptidão física. Fazer e assinar um compromisso pessoal de realizar exercícios físicos regularmente.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|SAF-2. Estilo de vida adventista": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "2. Discutir as vantagens do estilo de vida adventista de acordo com o que a Bíblia ensina.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Pioneiro|SO-1. Projetos missionários": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "1. Assistir a um seminário ou treinamento oferecido pela sua igreja ou distrito nos departamentos abaixo:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Pioneiro|SO-2. Projeto comunitário": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "2. Participar de uma atividade social de sua igreja.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|AC-1. Caminhada de 20 km": { titulo: "III. SERVINDO A OUTROS", subtitulo: "1. Convidar um amigo para participar de uma atividade social de sua igreja ou da Associação/Missão.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|AC-2. Especialidade de Pioneirias": { titulo: "III. SERVINDO A OUTROS", subtitulo: "2. Participar de um projeto comunitário desde o planejamento, organização até a execução.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DA-1. Autoavaliação": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "8. Demonstrar conhecimento quanto aos procedimentos necessários em caso de ferimentos por diferentes animais peçonhentos e não peçonhentos.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|DA-2. Atividades recreativas inclusivas": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "7. Demonstrar conhecimento para encontrar alimentos através de plantas silvestres de sua região e saber diferenciá-las de plantas tóxicas/venenosas.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|DE-1. Memorização": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "1. Memorizar e demonstrar o seu conhecimento:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DE-2. Versos bíblicos": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "2. Ler e explicar os versos abaixo:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DE-3. Espírito Santo": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "3. Estudar e entender a pessoa do Espírito Santo, como Ele se relaciona, e qual o Seu papel no crescimento espiritual de cada ser humano.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DE-4. Eventos finais": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "4. Estudar, com sua Unidade, os eventos finais e a segunda vinda de Cristo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DE-5. Observância do sábado": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "5. Através do estudo da Bíblia, descobrir o verdadeiro significado da observância do sábado.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DE-6. Leitura bíblica": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "6. Leitura bíblica:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|DOL-1. Organograma": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "11. Completar a especialidade de Vida silvestre.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|DOL-2. Programas departamentais": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "10. Completar a especialidade de Ordem unida.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|DOL-3. Especialidade Aventuras com Cristo": { titulo: "III. SERVINDO A OUTROS", subtitulo: "3. Discutir como os jovens adventistas devem se relacionar com as pessoas nas diferentes situações do dia a dia, tais como:", descricao: null, observacao: '', modo: 'todos', area: "Vida ao Ar Livre" },
+      "Excursionista|EEV-1. Especialidade em área de vida prática": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "9. Demonstrar técnicas para percorrer trilhas em diferentes tipos de terrenos, como: desertos, florestas, pântanos e rios.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-1. Lei de Deus e autoridades civis": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Recapitular a história de Nicodemos e relacioná-la com o ciclo de vida da lagarta ou borboleta, acrescentando um significado espiritual.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|EM-10. Especialidade Ordem Unida": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "2. Completar a especialidade de Pioneirias.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Excursionista|EM-11. Especialidade Vida Silvestre": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "1. Com um grupo de, no mínimo, quatro pessoas e com a presença de um conselheiro adulto e experiente, andar pelo menos 20 km numa área rural ou deserta, incluindo uma noite ao ar livre ou em barraca. Planejar a expedição em detalhes antes da saída. Durante a caminhada, efetuar anotações sobre o terreno, flora e fauna observados. Depois, usando as anotações, participar de uma discussão em grupo, dirigida por seu conselheiro.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Excursionista|EM-2. Visita missionária": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "2. Completar uma especialidade em Estudo da natureza, não realizada anteriormente.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|EM-3. Especialidade Testemunho Juvenil": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "6. Através da supervisão de seu líder ou conselheiro, conversar em sua Unidade ou Clube sobre um dos seguintes temas:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-4. Atividades de sábado na natureza": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "5. Com sua Unidade, construir um móvel de acampamento e um portal para o Clube.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-5. Móveis de acampamento": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "4. Apresentar cinco atividades na natureza, para serem realizadas no sábado à tarde.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-6. Diálogo em unidade": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "3. Completar a especialidade de Testemunho juvenil.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-7. Plantas silvestres": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "2. Acompanhar seu pastor ou ancião numa visita missionária ou estudo bíblico.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-8. Ferimentos por animais": { titulo: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA", subtitulo: "1. Fazer uma apresentação escrita ou falada sobre o respeito que devemos ter com a Lei de Deus e as autoridades civis, enumerando 10 princípios de comportamento moral.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – EXCURSIONISTA NA MATA" },
+      "Excursionista|EM-9. Técnicas de trilha": { titulo: "IX. ESTILO DE VIDA", subtitulo: "1. Completar uma especialidade não realizada anteriormente em uma das seguintes áreas:", descricao: null, observacao: '', modo: 'um', area: "IX. ESTILO DE VIDA" },
+      "Excursionista|EN-1. Nicodemos e a metamorfose": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "1. Através de uma conversa em grupo ou avaliação pessoal, examinar suas atitudes em dois dos seguintes temas:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|EN-2. Especialidade em Estudo da Natureza": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "2. Preparar uma lista contendo cinco sugestões de atividades recreativas para ajudar pessoas com necessidades específicas e colaborar na organização de uma dessas atividades para essas pessoas.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|GE-1. Idade mínima": { titulo: "I. GERAIS", subtitulo: "1. Ter, no mínimo, 14 anos de idade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|GE-2. Membro ativo": { titulo: "I. GERAIS", subtitulo: "2. Ser membro ativo do Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|GE-3. Objetivo JA": { titulo: "I. GERAIS", subtitulo: "3. Memorizar e explicar o significado do Objetivo JA.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|GE-4. Curso de Leitura": { titulo: "I. GERAIS", subtitulo: "4. Ler o livro do Curso de Leitura do ano e resumi-lo em uma página.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|GE-5. O Fim do Começo": { titulo: "I. GERAIS", subtitulo: "5. Ler o livro O fim do começo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|SAF-1. Especialidade de Temperança": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "1. Completar a especialidade de Temperança.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|SO-1. Convite social": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "1. Preparar um organograma da igreja local e relacionar as funções dos departamentos.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|SO-2. Projeto comunitário": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "2. Participar de dois programas envolvendo diferentes departamentos da igreja local.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Excursionista|SO-3. Relacionamento com pessoas": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "3. Completar a especialidade de Aventuras com Cristo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|AC-1. Acampamento de pioneiria": { titulo: "III. SERVINDO A OUTROS", subtitulo: "1. Ajudar a organizar e participar de uma das seguintes atividades:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Guia|AC-2. Refeições ao ar livre": { titulo: "III. SERVINDO A OUTROS", subtitulo: "2. Discutir com sua Unidade os métodos de evangelismo pessoal e colocar alguns princípios em prática.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|AC-3. Móvel de acampamento": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "2. Planejar, preparar e cozinhar três refeições ao ar livre.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Guia|AC-4. Especialidade para mestrado": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "1. Participar com sua Unidade de um acampamento com estrutura de pioneiria, planejar o que deve ser levado e o que vai acontecer neste acampamento.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Guia|DA-1. Palestra sobre relacionamentos": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "2. Participar em um dos itens abaixo:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Guia|DE-1. Conhecimento profético": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "1. Memorizar e demonstrar o seu conhecimento:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|DE-2. Versos bíblicos": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "2. Ler e explicar os versos abaixo:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|DE-3. Dons espirituais": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "3. Descrever os dons espirituais mencionados nos escritos de Paulo (Coríntios, Efésios, Filipenses) e para quais objetivos a igreja recebe esses dons.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|DE-4. Santuário": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "4. Estudar a estrutura e serviço do santuário no Antigo Testamento e relacionar com o ministério pessoal de Jesus e a cruz.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|DE-5. Histórias de pioneiros": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "5. Ler e resumir três histórias de pioneiros adventistas. Contar essas histórias na reunião do Clube, no culto JA ou na Escola Sabatina.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|DE-6. Leitura bíblica": { titulo: "II. DESCOBERTA ESPIRITUAL", subtitulo: "6. Leitura bíblica:", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|DOL-1. Organograma": { titulo: "IX. ESTILO DE VIDA", subtitulo: "1. Completar uma especialidade, não realizada anteriormente, em uma das seguintes áreas:", descricao: null, observacao: '', modo: 'um', area: "IX. ESTILO DE VIDA" },
+      "Guia|DOL-2. Participação em liderança": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "4. Completar uma especialidade, não realizada anteriormente, que possa ser contada para um dos mestrados abaixo:", descricao: null, observacao: '', modo: 'um', area: "VIII. ARTE DE ACAMPAR" },
+      "Guia|DOL-3. Ensinar especialidade": { titulo: "VIII. ARTE DE ACAMPAR", subtitulo: "3. Construir e utilizar um móvel de acampamento em tamanho real, com nós e amarras.", descricao: null, observacao: '', modo: 'todos', area: "VIII. ARTE DE ACAMPAR" },
+      "Guia|EEV-1. Especialidade livre": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "1. Preparar um organograma da estrutura administrativa da Igreja Adventista em sua Divisão.", descricao: null, observacao: '', modo: 'todos', area: "Vida em Sociedade" },
+      "Guia|EN-1. Natureza no ministério de Jesus": { titulo: "IV. DESENVOLVENDO AMIZADE", subtitulo: "1. Assistir a uma palestra ou aula e examinar suas atitudes em relação a dois dos seguintes temas:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Guia|EN-2. Especialidade ambiental": { titulo: "VI. ORGANIZAÇÃO E LIDERANÇA", subtitulo: "3. Planejar e ensinar, no mínimo, dois requisitos de uma especialidade para um grupo ou Unidade de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: "Vida em Sociedade" },
+      "Guia|GE-1. Idade mínima": { titulo: "I. GERAIS", subtitulo: "1. Ter, no mínimo, 15 anos de idade.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|GE-2. Membro ativo": { titulo: "I. GERAIS", subtitulo: "2. Ser membro ativo do Clube de Desbravadores.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|GE-3. Voto de Fidelidade": { titulo: "I. GERAIS", subtitulo: "3. Memorizar e explicar o Voto de Fidelidade à Bíblia.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|GE-4. Curso de Leitura": { titulo: "I. GERAIS", subtitulo: "4. Ler o livro do Curso de Leitura do ano e resumi-lo em uma página.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|GE-5. Livro amargo": { titulo: "I. GERAIS", subtitulo: "5. Ler o livro O livro amargo.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|GEXP-1. Mordomia": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "1. Completar a especialidade de Mordomia.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-10. Orçamento Familiar": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "10. Completar a especialidade de Orçamento familiar.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-2. Maior Discurso de Cristo": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "2. Ler o livro O maior discurso de Cristo e escrever uma página sobre o efeito da leitura em sua vida.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-3. Amigos na igreja": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "3. Cumprir um dos seguintes itens:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-4. Influenciar para Cristo": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "4. Escrever uma página ou apresentar uma palestra sobre como influenciar amigos para Cristo.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-5. Diáconos": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "5. Observar durante o período de dois meses o trabalho dos diáconos, apresentando um relatório detalhado de suas atividades, contendo:", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-6. Mestrado Vida Campestre": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "6. Completar uma especialidade, não realizada anteriormente, para o mestrado em Vida campestre.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-7. Abrigos": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "7. Projetar três tipos diferentes de abrigo, explicar seu uso e utilizar um deles em um acampamento.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-8. Seminário social": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "8. Assistir a um seminário ou apresentar uma palestra sobre dois dos seguintes temas:", descricao: null, observacao: '', modo: 'um', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|GEXP-9. Liderança Campestre": { titulo: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", subtitulo: "9. Completar a especialidade de Liderança campestre.", descricao: null, observacao: '', modo: 'todos', area: "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO" },
+      "Guia|SAF-1. Remédios naturais": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "1. Fazer uma apresentação, para o seu Clube ou Unidade, sobre os oito remédios naturais dados por Deus.", descricao: null, observacao: '', modo: 'todos', area: '' },
+      "Guia|SAF-2. Atividade de saúde": { titulo: "V. SAÚDE E APTIDÃO FÍSICA", subtitulo: "2. Completar uma das seguintes atividades:", descricao: null, observacao: '', modo: 'um', area: '' },
+      "Guia|SO-1. Ação de serviço": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "2. Completar uma das seguintes especialidades:", descricao: null, observacao: '', modo: 'um', area: "Guia de Exploração" },
+      "Guia|SO-2. Evangelismo pessoal": { titulo: "VII. ESTUDO DA NATUREZA", subtitulo: "1. Ler o capítulo 7 do livro O Desejado de Todas as Nações sobre a infância de Jesus. Apresentar para um grupo, Clube ou Unidade as lições encontradas, demonstrando a importância que o estudo da natureza exerceu na educação e ministério de Jesus.", descricao: null, observacao: '', modo: 'todos', area: "Guia de Exploração" },
+    };
+    const AREA_TITULOS_PADRAO = {
+      "Amigo|Geral": "I. GERAIS",
+      "Amigo|Vida Espiritual": "II. DESCOBERTA ESPIRITUAL",
+      "Amigo|Vida ao Ar Livre": "III. SERVINDO A OUTROS",
+      "Amigo|Estudo da Natureza": "IV. DESENVOLVENDO AMIZADE",
+      "Amigo|Saúde e Segurança": "V. SAÚDE E APTIDÃO FÍSICA",
+      "Amigo|Vida em Sociedade": "VI. ORGANIZAÇÃO E LIDERANÇA",
+      "Amigo|Amigo da Natureza": "VII. ESTUDO DA NATUREZA",
+      "Companheiro|Geral": "I. GERAIS",
+      "Companheiro|Vida Espiritual": "II. DESCOBERTA ESPIRITUAL",
+      "Companheiro|Vida em Sociedade": "III. SERVINDO A OUTROS",
+      "Companheiro|Saúde e Segurança": "V. SAÚDE E APTIDÃO FÍSICA",
+      "Companheiro|Estudo da Natureza": "VII. ESTUDO DA NATUREZA",
+      "Companheiro|Vida ao Ar Livre": "VIII. ARTE DE ACAMPAR",
+      "Companheiro|Companheiro de Excursionismo": "CLASSE AVANÇADA – COMPANHEIRO DE EXCURSIONISMO",
+      "Pesquisador|Geral": "I. GERAIS",
+      "Pesquisador|Vida Espiritual": "II. DESCOBERTA ESPIRITUAL",
+      "Pesquisador|Estudo da Natureza": "III. SERVINDO A OUTROS",
+      "Pesquisador|Vida ao Ar Livre": "III. SERVINDO A OUTROS",
+      "Pesquisador|Saúde e Segurança": "IV. DESENVOLVENDO AMIZADE",
+      "Pesquisador|Vida em Sociedade": "V. SAÚDE E APTIDÃO FÍSICA",
+      "Pesquisador|Pesquisador de Campo e Bosque": "VI. ORGANIZAÇÃO E LIDERANÇA",
+      "Pioneiro|Geral": "I. GERAIS",
+      "Pioneiro|Vida Espiritual": "II. DESCOBERTA ESPIRITUAL",
+      "Pioneiro|Vida ao Ar Livre": "III. SERVINDO A OUTROS",
+      "Pioneiro|Estudo da Natureza": "IV. DESENVOLVENDO AMIZADE",
+      "Pioneiro|Saúde e Segurança": "V. SAÚDE E APTIDÃO FÍSICA",
+      "Pioneiro|Vida em Sociedade": "VI. ORGANIZAÇÃO E LIDERANÇA",
+      "Pioneiro|Pioneiro de Novas Fronteiras": "VII. ESTUDO DA NATUREZA",
+      "Excursionista|Geral": "I. GERAIS",
+      "Excursionista|Vida Espiritual": "II. DESCOBERTA ESPIRITUAL",
+      "Excursionista|Vida ao Ar Livre": "III. SERVINDO A OUTROS",
+      "Excursionista|Estudo da Natureza": "IV. DESENVOLVENDO AMIZADE",
+      "Excursionista|Saúde e Segurança": "V. SAÚDE E APTIDÃO FÍSICA",
+      "Excursionista|Vida em Sociedade": "VI. ORGANIZAÇÃO E LIDERANÇA",
+      "Excursionista|Excursionista na Mata": "VII. ESTUDO DA NATUREZA",
+      "Guia|Geral": "I. GERAIS",
+      "Guia|Vida Espiritual": "II. DESCOBERTA ESPIRITUAL",
+      "Guia|Vida ao Ar Livre": "III. SERVINDO A OUTROS",
+      "Guia|Estudo da Natureza": "IV. DESENVOLVENDO AMIZADE",
+      "Guia|Saúde e Segurança": "V. SAÚDE E APTIDÃO FÍSICA",
+      "Guia|Vida em Sociedade": "VI. ORGANIZAÇÃO E LIDERANÇA",
+      "Guia|Guia de Exploração": "VII. ESTUDO DA NATUREZA",
+    };
+    const AREAS_CRIADAS_PADRAO = {
+      Amigo: ["VIII. ARTE DE ACAMPAR", "IX. ESTILO DE VIDA", "CLASSE AVANÇADA – AMIGO DA NATUREZA"],
+      Companheiro: ["IV. DESENVOLVENDO AMIZADE", "VI. ORGANIZAÇÃO E LIDERANÇA", "IX. ESTILO DE VIDA"],
+      Pesquisador: ["VII. ESTUDO DA NATUREZA", "VIII. ARTE DE ACAMPAR", "IX. ESTILO DE VIDA", "CLASSE AVANÇADA – PESQUISADOR DE CAMPO E BOSQUE"],
+      Pioneiro: ["VIII. ARTE DE ACAMPAR", "IX. ESTILO DE VIDA", "CLASSE AVANÇADA – PIONEIRO DE NOVAS FRONTEIRAS"],
+      Excursionista: ["VIII. ARTE DE ACAMPAR", "IX. ESTILO DE VIDA", "CLASSE AVANÇADA – EXCURSIONISTA NA MATA"],
+      Guia: ["VIII. ARTE DE ACAMPAR", "IX. ESTILO DE VIDA", "CLASSE AVANÇADA – GUIA DE EXPLORAÇÃO", "VI. ORGANIZAÇÃO E LIDERANÇA"]
+    };
     const REQ_TEXTOS = {};
 
     function textoDoRequisito(className, titulo){
-      return REQ_TEXTOS[requisitoKey(className, titulo)] || null;
+      const chave = requisitoKey(className, titulo);
+      return REQ_TEXTOS[chave] || REQ_TEXTOS_PADRAO[chave] || null;
     }
 
     // Enunciado com "a) b) c)" no meio do parágrafo fica ilegível na tela do
@@ -19713,7 +19991,8 @@
       return AREA_CORES[className + '|' + area] || AREA_COLOR[area] || 'gray';
     }
     function tituloDaArea(className, area){
-      return AREA_TITULOS[className + '|' + area] || area;
+      const chave = className + '|' + area;
+      return AREA_TITULOS[chave] || AREA_TITULOS_PADRAO[chave] || area;
     }
 
     // O Coordenador costuma numerar as áreas ("I. Gerais", "VIII. Arte de
@@ -19753,7 +20032,7 @@
 
     // Áreas criadas pelo Coordenador: aparecem na lista mesmo sem requisito.
     const AREAS_CRIADAS = {}; // AREAS_CRIADAS['Classe'] = ['chave-da-area', ...]
-    function areasCriadas(className){ return AREAS_CRIADAS[className] || []; }
+    function areasCriadas(className){ return AREAS_CRIADAS[className] || AREAS_CRIADAS_PADRAO[className] || []; }
 
     // Todas as áreas que valem naquele cartão: as do catálogo mais as criadas.
     function areasDoCartao(className){
@@ -19814,7 +20093,7 @@
     function abrirEditorDeArea(className, area){
       areaEmEdicao = { classe: className, area: area };
       areaNomeOriginal.textContent = area;
-      areaNomeInput.value = AREA_TITULOS[className + '|' + area] || '';
+      areaNomeInput.value = AREA_TITULOS[className + '|' + area] || AREA_TITULOS_PADRAO[className + '|' + area] || '';
       marcarCorEscolhida(AREA_CORES[className + '|' + area] || '');
       mostrarNaViewAtiva(areaNomeOverlay);
       areaNomeInput.focus();
@@ -20005,15 +20284,25 @@
           const chave = card.dataset.title;
           const original = card.dataset.areaOriginal || '';
           card.dataset.area = destino;
-          const t = REQ_TEXTOS[requisitoKey(classe, chave)] || {};
+          // Sem texto próprio no banco, parte do padrão do cartão — senão a
+          // linha nova só com a área apagaria o título/subtítulo padrão.
+          const jaNoBanco = !!REQ_TEXTOS[requisitoKey(classe, chave)];
+          const t = Object.assign({}, textoDoRequisito(classe, chave) || {});
           t.area = destino === original ? '' : destino;
           REQ_TEXTOS[requisitoKey(classe, chave)] = t;
           if(supa){
-            const { error } = await supa.from('requisitos_personalizados').upsert({
+            const linha = {
               classe: classe, requisito_titulo: chave,
               area: destino === original ? null : destino,
               atualizado_por: (window.__currentUsuario && window.__currentUsuario.nome) || null
-            });
+            };
+            if(!jaNoBanco){
+              linha.titulo = t.titulo || null;
+              linha.subtitulo = t.subtitulo || null;
+              linha.observacao = t.observacao || null;
+              linha.subitens_modo = t.modo === 'um' ? 'um' : 'todos';
+            }
+            const { error } = await supa.from('requisitos_personalizados').upsert(linha);
             if(error){ alert('Não consegui mover os requisitos: ' + error.message); return; }
           }
         }
