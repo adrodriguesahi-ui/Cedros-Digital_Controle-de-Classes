@@ -13,6 +13,7 @@ const FILES = [
   'login.html',
   'clube.js',
   'logo.png',
+  'emblema-desbravadores.png',
   'manifest.json',
   'sw.js',
   'apple-touch-icon.png',

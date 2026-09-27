@@ -11,6 +11,9 @@ window.CLUBE_CONFIG = {
   // Nome do clube, sem o "Clube de Desbravadores" na frente. Ex.: "Cedros do Líbano"
   nomeClube: 'Cedros do Líbano',
 
+  // Frase do clube, no cabeçalho de declarações em PDF. Deixe '' se não tiver.
+  slogan: 'Mais que um clube, uma família!',
+
   // Código do clube no SGC (aparece nas fichas em PDF). Deixe '' se não tiver.
   codigoClube: '',
 
