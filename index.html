@@ -23531,15 +23531,18 @@
       renderHistory();
     }
 
-    // Frequência real do usuário logado no ano atual: presenças em chamadas que
-    // contam pra frequência ÷ total de chamadas desse tipo já realizadas no ano.
+    // Frequência real do usuário logado no ano atual: presenças ÷ chamadas que
+    // contam pra frequência EM QUE ELE ESTAVA NA LISTA. Quem entrou no meio do
+    // ano não é contado nas reuniões de antes do cadastro — mesma regra do
+    // Painel de Frequência e do requisito "Membro ativo" das classes.
     async function computeAttendance(usuarioId, ano){
       if(!supa) return { total: 0, presentes: 0, ano };
       const { data: calls } = await supa.from('chamadas').select('id').eq('ano', ano).eq('conta_presenca', true);
       const callIds = (calls || []).map(c => c.id);
       if(!callIds.length) return { total: 0, presentes: 0, ano };
-      const { data: pres } = await supa.from('chamada_presencas').select('id').eq('usuario_id', usuarioId).eq('presente', true).in('chamada_id', callIds);
-      return { total: callIds.length, presentes: (pres || []).length, ano };
+      const { data: linhas } = await supa.from('chamada_presencas').select('presente').eq('usuario_id', usuarioId).in('chamada_id', callIds);
+      const lista = linhas || [];
+      return { total: lista.length, presentes: lista.filter(l => l.presente).length, ano };
     }
     window.__computeAttendanceLabel = (usuarioId) => computeAttendance(usuarioId, new Date().getFullYear());
 
