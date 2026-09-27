@@ -2359,6 +2359,14 @@
   }
   .cl-dicas-citacao + .cl-dicas-citacao{ margin-top:6px; }
 
+  /* Idade mínima: aviso de que a validação é da Secretaria + status travado. */
+  .cl-idade-aviso{
+    margin:12px 0 0; padding:10px 12px; border-radius:12px; font-size:12.5px; line-height:1.45;
+    background:rgba(91,155,255,0.1); border:1px solid rgba(91,155,255,0.3); color:rgba(245,239,225,0.85);
+  }
+  .cl-idade-aviso b{ color:var(--cream); }
+  .cl-status-pick-btn:disabled{ opacity:0.45; cursor:not-allowed; }
+
   /* Frequência do ano no requisito "Membro ativo" (mínimo 75%). */
   .cl-freq-bloco{ margin:4px 0 14px; padding:11px 12px; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); }
   .cl-freq-topo{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
@@ -9586,10 +9594,9 @@
             <button type="button" class="cl-status-pick-btn" data-status="done" data-color="green" data-label="Concluída">Concluída</button>
           </div>
 
-          <!-- Só no requisito de idade mínima (GE-1) das classes regulares: gera a
-               Declaração de Verificação de Idade já preenchida com os dados do
-               desbravador. Ver gerarDeclaracaoIdadePDF() no script. -->
-          <button type="button" class="pl-btn pl-list-template-btn" id="clDeclaracaoIdadeBtn" style="display:none; width:100%; margin:12px 0 0; color:var(--accent);"><svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>Gerar Declaração de Idade (PDF)</button>
+          <!-- Só no requisito de idade mínima (GE-1) das classes regulares, para
+               quem não é da Secretaria. Ver requisitoDeIdade() no script. -->
+          <p class="cl-idade-aviso" id="clIdadeSecretariaAviso" style="display:none;">🔒 A comprovação de idade é validada pela <b>Secretaria do clube</b>, que confere a data de nascimento.</p>
 
           <!-- Marcador por requisito: quem gerencia a classe decide quais exigem
                comprovação. Ver requisitos_comprovacao em supabase/schema.sql. -->
@@ -9607,7 +9614,6 @@
           <label class="pl-field-label" id="clFieldResumoLabel">Resumo do que foi feito</label>
           <textarea class="pl-input" id="clFieldResumo" rows="3" maxlength="500" placeholder="Ex.: acampou duas noites no sítio, montou a barraca sozinho e cozinhou no fogo de chão."></textarea>
           <p class="pl-reminder-hint" id="clResumoHint">Fica guardado na ficha do desbravador junto com o comprovante.</p>
-          <button type="button" class="pl-btn pl-list-template-btn" id="clRelatorioAnualBtn" style="display:none; width:100%; margin:10px 0 0; color:var(--accent);"><svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>Preencher resumo com o relatório anual</button>
 
           <label class="pl-field-label" id="clComprovanteLabel"><svg class="icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Comprovação (opcional)</label>
           <div class="cl-photo-row">
@@ -18706,7 +18712,14 @@
       if(reqExigirRow) reqExigirRow.style.display = canManageStudents(currentClass) ? '' : 'none';
       if(reqExigirToggle) reqExigirToggle.checked = exigeComprovacao(currentClass, card.dataset.title);
       applyExigenciaUI();
-      if(declaracaoIdadeBtn) declaracaoIdadeBtn.style.display = dadosDeclaracaoIdade(currentClass, card) ? '' : 'none';
+      // Idade mínima: só a Secretaria valida; os demais veem o aviso e o
+      // status travado.
+      const ehIdade = requisitoDeIdade(currentClass, card);
+      const validaIdade = ehIdade && podeValidarIdade();
+      if(idadeSecretariaAviso) idadeSecretariaAviso.style.display = (ehIdade && !validaIdade) ? '' : 'none';
+      statusPickOverlay.querySelectorAll('.cl-status-pick-btn').forEach(btn => {
+        btn.disabled = ehIdade && !validaIdade;
+      });
       atualizarBlocoFrequencia(card);
       renderDicasRequisito(currentClass, card);
 
@@ -18819,48 +18832,36 @@
     const freqSelo = document.getElementById('clFreqSelo');
     const freqFill = document.getElementById('clFreqFill');
     const freqTexto = document.getElementById('clFreqTexto');
-    const relatorioAnualBtn = document.getElementById('clRelatorioAnualBtn');
     let freqAtual = null; // { chave, pct, ... } do requisito aberto
 
     function ehMembroAtivo(className, card){
       return !!(CLASSE_AVANCADA[className] && card && /^GE-2\./.test(card.dataset.title || '') && /membro ativo/i.test(card.dataset.title || ''));
     }
 
-    // Tudo o que o relatório anual usa: frequência, eventos, especialidades.
-    async function coletarAtividadesDoAno(className, alunoNome){
+    // Frequência do ano na Chamada de Presença (registro da Secretaria).
+    async function coletarFrequenciaDoAno(className, alunoNome){
       const ano = new Date().getFullYear();
-      const res = { ano, usuarioId: null, nome: alunoNome, unidade: '', total: 0, presente: 0, atraso: 0, falta: 0, pct: null, eventos: [], especialidades: [] };
+      const res = { ano, usuarioId: null, nome: alunoNome, total: 0, presente: 0, atraso: 0, falta: 0, pct: null };
       const alunoId = (STUDENT_IDS[className] || {})[alunoNome];
       if(!supa || !alunoId) return res;
       const { data: desb } = await supa.from('desbravadores').select('usuario_id').eq('id', alunoId).maybeSingle();
       if(!desb || !desb.usuario_id) return res;
       res.usuarioId = desb.usuario_id;
-      const [{ data: usuario }, { data: chamadas }, { data: especialidades }] = await Promise.all([
-        supa.from('usuarios').select('nome, unidade').eq('id', desb.usuario_id).maybeSingle(),
-        supa.from('chamadas').select('id, data, titulo, conta_presenca').eq('ano', ano).order('data'),
-        supa.from('especialidades_concluidas').select('especialidade').eq('usuario_id', desb.usuario_id).eq('ano', ano)
+      const [{ data: usuario }, { data: chamadas }] = await Promise.all([
+        supa.from('usuarios').select('nome').eq('id', desb.usuario_id).maybeSingle(),
+        supa.from('chamadas').select('id, conta_presenca').eq('ano', ano).eq('conta_presenca', true)
       ]);
-      if(usuario){ res.nome = usuario.nome || alunoNome; res.unidade = usuario.unidade || ''; }
-      res.especialidades = (especialidades || []).map(e => e.especialidade);
+      if(usuario && usuario.nome) res.nome = usuario.nome;
       const ids = (chamadas || []).map(c => c.id);
       if(!ids.length) return res;
       const { data: presencas } = await supa.from('chamada_presencas').select('chamada_id, presente, status')
         .eq('usuario_id', desb.usuario_id).in('chamada_id', ids);
-      const porChamada = {};
-      (presencas || []).forEach(p => { porChamada[p.chamada_id] = p; });
-      (chamadas || []).forEach(c => {
-        const p = porChamada[c.id];
-        if(!p) return;
+      // Só contam as reuniões em que o desbravador estava na lista.
+      (presencas || []).forEach(p => {
         const status = p.status === 'atrasado' ? 'atraso' : p.status === 'pontual' ? 'presente'
           : (p.status || (p.presente === false ? 'falta' : 'presente'));
-        if(c.conta_presenca !== false){
-          res.total++;
-          res[status === 'falta' ? 'falta' : status === 'atraso' ? 'atraso' : 'presente']++;
-        } else if(status !== 'falta'){
-          // Eventos que não contam pra frequência (acampamentos etc.) entram no relatório.
-          const [, m, d] = c.data.split('-');
-          res.eventos.push(c.titulo + ' (' + d + '/' + m + ')');
-        }
+        res.total++;
+        res[status === 'falta' ? 'falta' : status === 'atraso' ? 'atraso' : 'presente']++;
       });
       res.pct = res.total ? Math.round(((res.presente + res.atraso) / res.total) * 100) : null;
       return res;
@@ -18869,7 +18870,6 @@
     async function atualizarBlocoFrequencia(card){
       const mostrar = ehMembroAtivo(currentClass, card);
       if(freqBloco) freqBloco.style.display = mostrar ? '' : 'none';
-      if(relatorioAnualBtn) relatorioAnualBtn.style.display = mostrar ? '' : 'none';
       freqAtual = null;
       if(!mostrar || !freqBloco) return;
       const chave = currentClass + '|' + selectedStudent + '|' + card.dataset.title;
@@ -18878,7 +18878,7 @@
       freqFill.style.width = '0%'; freqFill.className = 'cl-freq-fill';
       freqTexto.textContent = 'Carregando frequência…';
       let dados;
-      try { dados = await coletarAtividadesDoAno(currentClass, selectedStudent); }
+      try { dados = await coletarFrequenciaDoAno(currentClass, selectedStudent); }
       catch(e){ console.error('Erro ao calcular frequência:', e); dados = { total: 0, pct: null, usuarioId: null }; }
       // O modal pode ter sido trocado de requisito/aluno enquanto carregava.
       if(!statusPickCard || currentClass + '|' + selectedStudent + '|' + statusPickCard.dataset.title !== chave) return;
@@ -18911,50 +18911,8 @@
         ultimoSeparador + plural(d.falta, 'falta', 'faltas');
     }
 
-    // Monta o texto do relatório de atividades do ano pro campo de resumo.
-    function textoRelatorioAnual(d, className, alunoNome){
-      const group = findClassGroup(className);
-      const cards = group ? Array.from(group.querySelectorAll('.cl-activity-card')) : [];
-      const progresso = (CLASS_PROGRESS[className] || {})[alunoNome] || {};
-      const concluidos = cards.filter(c => progresso[c.dataset.title] === 'done').length;
-      const lista = (itens, max) => itens.length <= max ? itens.join(', ') : itens.slice(0, max).join(', ') + ' e mais ' + (itens.length - max);
-      const linhas = ['Relatório de atividades ' + d.ano + ' — ' + d.nome + (d.unidade ? ' (Unidade ' + d.unidade + ')' : '') + '.'];
-      if(d.total){
-        linhas.push('Frequência nas reuniões: ' + (d.presente + d.atraso) + ' de ' + d.total + ' (' + d.pct + '%), com ' +
-          contagemFrequencia(d, ' e ') + '.');
-      }
-      if(d.eventos.length) linhas.push('Participou de: ' + lista(d.eventos, 4) + '.');
-      if(d.especialidades.length) linhas.push('Especialidades concluídas no ano: ' + lista(d.especialidades, 4) + '.');
-      linhas.push('Requisitos concluídos no cartão de ' + className + ': ' + concluidos + ' de ' + cards.length + '.');
-      if(d.pct != null){
-        linhas.push(d.pct >= FREQ_MINIMA
-          ? 'Situação: membro ativo, com frequência acima do mínimo de ' + FREQ_MINIMA + '%.'
-          : 'Situação: frequência abaixo do mínimo de ' + FREQ_MINIMA + '%.');
-      }
-      return linhas.join('\n');
-    }
-
-    if(relatorioAnualBtn){
-      relatorioAnualBtn.addEventListener('click', async () => {
-        if(!statusPickCard || !selectedStudent || !fieldResumo) return;
-        const chave = currentClass + '|' + selectedStudent + '|' + statusPickCard.dataset.title;
-        const dados = (freqAtual && freqAtual.chave === chave) ? freqAtual : await coletarAtividadesDoAno(currentClass, selectedStudent);
-        if(!dados.usuarioId){
-          alert('Este desbravador não está ligado a um usuário do app, então não há chamadas nem especialidades para o relatório.');
-          return;
-        }
-        const texto = textoRelatorioAnual(dados, currentClass, selectedStudent);
-        if(fieldResumo.value.trim() && !confirm('Substituir o resumo atual pelo relatório de atividades do ano?')) return;
-        // O relatório pode passar do limite normal do resumo.
-        fieldResumo.maxLength = Math.max(500, texto.length + 200);
-        fieldResumo.value = texto;
-        fieldResumo.rows = Math.min(14, Math.ceil(texto.length / 38) + 2);
-        fieldResumo.style.borderColor = '';
-      });
-    }
-
-    // ---- Declaração de Verificação de Idade (requisito GE-1 das classes regulares) ----
-    const declaracaoIdadeBtn = document.getElementById('clDeclaracaoIdadeBtn');
+    // ---- Idade mínima (requisito GE-1 das classes regulares) ----
+    const idadeSecretariaAviso = document.getElementById('clIdadeSecretariaAviso');
     const CLASSE_AVANCADA = {
       'Amigo': 'Amigo da Natureza',
       'Companheiro': 'Companheiro de Excursionismo',
@@ -18963,284 +18921,27 @@
       'Excursionista': 'Excursionista na Mata',
       'Guia': 'Guia de Exploração'
     };
-    const IDADE_POR_EXTENSO = { 10: 'dez', 11: 'onze', 12: 'doze', 13: 'treze', 14: 'catorze', 15: 'quinze' };
 
-    // Devolve { idadeMinima, cartao } quando o requisito é o de idade mínima
-    // de uma classe regular; null nos demais.
-    function dadosDeclaracaoIdade(className, card){
-      if(!CLASSE_AVANCADA[className] || !card) return null;
+    // O requisito de idade mínima de uma classe regular (GE-1. Idade mínima).
+    function requisitoDeIdade(className, card){
+      if(!CLASSE_AVANCADA[className] || !card) return false;
       const titulo = card.dataset.title || '';
-      if(!/^GE-1\./.test(titulo) || !/idade/i.test(titulo)) return null;
-      const m = (card.dataset.desc || '').match(/(\d+)\s*anos/);
-      if(!m) return null;
-      return { idadeMinima: parseInt(m[1], 10), cartao: className + ' e ' + CLASSE_AVANCADA[className] };
+      return /^GE-1\./.test(titulo) && /idade/i.test(titulo);
     }
 
-    function dataBR(d){
-      return d ? String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear() : '';
-    }
-    function idadeEm(nascimento, referencia){
-      let idade = referencia.getFullYear() - nascimento.getFullYear();
-      const antesDoAniversario = referencia.getMonth() < nascimento.getMonth() ||
-        (referencia.getMonth() === nascimento.getMonth() && referencia.getDate() < nascimento.getDate());
-      return antesDoAniversario ? idade - 1 : idade;
-    }
     function normalizarCargo(s){ return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
 
-    // jsPDF precisa da imagem como data URL; carrega uma vez e guarda.
-    let emblemaDesbravadoresPromise = null;
-    function carregarEmblemaDesbravadores(){
-      if(!emblemaDesbravadoresPromise){
-        emblemaDesbravadoresPromise = fetch('emblema-desbravadores.png')
-          .then(r => (r.ok ? r.blob() : null))
-          .then(b => b && new Promise(ok => {
-            const fr = new FileReader();
-            fr.onload = () => ok(fr.result);
-            fr.onerror = () => ok(null);
-            fr.readAsDataURL(b);
-          }))
-          .catch(() => null)
-          .then(url => { if(!url) emblemaDesbravadoresPromise = null; return url; });
-      }
-      return emblemaDesbravadoresPromise;
-    }
+    // Cargo de secretário(a) no cadastro (Secretário, Secretária, Secretário(a)…).
+    function ehDaSecretaria(u){ return /^secretari/.test(normalizarCargo(u && u.cargo)); }
 
-    // Junta tudo o que vai no documento: nome e nascimento vêm do cadastro do
-    // usuário ligado ao desbravador; a data da verificação é o dia em que o
-    // requisito foi concluído (ou hoje); instrutor e diretor vêm do cadastro.
-    async function coletarDadosDeclaracao(className, alunoNome, card){
-      const info = dadosDeclaracaoIdade(className, card);
-      const dados = {
-        nome: alunoNome, nascimento: null, verificacao: new Date(),
-        instrutor: '', diretor: '', idadeMinima: info.idadeMinima, cartao: info.cartao
-      };
-      const alunoId = (STUDENT_IDS[className] || {})[alunoNome];
-      if(!supa || !alunoId) return dados;
-      const [{ data: desb }, { data: prog }, { data: vinculos }, { data: comCargo }] = await Promise.all([
-        supa.from('desbravadores').select('usuario_id').eq('id', alunoId).maybeSingle(),
-        supa.from('progresso_requisitos').select('status, updated_at').eq('desbravador_id', alunoId).eq('requisito_titulo', card.dataset.title).maybeSingle(),
-        supa.from('classe_instrutores').select('usuario_id, funcao, responsavel').eq('classe', className),
-        supa.from('usuarios').select('id, nome, cargo').not('cargo', 'is', null)
-      ]);
-      if(desb && desb.usuario_id){
-        const { data: usuario } = await supa.from('usuarios').select('nome, data_nascimento').eq('id', desb.usuario_id).maybeSingle();
-        if(usuario){
-          if(usuario.nome) dados.nome = usuario.nome;
-          if(usuario.data_nascimento) dados.nascimento = new Date(usuario.data_nascimento + 'T00:00:00');
-        }
-      }
-      if(prog && prog.status === 'done' && prog.updated_at) dados.verificacao = new Date(prog.updated_at);
-      // Instrutor: quem está gerando, se for instrutor do cartão; senão o
-      // responsável pelo cartão, o líder ou o primeiro instrutor.
-      const lista = vinculos || [];
-      const eu = window.__currentUsuario;
-      const escolhido = (eu && lista.find(v => v.usuario_id === eu.id)) ||
-        lista.find(v => v.responsavel) || lista.find(v => v.funcao === 'lider') || lista[0];
-      if(escolhido){
-        if(eu && escolhido.usuario_id === eu.id) dados.instrutor = eu.nome;
-        else {
-          const { data: inst } = await supa.from('usuarios').select('nome').eq('id', escolhido.usuario_id).maybeSingle();
-          if(inst) dados.instrutor = inst.nome;
-        }
-      }
-      const diretor = (comCargo || []).find(u => ['diretor', 'diretora', 'diretor(a)'].includes(normalizarCargo(u.cargo)));
-      if(diretor) dados.diretor = diretor.nome;
-      return dados;
-    }
-
-    function gerarDeclaracaoIdadePDF(d){
-      const jsPDFLib = window.jspdf && window.jspdf.jsPDF;
-      if(!jsPDFLib){
-        alert('Não foi possível carregar a biblioteca de PDF. Verifique sua conexão com a internet e tente novamente.');
-        return;
-      }
-      const doc = new jsPDFLib({ unit: 'mm', format: 'a4' });
-      const W = doc.internal.pageSize.getWidth();   // 210
-      const H = doc.internal.pageSize.getHeight();  // 297
-      const NAVY = [18, 52, 112], AZUL = [36, 92, 168], CLARO = [222, 235, 251], TEXTO = [40, 48, 66];
-      const cor = (c, tipo) => tipo === 'f' ? doc.setFillColor(c[0], c[1], c[2]) : tipo === 'd' ? doc.setDrawColor(c[0], c[1], c[2]) : doc.setTextColor(c[0], c[1], c[2]);
-      const mx = 16, dentroX = mx + 4, dentroW = W - 2 * (mx + 4);
-
-      // Moldura dupla
-      cor(NAVY, 'd'); doc.setLineWidth(2.2);
-      doc.roundedRect(8, 8, W - 16, H - 16, 3, 3);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(12, 12, W - 24, H - 24, 2, 2);
-
-      // Emblema oficial dos Desbravadores (emblema-desbravadores.png). Se a
-      // imagem não carregou (sem internet), cai no desenho simplificado abaixo.
-      let emblemaOk = false;
-      if(d.emblema){ try { doc.addImage(d.emblema, 'PNG', 18, 15, 33.5, 34.2); emblemaOk = true; } catch(e){} }
-      if(!emblemaOk){
-      doc.setFillColor(214, 32, 39);
-      doc.triangle(18, 18, 52, 18, 35, 50, 'F');
-      doc.setFillColor(255, 204, 0);
-      doc.triangle(21.5, 24, 48.5, 24, 35, 45, 'F');
-      doc.setFillColor(214, 32, 39);
-      doc.rect(20, 19.3, 30, 4.2, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.2); doc.setTextColor(255, 255, 255);
-      doc.text('DESBRAVADORES', 35, 22.4, { align: 'center' });
-      doc.setFillColor(255, 255, 255);
-      doc.triangle(28, 26, 42, 26, 35, 38, 'F');
-      doc.setDrawColor(18, 52, 112); doc.setLineWidth(0.7);
-      doc.line(29.5, 36, 40, 28.5);
-      doc.setLineWidth(0.9); doc.line(31, 33.2, 32.8, 35.4);
-      }
-
-      // Logo do clube
-      const logo = window.CLUBE_CONFIG.logoDataUrl || (document.querySelector('img[data-logo-clube]') || {}).src;
-      if(logo){ try { doc.addImage(logo, 'PNG', W - 52, 15, 34, 34); } catch(e){} }
-
-      // Cabeçalho
-      cor(NAVY); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
-      doc.text('CLUBE DE DESBRAVADORES', W / 2, 25, { align: 'center' });
-      doc.setFontSize(22);
-      doc.text(window.CLUBE_CONFIG.nomeClube.toLocaleUpperCase('pt-BR'), W / 2, 35, { align: 'center' });
-      const slogan = window.CLUBE_CONFIG.slogan || '';
-      if(slogan){
-        doc.setFont('helvetica', 'italic'); doc.setFontSize(10.5); cor(AZUL);
-        doc.text(slogan, W / 2, 43, { align: 'center' });
-        const sw = doc.getTextWidth(slogan) / 2 + 4;
-        cor(AZUL, 'd'); doc.setLineWidth(0.3);
-        doc.line(W / 2 - sw - 12, 42, W / 2 - sw, 42);
-        doc.line(W / 2 + sw, 42, W / 2 + sw + 12, 42);
-      }
-      cor(NAVY, 'f'); doc.rect(12.3, 53, W - 24.6, 1.4, 'F');
-      doc.setFillColor(120, 170, 230); doc.rect(12.3, 54.8, W - 24.6, 0.9, 'F');
-
-      // Faixa "DECLARAÇÃO"
-      cor(AZUL, 'f'); doc.roundedRect(W / 2 - 55, 60, 110, 14, 2.5, 2.5, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(24); doc.setTextColor(255, 255, 255);
-      doc.text('DECLARAÇÃO', W / 2, 70.2, { align: 'center' });
-      cor(NAVY); doc.setFontSize(16);
-      doc.text('VERIFICAÇÃO DE IDADE E CUMPRIMENTO', W / 2, 84, { align: 'center' });
-      doc.text('DO REQUISITO', W / 2, 91.5, { align: 'center' });
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(13); cor(AZUL);
-      const subt = 'Cartão de ' + d.cartao;
-      doc.text(subt, W / 2, 101, { align: 'center' });
-      const tw = doc.getTextWidth(subt) / 2 + 4;
-      cor(AZUL, 'd'); doc.setLineWidth(0.4);
-      doc.line(dentroX, 99.6, W / 2 - tw, 99.6);
-      doc.line(W / 2 + tw, 99.6, W - dentroX, 99.6);
-
-      function secao(numero, titulo, y){
-        cor(CLARO, 'f'); doc.roundedRect(dentroX, y, dentroW, 8, 2, 2, 'F');
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); cor(NAVY);
-        doc.text(numero + '.   ' + titulo, dentroX + 4, y + 5.5);
-      }
-      // Rótulo, valor preenchido (negrito) e a linha embaixo, como no formulário.
-      function campo(rotulo, valor, y, larguraLinha, sufixo){
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(11); cor(TEXTO);
-        doc.text(rotulo, dentroX + 2, y);
-        const x0 = dentroX + 4 + doc.getTextWidth(rotulo);
-        const x1 = larguraLinha ? x0 + larguraLinha : W - dentroX;
-        cor(AZUL, 'd'); doc.setLineWidth(0.3); doc.line(x0, y + 1, x1, y + 1);
-        if(valor){ doc.setFont('helvetica', 'bold'); cor(NAVY); doc.text(String(valor), x0 + 2, y - 0.4); }
-        if(sufixo){ doc.setFont('helvetica', 'normal'); cor(TEXTO); doc.text(sufixo, x1 + 3, y); }
-      }
-
-      const idade = d.nascimento ? idadeEm(d.nascimento, d.verificacao) : null;
-      secao(1, 'DADOS DO DESBRAVADOR', 110);
-      campo('Nome:', d.nome, 127);
-      campo('Data de nascimento:', d.nascimento ? dataBR(d.nascimento) : '', 137, 45);
-      campo('Idade na data da verificação:', idade != null ? idade : '', 147, 20, 'anos');
-
-      secao(2, 'CLASSE E REQUISITO', 156);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(11); cor(TEXTO);
-      doc.text('Classe:', dentroX + 2, 172);
-      doc.setFont('helvetica', 'bold'); cor(NAVY);
-      doc.text(d.cartao, dentroX + 22, 172);
-
-      // Caixa do requisito
-      const idadeTexto = IDADE_POR_EXTENSO[d.idadeMinima] || String(d.idadeMinima);
-      cor(CLARO, 'f'); doc.roundedRect(dentroX, 178, dentroW, 12, 2, 2, 'F');
-      cor(NAVY, 'f'); doc.roundedRect(dentroX, 178, 52, 12, 2, 2, 'F');
-      doc.setFontSize(12.5); doc.setTextColor(255, 255, 255);
-      doc.text('REQUISITO 1', dentroX + 26, 185.8, { align: 'center' });
-      doc.setFontSize(11.5); cor(NAVY);
-      doc.text('Ter, no mínimo, ' + idadeTexto + ' anos de idade.', dentroX + 58, 185.8);
-
-      // Caixa de marcação + declaração
-      const apto = idade != null && idade >= d.idadeMinima;
-      cor(NAVY, 'd'); doc.setLineWidth(0.9);
-      doc.roundedRect(dentroX + 4, 197, 11, 11, 1.5, 1.5);
-      if(apto){
-        doc.setLineWidth(1.4);
-        doc.line(dentroX + 6.8, 202.8, dentroX + 9, 205.2);
-        doc.line(dentroX + 9, 205.2, dentroX + 13, 199.6);
-      }
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(11); cor(NAVY);
-      const declaracao = 'Declaro que verifiquei a data de nascimento do Desbravador e confirmo que ele(a) possui, no mínimo, ' +
-        idadeTexto + ' anos de idade, estando apto(a) a cumprir o requisito acima.';
-      doc.text(doc.splitTextToSize(declaracao, dentroW - 26), dentroX + 22, 200.5);
-
-      campo('Data da verificação:', dataBR(d.verificacao), 225, 45);
-
-      // Assinaturas
-      const colW = (dentroW - 12) / 2;
-      [[d.instrutor, 'Assinatura do Instrutor', dentroX], [d.diretor, 'Assinatura do Diretor do Clube', dentroX + colW + 12]].forEach(([nome, rotulo, x]) => {
-        cor(AZUL, 'd'); doc.setLineWidth(0.35); doc.line(x, 243, x + colW, 243);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); cor(NAVY);
-        doc.text(rotulo, x + colW / 2, 248, { align: 'center' });
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); cor(TEXTO);
-        doc.text(nome || '(Nome completo)', x + colW / 2, 253, { align: 'center' });
-      });
-
-      // Rodapé: lema, sol, montanhas e pinheiros sobre uma faixa ondulada.
-      doc.setFillColor(214, 230, 250); doc.circle(W - 60, 266, 9, 'F');
-      doc.setFillColor(92, 140, 205);
-      doc.triangle(W - 100, 280, W - 78, 262, W - 58, 280, 'F');
-      doc.setFillColor(60, 108, 180);
-      doc.triangle(W - 80, 280, W - 60, 258, W - 38, 280, 'F');
-      doc.setFillColor(255, 255, 255);
-      doc.triangle(W - 64, 262.4, W - 60, 258, W - 56, 262.4, 'F');
-      doc.triangle(W - 81.5, 265.6, W - 78, 262, W - 74.5, 265.6, 'F');
-      doc.setFillColor(22, 62, 128);
-      [[W - 40, 12, 3.4], [W - 33, 17, 4.2], [W - 25, 21, 5], [W - 18.5, 14, 3.6]].forEach(([x, h, w]) => {
-        for(let k = 0; k < 3; k++){
-          const base = 281 - k * h / 3.4, topo = 281 - h + (2 - k) * 1.2;
-          doc.triangle(x - w + k * 0.7, base, x + w - k * 0.7, base, x, Math.min(topo, base - 3), 'F');
-        }
-      });
-      cor(NAVY, 'f');
-      doc.lines([[70, 1, 130, -2, W - 24.6, -9], [0, 11.5], [-(W - 24.6), 0]], 12.3, 282, [1, 1], 'F', true);
-      doc.rect(12.3, 282, W - 24.6, 2.6, 'F');
-      doc.setFont('helvetica', 'bolditalic'); doc.setFontSize(17); cor(AZUL);
-      doc.text('Servir', 22, 263);
-      doc.setFontSize(15);
-      doc.text('a Deus e à humanidade', 22, 271);
-      cor(AZUL, 'd'); doc.setLineWidth(0.6); doc.line(22, 273.5, 82, 271.5);
-
-      const arquivo = (d.nome || 'desbravador').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      doc.save('declaracao-idade-' + arquivo + '.pdf');
-    }
-
-    if(declaracaoIdadeBtn){
-      declaracaoIdadeBtn.addEventListener('click', async () => {
-        if(!statusPickCard || !selectedStudent || !dadosDeclaracaoIdade(currentClass, statusPickCard)) return;
-        const textoOriginal = declaracaoIdadeBtn.innerHTML;
-        declaracaoIdadeBtn.disabled = true;
-        declaracaoIdadeBtn.textContent = 'Preparando declaração…';
-        try {
-          const [dados, emblema] = await Promise.all([
-            coletarDadosDeclaracao(currentClass, selectedStudent, statusPickCard),
-            carregarEmblemaDesbravadores()
-          ]);
-          dados.emblema = emblema;
-          if(!dados.nascimento && !confirm('A data de nascimento de ' + dados.nome + ' não está cadastrada (Administração → Usuários → editar). Gerar a declaração mesmo assim, com data e idade em branco?')) return;
-          if(dados.nascimento){
-            const idade = idadeEm(dados.nascimento, dados.verificacao);
-            if(idade < dados.idadeMinima && !confirm(dados.nome + ' tinha ' + idade + ' anos na data da verificação, abaixo dos ' + dados.idadeMinima + ' exigidos. Gerar mesmo assim, sem a marcação de apto(a)?')) return;
-          }
-          gerarDeclaracaoIdadePDF(dados);
-        } catch(e){
-          console.error('Erro ao gerar declaração:', e);
-          alert('Não foi possível gerar a declaração. Tente novamente.');
-        } finally {
-          declaracaoIdadeBtn.disabled = false;
-          declaracaoIdadeBtn.innerHTML = textoOriginal;
-        }
-      });
+    // A idade mínima (GE-1) é validada pela Secretaria do clube. Além dela,
+    // Diretor(a) e Administrador também podem marcar o requisito.
+    function podeValidarIdade(){
+      const u = window.__currentUsuario;
+      if(!u) return false;
+      if(u.papel === 'Administrador') return true;
+      if(ehDaSecretaria(u)) return true;
+      return ['diretor', 'diretora', 'diretor(a)'].includes(normalizarCargo(u.cargo));
     }
 
     if(reqExigirToggle){
