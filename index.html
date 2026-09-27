@@ -11430,8 +11430,9 @@
         <label class="pl-field-label" for="cpReqTextoArea">Área</label>
         <select class="pl-input" id="cpReqTextoArea"></select>
 
-        <label class="pl-field-label" for="cpReqTextoDescricao">Descrição</label>
-        <textarea class="pl-input pl-textarea" id="cpReqTextoDescricao" rows="4" placeholder="O que o desbravador precisa fazer"></textarea>
+        <!-- A Descrição saiu da tela: o Subtítulo traz o item. O campo fica
+             escondido só para o texto já gravado no banco não se perder ao salvar. -->
+        <textarea id="cpReqTextoDescricao" hidden></textarea>
 
         <label class="pl-field-label" for="cpReqTextoObservacao">Observação</label>
         <textarea class="pl-input pl-textarea" id="cpReqTextoObservacao" rows="3" placeholder="Recado do coordenador sobre este requisito"></textarea>
@@ -17288,7 +17289,8 @@
       (data || []).forEach(r => {
         REQ_TEXTOS[requisitoKey(r.classe, r.requisito_titulo)] = {
           titulo: r.titulo || '', subtitulo: r.subtitulo || '',
-          descricao: r.descricao || '', observacao: r.observacao || '',
+          // null = usa a descrição do catálogo; '' = o Coordenador apagou de propósito.
+          descricao: r.descricao == null ? null : r.descricao, observacao: r.observacao || '',
           modo: r.subitens_modo === 'um' ? 'um' : 'todos',
           area: r.area || ''
         };
@@ -18562,18 +18564,40 @@
     // pareceria "não leu nada".
     // O livro do ano desta classe (área Curso de Leitura), pra ler, ouvir e
     // compartilhar sem sair do requisito.
+    // Requisito do tipo "Ler o livro Vaso de Barro." → "Vaso de Barro".
+    // O "livro do Curso de Leitura do ano" não é um título: esse caso segue
+    // pela classe e pelo ano.
+    function livroCitadoNoRequisito(card){
+      if(/curso de leitura/i.test(card.dataset.title || '')) return '';
+      const m = (card.dataset.desc || '').match(/ler o livro\s+([^.;]+)/i);
+      // "O Maior Discurso de Cristo e escrever uma página…" → só o título.
+      const titulo = m ? m[1].split(/\s+e\s+(?:escrever|resumi)/i)[0].trim() : '';
+      return /curso de leitura/i.test(titulo) ? '' : titulo;
+    }
+
     async function pintarLivroDoAno(card){
       const lista = document.getElementById('clLivroAnoLista');
       const label = document.getElementById('clLivroAnoLabel');
       if(!lista || !window.__lvLivrosDaClasse) return;
-      lista.innerHTML = '<p class="un-empty-hint" style="margin:0;">Buscando o livro do ano…</p>';
-      const livros = await window.__lvLivrosDaClasse(currentClass);
+      // Requisito que cita um livro pelo nome procura esse livro; o do
+      // Curso de Leitura procura o livro da classe no ano.
+      const citado = livroCitadoNoRequisito(card);
+      lista.innerHTML = '<p class="un-empty-hint" style="margin:0;">Buscando o livro…</p>';
+      const livros = citado && window.__lvLivrosPorTitulo
+        ? await window.__lvLivrosPorTitulo(citado)
+        : await window.__lvLivrosDaClasse(currentClass);
       if(statusPickCard !== card) return;
       lista.innerHTML = '';
-      if(label) label.textContent = livros.length > 1 ? 'Livros do Curso de Leitura' : 'Livro do Curso de Leitura';
+      if(label) label.textContent = citado ? 'O livro deste requisito'
+        : (livros.length > 1 ? 'Livros do Curso de Leitura' : 'Livro do Curso de Leitura');
       if(!livros.length){
-        lista.innerHTML = '<p class="un-empty-hint" style="margin:0;">Nenhum livro de ' + currentClass +
-          ' cadastrado para este ano. Cadastre na área Curso de Leitura, com o PDF e/ou o link do áudio.</p>';
+        const aviso = document.createElement('p');
+        aviso.className = 'un-empty-hint';
+        aviso.style.margin = '0';
+        aviso.textContent = citado
+          ? 'O livro "' + citado + '" ainda não está cadastrado. Cadastre na área Curso de Leitura, com o link do áudio e/ou o PDF.'
+          : 'Nenhum livro de ' + currentClass + ' cadastrado para este ano. Cadastre na área Curso de Leitura, com o PDF e/ou o link do áudio.';
+        lista.appendChild(aviso);
         return;
       }
       livros.forEach(livro => {
@@ -18609,7 +18633,7 @@
       const lista = document.getElementById('clLivrosLidosLista');
       if(!bloco || !lista) return;
       bloco.style.display = 'none';
-      if(!/curso de leitura/i.test(card.dataset.title || '')) return;
+      if(!/curso de leitura/i.test(card.dataset.title || '') && !livroCitadoNoRequisito(card)) return;
       if(!selectedStudent || !window.__lvLidosDe) return;
       bloco.style.display = '';
       pintarLivroDoAno(card);
@@ -18644,17 +18668,15 @@
       statusPickTitle.textContent = tituloExibicao(currentClass, card.dataset.title);
       statusPickSubtitle.textContent = 'Status de ' + selectedStudent + ' neste requisito:';
       // O subtítulo é curto no card, mas aqui aparece inteiro.
-      const subtitulo = texto ? (texto.subtitulo || '') : '';
+      // O requisito mostra só o Subtítulo (a Descrição saiu da tela). Sem
+      // Subtítulo definido pelo Coordenador, vale o texto do catálogo, pra
+      // nenhum requisito ficar sem dizer o que fazer.
+      const subtitulo = (texto && texto.subtitulo) ? texto.subtitulo : (card.dataset.desc || '');
       if(statusPickSub){
         statusPickSub.textContent = comQuebraNosMarcadores(subtitulo);
         statusPickSub.style.display = subtitulo ? '' : 'none';
       }
-      // A descrição vem do texto reescrito quando existe; senão, do catálogo.
-      const descricao = (texto && texto.descricao) ? texto.descricao : (card.dataset.desc || '');
-      if(statusPickDesc){
-        statusPickDesc.textContent = comQuebraNosMarcadores(descricao);
-        statusPickDesc.style.display = descricao ? '' : 'none';
-      }
+      if(statusPickDesc) statusPickDesc.style.display = 'none';
       const observacao = texto ? texto.observacao : '';
       if(statusPickObs){
         statusPickObs.textContent = observacao;
@@ -21143,11 +21165,14 @@
       const atual = (window.__clTextoDoRequisito && window.__clTextoDoRequisito(alvo, titulo)) || null;
       rtCampos.titulo.value = atual ? (atual.titulo || '') : '';
       rtCampos.subtitulo.value = atual ? (atual.subtitulo || '') : '';
+      // Em branco, o requisito mostra o texto do catálogo; a dica deixa isso à vista.
+      rtCampos.subtitulo.placeholder = descricaoDoCatalogo(alvo, titulo) || 'Subtítulo';
       rtCampos.descricao.value = atual ? (atual.descricao || '') : '';
       rtCampos.observacao.value = atual ? (atual.observacao || '') : '';
       // Sem texto próprio ainda: já mostra a descrição do catálogo pra editar
-      // em cima dela, em vez de obrigar a redigitar tudo.
-      if(!rtCampos.descricao.value) rtCampos.descricao.value = descricaoDoCatalogo(alvo, titulo);
+      // em cima dela, em vez de obrigar a redigitar tudo. Se foi apagada de
+      // propósito (''), continua vazia.
+      if(!atual || atual.descricao == null) rtCampos.descricao.value = descricaoDoCatalogo(alvo, titulo);
 
       // Um sub-item por linha, na ordem em que estão salvos.
       const subs = (window.__clSubitens && window.__clSubitens(alvo, titulo)) || [];
@@ -21261,7 +21286,8 @@
         requisito_titulo: rtRequisito,
         titulo: rtCampos.titulo.value.trim() || null,
         subtitulo: rtCampos.subtitulo.value.trim() || null,
-        descricao: rtCampos.descricao.value.trim() || null,
+        // Vazio fica '' (e não null) pra a descrição do catálogo não voltar.
+        descricao: rtCampos.descricao.value.trim(),
         observacao: rtCampos.observacao.value.trim() || null,
         subitens_modo: (rtModo && rtModo.value === 'um') ? 'um' : 'todos',
         area: areaEscolhida(),
@@ -27359,6 +27385,16 @@ const REQ_SUMMARIES = {
       return LIVROS.filter(l => !normalizarTexto(l.classes) && String(l.ano || '').indexOf(anoAtual) !== -1);
     };
     window.__lvAbrirLivro = function(livro){ if(livro) abrirDetalhe(livro); };
+    // Livro citado pelo nome num requisito ("Ler o livro Vaso de Barro").
+    window.__lvLivrosPorTitulo = async function(titulo){
+      if(!LIVROS.length) await carregar();
+      const alvo = normalizarTexto(titulo);
+      if(!alvo) return [];
+      return LIVROS.filter(l => {
+        const t = normalizarTexto(l.titulo);
+        return t && (t === alvo || t.indexOf(alvo) !== -1 || alvo.indexOf(t) !== -1);
+      });
+    };
 
     // ---- Marcar que leu ----
     document.getElementById('lvLiBtn').addEventListener('click', async () => {
