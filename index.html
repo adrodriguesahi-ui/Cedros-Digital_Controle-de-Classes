@@ -3368,6 +3368,127 @@
   .bento-bar-val{ font-size:11.5px; font-weight:900; color:var(--lg-muted); text-align:right; white-space:nowrap; }
   .bento-bar-row.is-first .bento-bar-val{ color:var(--lg-gold); font-size:13.5px; }
 
+  /* ---- Cards de gestão do Início (computador; Administrador/Diretoria) ----
+     html.gs-ativo alarga a coluna do Início pra caber a grade de 12 colunas. */
+  @media (min-width:900px){
+    html.gs-ativo{ --col-inicio: clamp(1100px, 84vw, 1480px); }
+    html.gs-ativo .view-bdash .bd-content{ max-width:var(--col-inicio); }
+  }
+  .bd-gestao{ margin-bottom:22px; }
+  .bd-visao-btn{ width:auto; gap:8px; padding:0 10px 0 12px; font-size:12.5px; font-weight:800; font-family:inherit; }
+  .bd-visao-chave{ width:30px; height:17px; border-radius:10px; background:rgba(255,255,255,0.16); position:relative; transition:background .15s ease; }
+  .bd-visao-chave i{ position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#F5EFE1; transition:transform .15s ease; }
+  .bd-visao-btn.ligado{ border-color:rgba(63,203,107,0.5); color:#3FCB6B; }
+  .bd-visao-btn.ligado .bd-visao-chave{ background:#3FCB6B; }
+  .bd-visao-btn.ligado .bd-visao-chave i{ transform:translateX(13px); }
+  .gs-topo{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .gs-sub{ margin:0 auto 0 0; font-size:12px; font-weight:700; color:var(--lg-muted); }
+  .gs-mes{ display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:11px; border:1px solid var(--lg-border); background:#121810; font-size:13px; font-weight:800; color:var(--lg-ink); }
+  .gs-mes button{ width:24px; height:24px; border-radius:7px; border:none; background:rgba(255,255,255,0.06); color:var(--lg-ink); font-size:15px; font-weight:900; cursor:pointer; line-height:1; }
+  .gs-mes button:hover{ background:rgba(255,255,255,0.13); }
+  .gs-mes-mini{ padding:4px 8px; font-size:12px; flex-shrink:0; }
+  .gs-atualizar{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; border:1px solid var(--lg-border); background:#121810; color:var(--lg-ink); cursor:pointer; }
+  .gs-atualizar:hover{ background:rgba(255,255,255,0.08); }
+
+  .gs-kpis{ display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }
+  .gs-kpi{ display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:15px; background:#121810; border:1px solid var(--lg-border); min-width:0; }
+  .gs-kpi-ic{ width:40px; height:40px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .gs-kpi b{ display:block; font-size:22px; font-weight:900; line-height:1.05; color:var(--lg-ink); }
+  .gs-kpi span{ display:block; font-size:11.5px; font-weight:700; color:var(--lg-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gs-t-green{ background:rgba(63,203,107,0.15); color:#3FCB6B; }
+  .gs-t-blue{ background:rgba(91,155,255,0.15); color:#5B9BFF; }
+  .gs-t-gold{ background:rgba(216,168,62,0.17); color:#D8A83E; }
+  .gs-t-purple{ background:rgba(185,139,255,0.16); color:#B98BFF; }
+  .gs-t-orange{ background:rgba(255,159,67,0.15); color:#FF9F43; }
+
+  .gs-grid{ display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:14px; }
+  .gs-c3{ grid-column:span 3; } .gs-c4{ grid-column:span 4; } .gs-c5{ grid-column:span 5; }
+  .gs-c6{ grid-column:span 6; } .gs-c7{ grid-column:span 7; } .gs-c8{ grid-column:span 8; }
+  .gs-card{ display:flex; flex-direction:column; min-width:0; background:#121810; border:1px solid var(--lg-border); border-radius:16px; padding:16px 18px; }
+  .gs-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px; }
+  .gs-head h4{ margin:0; font-size:15.5px; font-weight:900; color:var(--lg-ink); }
+  .gs-head p{ margin:2px 0 0; font-size:11.5px; font-weight:700; color:var(--lg-muted); }
+  .gs-link{ font-size:12.5px; font-weight:800; color:var(--lg-green); text-decoration:none; white-space:nowrap; }
+  .gs-link:hover{ text-decoration:underline; }
+  .gs-vazio{ margin:4px 0; font-size:12.5px; font-weight:600; color:var(--lg-muted); }
+  .gs-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; flex-shrink:0; }
+  .gs-trilho{ height:10px; border-radius:6px; background:rgba(255,255,255,0.07); overflow:hidden; }
+  .gs-trilho i{ display:block; height:100%; border-radius:6px; min-width:2px; }
+  .gs-chip{ display:inline-block; padding:4px 9px; border-radius:20px; font-size:10.5px; font-weight:900; white-space:nowrap; }
+  .gs-chip.ok{ background:rgba(63,203,107,0.15); color:#3FCB6B; }
+  .gs-chip.espera{ background:rgba(216,168,62,0.17); color:#D8A83E; }
+  .gs-chip.falta{ background:rgba(255,107,92,0.14); color:#FF6B5C; }
+
+  /* Cronograma das Unidades */
+  .gs-cu{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .gs-cu-linha{ display:grid; grid-template-columns:30px 1fr 28px 90px; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--lg-border); font-size:13px; font-weight:800; color:var(--lg-ink); }
+  .gs-cu-linha:last-child{ border-bottom:none; }
+  .gs-cu-linha b{ font-size:16px; text-align:right; }
+  .gs-cu-ic{ width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .gs-cu-datas{ border-left:1px solid var(--lg-border); padding-left:20px; min-width:0; }
+  .gs-cu-datas h5{ margin:0 0 8px; font-size:13px; font-weight:900; color:var(--lg-ink); }
+  .gs-data-linha{ display:grid; grid-template-columns:44px 1fr; gap:8px; padding:5px 0; font-size:12.5px; font-weight:700; color:var(--lg-ink); }
+  .gs-data-linha > span:first-child{ font-weight:900; color:var(--lg-green); }
+  .gs-data-linha > span:last-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gs-data-linha small{ color:var(--lg-muted); }
+
+  /* Desempenho das classes */
+  .gs-bars{ display:flex; flex-direction:column; gap:8px; }
+  .gs-bar-row{ display:grid; grid-template-columns:120px 1fr 64px; align-items:center; gap:12px; padding:3px 6px; border-radius:9px; }
+  .gs-bar-row:hover{ background:rgba(255,255,255,0.05); }
+  .gs-bar-nome{ display:flex; align-items:center; min-width:0; font-size:13px; font-weight:800; color:var(--lg-ink); }
+  .gs-bar-nome span:last-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gs-bar-val{ font-size:13px; font-weight:900; color:var(--lg-ink); text-align:right; white-space:nowrap; }
+  .gs-bar-val small{ display:block; font-size:10.5px; font-weight:700; color:var(--lg-muted); }
+
+  /* Cronograma por reunião */
+  .gs-tab{ width:100%; border-collapse:separate; border-spacing:0 7px; }
+  .gs-tab th{ text-align:left; font-size:10.5px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:rgba(245,239,225,0.42); padding:0 9px; }
+  .gs-tab td{ background:rgba(255,255,255,0.03); padding:9px; vertical-align:top; font-size:12.5px; font-weight:700; color:var(--lg-ink); border-top:1px solid var(--lg-border); border-bottom:1px solid var(--lg-border); }
+  .gs-tab td:first-child{ border-left:1px solid var(--lg-border); border-radius:12px 0 0 12px; width:62px; }
+  .gs-tab td:last-child{ border-right:1px solid var(--lg-border); border-radius:0 12px 12px 0; vertical-align:middle; width:1%; }
+  .gs-dia{ width:50px; text-align:center; border-radius:10px; padding:5px 0; background:rgba(63,203,107,0.14); color:#3FCB6B; }
+  .gs-dia b{ display:block; font-size:19px; font-weight:900; line-height:1.05; }
+  .gs-dia span{ font-size:10px; font-weight:900; text-transform:uppercase; }
+  .gs-tab ul{ margin:0; padding-left:14px; }
+  .gs-tab li{ margin:1px 0; }
+  .gs-tab small{ color:var(--lg-muted); }
+  .gs-tipo b{ display:block; font-size:13px; font-weight:900; }
+
+  /* Reunião: oficiais, diretoria e programação */
+  .gs-sec{ margin:4px 0 5px; font-size:10.5px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:rgba(245,239,225,0.42); }
+  .gs-of{ display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid var(--lg-border); font-size:12.5px; font-weight:700; color:var(--lg-muted); }
+  .gs-of:last-child{ border-bottom:none; }
+  .gs-of b{ color:var(--lg-ink); font-weight:800; text-align:right; }
+  .gs-prog{ display:grid; grid-template-columns:44px 1fr; gap:8px; padding:3px 0; font-size:12.5px; font-weight:700; color:var(--lg-ink); }
+  .gs-prog span:first-child{ color:var(--lg-green); font-weight:900; }
+  .gs-reuniao-titulo{ margin:0 0 10px; font-size:13.5px; font-weight:900; color:var(--lg-ink); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+  /* Frequência: número principal + colunas por reunião */
+  .gs-freq-topo{ display:flex; align-items:baseline; gap:12px; margin-bottom:12px; }
+  .gs-freq-num{ font-size:32px; font-weight:900; line-height:1; color:var(--lg-ink); }
+  .gs-freq-legenda{ font-size:12px; font-weight:700; color:var(--lg-muted); }
+  .gs-colunas{ position:relative; display:flex; align-items:flex-end; gap:5px; height:110px; border-bottom:1px solid rgba(255,255,255,0.12); }
+  .gs-coluna{ flex:1; min-width:0; height:100%; display:flex; align-items:flex-end; justify-content:center; cursor:default; }
+  .gs-coluna:hover{ background:rgba(255,255,255,0.04); border-radius:6px 6px 0 0; }
+  .gs-coluna i{ display:block; width:70%; max-width:28px; border-radius:4px 4px 0 0; background:#3FCB6B; }
+  .gs-coluna i.baixo{ background:#D8A83E; }
+  .gs-meta{ position:absolute; left:0; right:0; border-top:1px dashed rgba(245,239,225,0.38); pointer-events:none; }
+  .gs-meta span{ position:absolute; right:0; top:-15px; font-size:9.5px; font-weight:800; color:var(--lg-muted); }
+  .gs-col-datas{ display:flex; gap:5px; margin-top:4px; }
+  .gs-col-datas span{ flex:1; min-width:0; text-align:center; font-size:9.5px; font-weight:700; color:var(--lg-muted); overflow:hidden; }
+  .gs-baixos{ margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; }
+  .gs-baixos span{ font-size:11.5px; font-weight:800; padding:4px 9px; border-radius:20px; background:rgba(216,168,62,0.12); color:#D8A83E; }
+  .gs-baixos p{ width:100%; margin:0 0 2px; font-size:12px; font-weight:800; color:var(--lg-ink); }
+
+  /* Atividades especiais e avisos */
+  .gs-item{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--lg-border); min-width:0; }
+  .gs-item:last-child{ border-bottom:none; }
+  .gs-item-ic{ width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; }
+  .gs-item-corpo{ flex:1; min-width:0; font-size:12.5px; font-weight:800; color:var(--lg-ink); }
+  .gs-item-corpo b{ display:block; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gs-item-corpo small{ display:block; color:var(--lg-muted); font-weight:700; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
   .bento-mini-card{ display:flex; flex-direction:column; gap:6px; }
   .bento-mini-icon{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:2px; }
   .bento-mini-num{ font-size:20px; font-weight:900; color:var(--lg-ink); }
@@ -12460,6 +12581,13 @@
             <button class="bd-icon-btn bd-notif-permit-btn" id="bdNotifPermitBtn" aria-label="Ativar notificações do sistema" style="display:none;">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
             </button>
+            <!-- Liga/desliga os cards de gestão do Início. Só aparece no computador
+                 pra Administrador/Diretoria (ver "Cards de gestão do Início"). -->
+            <button type="button" class="bd-icon-btn bd-visao-btn" id="bdVisaoGeralBtn" role="switch" aria-checked="false" title="Mostrar/ocultar os cards de gestão" style="display:none;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+              <span>Visão geral</span>
+              <span class="bd-visao-chave" aria-hidden="true"><i></i></span>
+            </button>
             <button class="bd-icon-btn" id="bdBellBtn" aria-label="Notificações" style="position:relative;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
               <span class="bd-dot" id="bdBellDot" style="display:none;"></span>
@@ -12700,6 +12828,60 @@
             </span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
           </a>
+
+          <!-- Cards de gestão: só no computador e só pra Administrador/Diretoria.
+               Somam-se ao Início padrão (nada acima/abaixo muda). Preenchidos
+               pelo módulo "Cards de gestão do Início". -->
+          <section class="bd-gestao" id="bdGestao" aria-label="Gestão do clube" style="display:none;">
+            <div class="gs-topo">
+              <p class="gs-sub" id="gsAtualizado"></p>
+              <div class="gs-mes">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+                <span id="gsMesNome"></span>
+                <button type="button" id="gsMesAnt" aria-label="Mês anterior">‹</button>
+                <button type="button" id="gsMesProx" aria-label="Próximo mês">›</button>
+              </div>
+              <button type="button" class="gs-atualizar" id="gsAtualizarBtn" aria-label="Atualizar" title="Atualizar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+              </button>
+            </div>
+            <div class="gs-kpis" id="gsKpis"></div>
+            <div class="gs-grid">
+              <div class="gs-card gs-c7">
+                <div class="gs-head"><div><h4>Cronograma das Unidades</h4><p id="gsUniSub"></p></div><a href="#" class="gs-link" data-goto="view-units">Ver unidades ›</a></div>
+                <div class="gs-cu">
+                  <div id="gsUniResumo"></div>
+                  <div class="gs-cu-datas"><h5>Próximas datas</h5><div id="gsUniDatas"></div></div>
+                </div>
+              </div>
+              <div class="gs-card gs-c5">
+                <div class="gs-head"><div><h4>Desempenho das Classes</h4><p>Média dos requisitos concluídos pelos alunos</p></div><a href="#" class="gs-link" data-goto="view-classes">Ver classes ›</a></div>
+                <div class="gs-bars" id="gsClasses"></div>
+              </div>
+              <div class="gs-card gs-c8">
+                <div class="gs-head"><div><h4>Cronograma por Reunião</h4><p>Aulas das classes e atividades das unidades em cada reunião</p></div><a href="#" class="gs-link" data-goto="view-planning">Ver agenda ›</a></div>
+                <div id="gsReunioes"></div>
+              </div>
+              <div class="gs-card gs-c4">
+                <div class="gs-head"><div><h4>Reunião</h4><p>Oficiais e programação do dia</p></div>
+                  <div class="gs-mes gs-mes-mini"><span id="gsReuniaoData"></span><button type="button" id="gsReuniaoAnt" aria-label="Reunião anterior">‹</button><button type="button" id="gsReuniaoProx" aria-label="Próxima reunião">›</button></div>
+                </div>
+                <div id="gsReuniao"></div>
+              </div>
+              <div class="gs-card gs-c6">
+                <div class="gs-head"><div><h4 id="gsFreqTitulo">Frequência do Clube</h4><p>Presença por reunião na Chamada de Presença</p></div><a href="#" class="gs-link" data-goto="view-secretary">Ver chamadas ›</a></div>
+                <div id="gsFreq"></div>
+              </div>
+              <div class="gs-card gs-c3">
+                <div class="gs-head"><div><h4>Atividades Especiais</h4><p>Próximos eventos</p></div><a href="#" class="gs-link" data-goto="view-planning">Ver ›</a></div>
+                <div id="gsEspeciais"></div>
+              </div>
+              <div class="gs-card gs-c3">
+                <div class="gs-head"><div><h4>Avisos</h4><p>Lembretes ativos da Agenda</p></div></div>
+                <div id="gsAvisos"></div>
+              </div>
+            </div>
+          </section>
 
           <!-- Bento: progress ring + unit comparison chart + streak -->
           <div class="bento-grid">
@@ -16543,7 +16725,24 @@
         if(barEl) barEl.style.width = pct + '%';
         if(pctEl) pctEl.textContent = pct + '%';
       });
+      // O Painel de Gestão (computador) redesenha o gráfico das classes com isto.
+      window.dispatchEvent(new CustomEvent('clube:desempenho-classes'));
     }
+
+    // Desempenho de cada classe pro Painel de Gestão: mesma conta das barras do hub.
+    window.__clDesempenhoClasses = function(){
+      return Object.keys(CLASS_COLORS).map(className => {
+        const group = findClassGroup(className);
+        const cards = group ? Array.from(group.querySelectorAll('.cl-activity-card')) : [];
+        return {
+          classe: className, cor: CLASS_COLORS[className],
+          alunos: (CLASS_STUDENTS[className] || []).length,
+          requisitos: cards.length,
+          pct: classCompletionPct(className, cards)
+        };
+      });
+    };
+    window.__clCoresDasClasses = () => Object.assign({}, CLASS_COLORS);
 
     function applyClassFilter(){
       content.querySelectorAll('.pl-month-group').forEach(group => {
@@ -20600,7 +20799,9 @@
     }
 
     function sairDoModoOrdenar(){
+      const estavaOrdenando = content.classList.contains('cl-modo-ordenar');
       content.classList.remove('cl-modo-ordenar');
+      if(estavaOrdenando && currentClass) addBtn.style.display = podeCriarRequisito(currentClass) ? '' : 'none';
       if(ordenarBtn){ ordenarBtn.classList.remove('active'); ordenarBtn.textContent = '⇅ Ordenar'; }
     }
 
@@ -20623,6 +20824,8 @@
         card.appendChild(setas);
       });
       content.classList.add('cl-modo-ordenar');
+      // O + fica por cima das setas do canto de baixo; some enquanto ordena.
+      addBtn.style.display = 'none';
       ordenarBtn.classList.add('active');
       ordenarBtn.textContent = '✓ Concluir';
     }
@@ -29099,6 +29302,444 @@ const REQ_SUMMARIES = {
   ).forEach((el) => {
     el.addEventListener('click', (e) => e.preventDefault());
   });
+
+  // ---- Cards de gestão do Início ----
+  // Somam-se ao Início padrão, só no computador (mouse + tela larga, fora do app
+  // instalado) e só pra Administrador ou cargo Diretor/Dir. Associado(a):
+  // indicadores do mês, cronograma das unidades, desempenho das classes,
+  // cronograma por reunião, oficiais/programação, frequência, atividades
+  // especiais e avisos. Celular, tablet e os outros usuários não veem nada disto.
+  (function(){
+    const secao = document.getElementById('bdGestao');
+    if(!secao) return;
+    const $ = id => document.getElementById(id);
+    const META_FREQ = 75;
+    const CARGOS_GESTAO = ['diretor', 'diretora', 'dir. associado', 'dir. associada'];
+    const computador = window.matchMedia('(min-width:900px) and (hover:hover) and (pointer:fine)');
+    const appInstalado = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+    const normalizar = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    function podeVer(){
+      const u = window.__currentUsuario;
+      if(!u) return false;
+      if(u.papel === 'Administrador' || (u.papeisAdicionais || []).indexOf('Administrador') !== -1) return true;
+      return CARGOS_GESTAO.indexOf(normalizar(u.cargo)) !== -1;
+    }
+    const ativo = () => computador.matches && !appInstalado && podeVer();
+
+    const el = (tag, cls, texto) => {
+      const e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(texto != null) e.textContent = texto;
+      return e;
+    };
+    const ponto = cor => el('span', 'cl-class-dot cl-color-' + (cor || 'gray'));
+    const vazio = texto => el('p', 'gs-vazio', texto);
+    const isoDe = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const hoje = () => isoDe(new Date());
+    const dataDe = iso => new Date(iso + 'T12:00:00');
+    const ddmm = iso => iso.slice(8, 10) + '/' + iso.slice(5, 7);
+    const mesCurto = iso => MESES[Number(iso.slice(5, 7)) - 1].slice(0, 3);
+    function caixaDia(iso){
+      const c = el('div', 'gs-dia');
+      c.append(el('b', null, iso.slice(8, 10)), el('span', null, mesCurto(iso)));
+      return c;
+    }
+
+    // Estado da última carga.
+    const agora = new Date();
+    let mesSel = { ano: agora.getFullYear(), mes: agora.getMonth() + 1 };
+    let eventos = [];      // da Agenda Anual, com .iso
+    let diretoria = [];    // usuários com cargo de liderança
+    let freq = null;       // { pct, reunioes }
+    let reuniaoIdx = 0;    // qual reunião o card "Reunião" está mostrando
+    let datasReuniao = [];
+
+    // A Agenda guarda dia + mês (do ano corrente). "Reunião" é a etiqueta das
+    // reuniões; "Programação/Evento Especial" são as atividades especiais.
+    const ehReuniao = e => e.tag_label === 'Reunião' && !/folga/i.test(e.titulo || '');
+    const ehAcampamento = e => /acamp|excurs/i.test(e.titulo || '');
+    const ehEspecial = e => /especial/i.test(e.tag_label || '') || ehAcampamento(e);
+    const doMes = (iso, m) => iso.slice(0, 7) === m.ano + '-' + String(m.mes).padStart(2, '0');
+
+    async function carregarBase(){
+      const ano = new Date().getFullYear();
+      const [{ data: ev }, { data: us }] = await Promise.all([
+        supa.from('eventos_agenda').select('dia, mes_indice, titulo, horario, local, tag_label, oficiais_dia_nomes, programacao_dia, programacao_aprovada, lembrete_on, lembrete_data, lembrete_mensagem, lembrete_confirmado'),
+        supa.from('usuarios').select('nome, cargo').not('cargo', 'is', null)
+      ]);
+      eventos = (ev || []).map(e => Object.assign({}, e, {
+        iso: ano + '-' + String(e.mes_indice).padStart(2, '0') + '-' + String(e.dia).padStart(2, '0')
+      })).sort((a, b) => (a.iso + (a.horario || '')).localeCompare(b.iso + (b.horario || '')));
+      const ordem = c => { const n = normalizar(c); return n.indexOf('diretor') === 0 ? 0 : /assoc/.test(n) ? 1 : /secret/.test(n) ? 2 : /tesour/.test(n) ? 3 : 4; };
+      diretoria = (us || []).filter(u => /diretor|dir\.? ?assoc|secret|tesour|capel/i.test(u.cargo || ''))
+        .sort((a, b) => ordem(a.cargo) - ordem(b.cargo)).slice(0, 6);
+      datasReuniao = [...new Set(eventos.filter(ehReuniao).map(e => e.iso))];
+      const prox = datasReuniao.findIndex(d => d >= hoje());
+      reuniaoIdx = prox === -1 ? Math.max(0, datasReuniao.length - 1) : prox;
+    }
+
+    // ---- Indicadores ----
+    function desenharKpis(atividadesUnidadesNoMes){
+      const box = $('gsKpis');
+      box.innerHTML = '';
+      const nomesUni = (window.CLUBE && window.CLUBE.unidades) || [];
+      const status = (window.CLUBE && window.CLUBE.status) || {};
+      const unidades = nomesUni.filter(n => status[n] !== 'inativa').length;
+      const chipMembros = document.querySelector('#bdMembersChip b');
+      const doMesSel = eventos.filter(e => doMes(e.iso, mesSel));
+      const classes = window.__clDesempenhoClasses ? window.__clDesempenhoClasses().filter(c => c.alunos > 0) : [];
+      const alunos = classes.reduce((s, c) => s + c.alunos, 0);
+      const media = alunos ? Math.round(classes.reduce((s, c) => s + c.pct * c.alunos, 0) / alunos) : null;
+      const itens = [
+        ['gs-t-blue', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.6c2.8.1 4.8 1.9 5.5 5.4"/>',
+          unidades, 'Unidades' + (chipMembros ? ' · ' + chipMembros.textContent + ' membros' : '')],
+        ['gs-t-green', '<polyline points="5 12 10 17 19 7"/>', new Set(doMesSel.filter(ehReuniao).map(e => e.iso)).size, 'Reuniões no mês'],
+        ['gs-t-gold', '<path d="M12 3 3 20h18Z"/><path d="M12 9v5"/>', doMesSel.filter(e => ehEspecial(e) && !ehAcampamento(e)).length, 'Atividades especiais'],
+        ['gs-t-purple', '<path d="M3 20 12 4l9 16Z"/><path d="M12 20v-6"/>', doMesSel.filter(ehAcampamento).length, 'Acampamento / Excursão'],
+        ['gs-t-green', '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><polyline points="8 15 11 18 16 13"/>',
+          freq && freq.pct != null ? freq.pct + '%' : '—', 'Frequência · meta ' + META_FREQ + '%'],
+        ['gs-t-orange', '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', media == null ? '—' : media + '%', 'Média das classes']
+      ];
+      itens.forEach(([tom, svg, num, rotulo]) => {
+        const k = el('div', 'gs-kpi');
+        const ic = el('span', 'gs-kpi-ic ' + tom);
+        ic.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + svg + '</svg>';
+        const corpo = el('div');
+        corpo.append(el('b', null, String(num)), el('span', null, rotulo));
+        k.append(ic, corpo);
+        box.appendChild(k);
+      });
+      if(atividadesUnidadesNoMes != null) desenharResumoUnidades(atividadesUnidadesNoMes);
+    }
+
+    // ---- Cronograma das unidades: resumo do mês escolhido + próximas datas ----
+    let atividadesDoMes = [];
+    function desenharResumoUnidades(qtdAtividades){
+      $('gsUniSub').textContent = 'Resumo de ' + MESES[mesSel.mes - 1] + ' de ' + mesSel.ano;
+      const doMesSel = eventos.filter(e => doMes(e.iso, mesSel));
+      const linhas = [
+        ['gs-t-green', '✓', 'Reuniões', new Set(doMesSel.filter(ehReuniao).map(e => e.iso)).size, '#3FCB6B'],
+        ['gs-t-blue', '●', 'Atividades de unidade', qtdAtividades, '#5B9BFF'],
+        ['gs-t-gold', '▲', 'Atividades especiais', doMesSel.filter(e => ehEspecial(e) && !ehAcampamento(e)).length, '#D8A83E'],
+        ['gs-t-purple', '★', 'Acampamento / Excursão', doMesSel.filter(ehAcampamento).length, '#B98BFF']
+      ];
+      const maior = Math.max(1, ...linhas.map(l => l[3]));
+      const box = $('gsUniResumo');
+      box.innerHTML = '';
+      linhas.forEach(([tom, sim, rotulo, n, cor]) => {
+        const l = el('div', 'gs-cu-linha');
+        const trilho = el('span', 'gs-trilho');
+        const barra = el('i');
+        barra.style.width = (n / maior * 100) + '%';
+        barra.style.background = cor;
+        trilho.appendChild(barra);
+        l.append(el('span', 'gs-cu-ic ' + tom, sim), el('span', null, rotulo), el('b', null, String(n)), trilho);
+        box.appendChild(l);
+      });
+    }
+
+    async function carregarAtividadesDoMes(){
+      const ini = mesSel.ano + '-' + String(mesSel.mes).padStart(2, '0') + '-01';
+      const fim = isoDe(new Date(mesSel.ano, mesSel.mes, 0));
+      const { data } = await supa.from('unit_atividades').select('unidade, titulo, data, hora')
+        .gte('data', ini).lte('data', fim).order('data');
+      atividadesDoMes = data || [];
+      $('gsMesNome').textContent = MESES[mesSel.mes - 1].replace(/^./, c => c.toUpperCase()) + ' de ' + mesSel.ano;
+      desenharKpis(atividadesDoMes.length);
+    }
+
+    async function desenharProximasDatas(){
+      const { data } = await supa.from('unit_atividades').select('unidade, titulo, data, hora')
+        .gte('data', hoje()).order('data').order('hora').limit(8);
+      const itens = (data || []).map(a => ({ iso: a.data, titulo: a.titulo, extra: a.unidade }))
+        .concat(eventos.filter(e => e.iso >= hoje() && (ehReuniao(e) || ehEspecial(e))).slice(0, 8)
+          .map(e => ({ iso: e.iso, titulo: e.titulo, extra: e.tag_label })))
+        .sort((a, b) => a.iso.localeCompare(b.iso)).slice(0, 6);
+      const box = $('gsUniDatas');
+      box.innerHTML = '';
+      if(!itens.length){ box.appendChild(vazio('Nada agendado daqui pra frente.')); return; }
+      itens.forEach(i => {
+        const l = el('div', 'gs-data-linha');
+        const t = el('span', null, i.titulo);
+        t.title = i.titulo + ' · ' + i.extra;
+        t.appendChild(el('small', null, ' · ' + i.extra));
+        l.append(el('span', null, ddmm(i.iso)), t);
+        box.appendChild(l);
+      });
+    }
+
+    // ---- Desempenho das classes ----
+    function desenharClasses(){
+      const box = $('gsClasses');
+      if(!window.__clDesempenhoClasses) return;
+      const lista = window.__clDesempenhoClasses().filter(c => c.alunos > 0);
+      box.innerHTML = '';
+      if(!lista.length){ box.appendChild(vazio('Nenhuma classe com alunos cadastrados ainda.')); return; }
+      lista.forEach(c => {
+        const linha = el('div', 'gs-bar-row');
+        linha.title = c.classe + ': ' + c.pct + '% concluído · ' + c.alunos + (c.alunos === 1 ? ' aluno' : ' alunos') + ' · ' + c.requisitos + ' requisitos';
+        const nome = el('span', 'gs-bar-nome');
+        nome.append(ponto(c.cor), el('span', null, c.classe));
+        const trilho = el('span', 'gs-trilho');
+        const barra = el('i');
+        barra.style.width = c.pct + '%';
+        barra.style.background = '#3FCB6B';
+        trilho.appendChild(barra);
+        const val = el('span', 'gs-bar-val', c.pct + '%');
+        val.appendChild(el('small', null, c.alunos + (c.alunos === 1 ? ' aluno' : ' alunos')));
+        linha.append(nome, trilho, val);
+        box.appendChild(linha);
+      });
+    }
+
+    // Texto do requisito como o Coordenador escreveu no cartão (subtítulo), senão a chave.
+    function nomeDoRequisito(classe, titulo){
+      const t = window.__clTextoDoRequisito && window.__clTextoDoRequisito(classe, titulo);
+      return (t && (t.subtitulo || t.titulo)) || titulo;
+    }
+    function situacao(doDia){
+      if(doDia.some(e => e.programacao_aprovada)) return ['ok', '✓ Aprovada'];
+      if(doDia.some(e => (e.programacao_dia || []).length)) return ['espera', 'Aguardando aprovação'];
+      return ['falta', 'Sem programação'];
+    }
+
+    // ---- Cronograma por reunião: as 4 próximas datas com reunião ----
+    async function desenharReunioes(){
+      const box = $('gsReunioes');
+      const datas = datasReuniao.filter(d => d >= hoje()).slice(0, 4);
+      box.innerHTML = '';
+      if(!datas.length){ box.appendChild(vazio('Nenhuma reunião cadastrada na Agenda Anual daqui pra frente.')); return; }
+      const [{ data: aulas }, { data: ativs }] = await Promise.all([
+        supa.from('planejamentos_aula').select('classe, requisito_titulo, data, horario, instrutor_responsavel, tema').in('data', datas).order('horario'),
+        supa.from('unit_atividades').select('unidade, titulo, data, hora').in('data', datas)
+      ]);
+      const cores = window.__clCoresDasClasses ? window.__clCoresDasClasses() : {};
+      const tab = el('table', 'gs-tab');
+      tab.innerHTML = '<thead><tr><th>Data</th><th>Reunião</th><th>Planejamento das classes</th><th>Atividades das unidades</th><th>Programação</th></tr></thead>';
+      const corpo = el('tbody');
+      datas.forEach(iso => {
+        const doDia = eventos.filter(e => e.iso === iso && ehReuniao(e));
+        const tr = el('tr');
+        const tdData = el('td'); tdData.appendChild(caixaDia(iso));
+        const tdTipo = el('td', 'gs-tipo');
+        tdTipo.appendChild(el('b', null, doDia.map(e => e.titulo).join(' + ')));
+        const oficiais = [...new Set([].concat(...doDia.map(e => e.oficiais_dia_nomes || [])))];
+        tdTipo.appendChild(el('small', null, oficiais.length ? 'Oficial do dia: ' + oficiais.join(', ') : 'Sem oficial escalado'));
+        const tdAulas = el('td');
+        const aulasDia = (aulas || []).filter(a => a.data === iso);
+        if(aulasDia.length){
+          const ul = el('ul');
+          aulasDia.forEach(a => {
+            const li = el('li');
+            li.append(ponto(cores[a.classe]), document.createTextNode(a.classe + ' — ' + (a.tema || (a.requisito_titulo ? nomeDoRequisito(a.classe, a.requisito_titulo) : 'aula'))));
+            if(a.instrutor_responsavel) li.appendChild(el('small', null, ' (' + a.instrutor_responsavel + ')'));
+            ul.appendChild(li);
+          });
+          tdAulas.appendChild(ul);
+        } else tdAulas.appendChild(el('small', null, 'Sem aulas planejadas'));
+        const tdUni = el('td');
+        const ativDia = (ativs || []).filter(a => a.data === iso);
+        if(ativDia.length){
+          const ul = el('ul');
+          ativDia.forEach(a => ul.appendChild(el('li', null, a.unidade + ' — ' + a.titulo)));
+          tdUni.appendChild(ul);
+        } else tdUni.appendChild(el('small', null, 'Nenhuma'));
+        const [tom, rotulo] = situacao(doDia);
+        const tdSit = el('td'); tdSit.appendChild(el('span', 'gs-chip ' + tom, rotulo));
+        tr.append(tdData, tdTipo, tdAulas, tdUni, tdSit);
+        corpo.appendChild(tr);
+      });
+      tab.appendChild(corpo);
+      box.appendChild(tab);
+    }
+
+    // ---- Reunião: oficiais, diretoria e programação da data escolhida ----
+    function desenharReuniao(){
+      const box = $('gsReuniao');
+      box.innerHTML = '';
+      const iso = datasReuniao[reuniaoIdx];
+      $('gsReuniaoData').textContent = iso ? ddmm(iso) + '/' + iso.slice(0, 4) : '—';
+      if(!iso){ box.appendChild(vazio('Nenhuma reunião cadastrada na Agenda Anual.')); return; }
+      const doDia = eventos.filter(e => e.iso === iso && ehReuniao(e));
+      const titulo = el('p', 'gs-reuniao-titulo', doDia.map(e => e.titulo).join(' + '));
+      const [tom, rotulo] = situacao(doDia);
+      titulo.appendChild(el('span', 'gs-chip ' + tom, rotulo));
+      box.appendChild(titulo);
+      const oficiais = [...new Set([].concat(...doDia.map(e => e.oficiais_dia_nomes || [])))];
+      box.appendChild(el('p', 'gs-sec', 'Oficiais do dia'));
+      if(oficiais.length) oficiais.forEach(n => { const l = el('div', 'gs-of'); l.append(el('span', null, 'Oficial de Dia'), el('b', null, n)); box.appendChild(l); });
+      else box.appendChild(vazio('Ninguém escalado ainda.'));
+      if(diretoria.length){
+        box.appendChild(el('p', 'gs-sec', 'Diretoria'));
+        diretoria.forEach(u => { const l = el('div', 'gs-of'); l.append(el('span', null, u.cargo), el('b', null, u.nome)); box.appendChild(l); });
+      }
+      const prog = (doDia.find(e => (e.programacao_dia || []).length) || {}).programacao_dia || [];
+      box.appendChild(el('p', 'gs-sec', 'Programação do dia'));
+      if(prog.length) prog.slice(0, 8).forEach(p => { const l = el('div', 'gs-prog'); l.append(el('span', null, p.horario || ''), el('span', null, p.atividade || '')); box.appendChild(l); });
+      else box.appendChild(vazio('O Oficial de Dia ainda não montou a programação.'));
+    }
+
+    // ---- Frequência do ano: só as chamadas que contam presença (regra do GE-2) ----
+    async function desenharFrequencia(){
+      const box = $('gsFreq');
+      const ano = new Date().getFullYear();
+      $('gsFreqTitulo').textContent = 'Frequência do Clube · ' + ano;
+      const { data: chamadas, error } = await supa.from('chamadas')
+        .select('id, data, titulo').eq('ano', ano).eq('conta_presenca', true).order('data');
+      box.innerHTML = '';
+      freq = null;
+      if(error){ box.appendChild(vazio('Não consegui carregar as chamadas.')); return; }
+      if(!chamadas || !chamadas.length){ box.appendChild(vazio('Nenhuma chamada registrada em ' + ano + '.')); return; }
+      const { data: presencas } = await supa.from('chamada_presencas')
+        .select('chamada_id, usuario_id, presente, status').in('chamada_id', chamadas.map(c => c.id));
+      const veio = p => p.status ? p.status !== 'falta' : p.presente !== false;
+      const porChamada = {}, porPessoa = {};
+      let total = 0, presentes = 0;
+      (presencas || []).forEach(p => {
+        const c = porChamada[p.chamada_id] = porChamada[p.chamada_id] || { total: 0, veio: 0 };
+        const s = porPessoa[p.usuario_id] = porPessoa[p.usuario_id] || { total: 0, veio: 0 };
+        c.total++; s.total++; total++;
+        if(veio(p)){ c.veio++; s.veio++; presentes++; }
+      });
+      freq = { pct: total ? Math.round(presentes / total * 100) : null, reunioes: chamadas.length };
+
+      const topo = el('div', 'gs-freq-topo');
+      topo.append(el('span', 'gs-freq-num', freq.pct == null ? '—' : freq.pct + '%'),
+        el('span', 'gs-freq-legenda', 'de presença em ' + chamadas.length + (chamadas.length === 1 ? ' reunião' : ' reuniões') + ' · meta ' + META_FREQ + '%'));
+      box.appendChild(topo);
+      const recentes = chamadas.slice(-16);
+      const colunas = el('div', 'gs-colunas');
+      const datas = el('div', 'gs-col-datas');
+      recentes.forEach(ch => {
+        const c = porChamada[ch.id] || { total: 0, veio: 0 };
+        const pct = c.total ? Math.round(c.veio / c.total * 100) : 0;
+        const col = el('div', 'gs-coluna');
+        col.title = ddmm(ch.data) + ' · ' + (ch.titulo || 'Reunião') + ': ' + pct + '% (' + c.veio + ' de ' + c.total + ')';
+        const barra = el('i', pct < META_FREQ ? 'baixo' : '');
+        barra.style.height = Math.max(pct, 2) + '%';
+        col.appendChild(barra);
+        colunas.appendChild(col);
+        datas.appendChild(el('span', null, ddmm(ch.data)));
+      });
+      const meta = el('div', 'gs-meta');
+      meta.style.bottom = META_FREQ + '%';
+      meta.appendChild(el('span', null, 'meta ' + META_FREQ + '%'));
+      colunas.appendChild(meta);
+      box.append(colunas, datas);
+
+      const baixos = Object.keys(porPessoa)
+        .map(id => ({ id, pct: Math.round(porPessoa[id].veio / porPessoa[id].total * 100) }))
+        .filter(p => p.pct < META_FREQ).sort((a, b) => a.pct - b.pct);
+      const bloco = el('div', 'gs-baixos');
+      bloco.appendChild(el('p', null, baixos.length
+        ? baixos.length + (baixos.length === 1 ? ' pessoa abaixo de ' : ' pessoas abaixo de ') + META_FREQ + '%'
+        : 'Todos estão com ' + META_FREQ + '% ou mais.'));
+      if(baixos.length){
+        const { data: nomes } = await supa.from('usuarios').select('id, nome').in('id', baixos.slice(0, 8).map(p => p.id));
+        const porId = {};
+        (nomes || []).forEach(u => { porId[u.id] = u.nome; });
+        baixos.slice(0, 8).forEach(p => bloco.appendChild(el('span', null, (porId[p.id] || 'Sem nome') + ' ' + p.pct + '%')));
+        if(baixos.length > 8) bloco.appendChild(el('span', null, '+' + (baixos.length - 8)));
+      }
+      box.appendChild(bloco);
+    }
+
+    // ---- Atividades especiais (próximas) e avisos (lembretes ativos) ----
+    function desenharEspeciais(){
+      const box = $('gsEspeciais');
+      box.innerHTML = '';
+      const lista = eventos.filter(e => e.iso >= hoje() && ehEspecial(e)).slice(0, 4);
+      if(!lista.length){ box.appendChild(vazio('Nenhuma atividade especial agendada.')); return; }
+      lista.forEach(e => {
+        const acamp = ehAcampamento(e);
+        const item = el('div', 'gs-item');
+        const corpo = el('span', 'gs-item-corpo');
+        corpo.append(el('b', null, e.titulo), el('small', null, ddmm(e.iso) + (e.horario ? ' · ' + e.horario : '') + ' · ' + (acamp ? 'Acampamento' : e.tag_label)));
+        item.append(el('span', 'gs-item-ic ' + (acamp ? 'gs-t-purple' : 'gs-t-gold'), acamp ? '★' : '▲'), corpo);
+        item.title = e.titulo;
+        box.appendChild(item);
+      });
+    }
+    function desenharAvisos(){
+      const box = $('gsAvisos');
+      box.innerHTML = '';
+      const lista = eventos.filter(e => e.lembrete_on && !e.lembrete_confirmado && e.lembrete_data && e.lembrete_data <= hoje() && e.iso >= hoje()).slice(0, 4);
+      if(!lista.length){ box.appendChild(vazio('Nenhum lembrete ativo no momento.')); return; }
+      lista.forEach(e => {
+        const item = el('div', 'gs-item');
+        const corpo = el('span', 'gs-item-corpo');
+        corpo.append(el('b', null, e.lembrete_mensagem || e.titulo), el('small', null, e.titulo + ' · ' + ddmm(e.iso)));
+        item.append(el('span', 'gs-item-ic gs-t-orange', '!'), corpo);
+        item.title = (e.lembrete_mensagem || '') + ' — ' + e.titulo;
+        box.appendChild(item);
+      });
+    }
+
+    let carregando = false;
+    async function carregar(){
+      if(!supa || !ativo() || !ligada || carregando) return;
+      carregando = true;
+      $('gsAtualizado').textContent = 'Carregando…';
+      try {
+        await carregarBase();
+        desenharClasses();
+        desenharReuniao();
+        desenharEspeciais();
+        desenharAvisos();
+        const etapas = await Promise.allSettled([carregarAtividadesDoMes(), desenharProximasDatas(), desenharReunioes(), desenharFrequencia()]);
+        etapas.forEach(r => { if(r.status === 'rejected') console.error('Cards de gestão:', r.reason); });
+        desenharKpis(atividadesDoMes.length); // a frequência chega depois dos outros números
+        $('gsAtualizado').textContent = 'Gestão do clube · atualizado às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      } catch(e){
+        console.error('Cards de gestão:', e);
+        $('gsAtualizado').textContent = 'Não consegui carregar os dados de gestão.';
+      } finally { carregando = false; }
+    }
+
+    // Chave "Visão geral": quem pode ver escolhe entre o Início padrão (desligada,
+    // o padrão) e o Início com os cards. A escolha fica guardada neste navegador.
+    const chaveBtn = $('bdVisaoGeralBtn');
+    const CHAVE_KEY = 'cedros_visao_geral';
+    let ligada = false;
+    try { ligada = localStorage.getItem(CHAVE_KEY) === '1'; } catch(e){ /* sem storage: começa desligada */ }
+    chaveBtn.addEventListener('click', () => {
+      ligada = !ligada;
+      try { localStorage.setItem(CHAVE_KEY, ligada ? '1' : '0'); } catch(e){ /* só nesta sessão */ }
+      aplicarVisibilidade();
+    });
+
+    let jaCarregou = false;
+    function aplicarVisibilidade(){
+      const pode = ativo();
+      chaveBtn.style.display = pode ? '' : 'none';
+      chaveBtn.classList.toggle('ligado', ligada);
+      chaveBtn.setAttribute('aria-checked', ligada ? 'true' : 'false');
+      const mostrar = pode && ligada;
+      secao.style.display = mostrar ? '' : 'none';
+      document.documentElement.classList.toggle('gs-ativo', mostrar);
+      if(mostrar && !jaCarregou){ jaCarregou = true; carregar(); }
+      if(!mostrar) jaCarregou = false;
+    }
+
+    $('gsAtualizarBtn').addEventListener('click', carregar);
+    $('gsMesAnt').addEventListener('click', () => {
+      mesSel = mesSel.mes === 1 ? { ano: mesSel.ano - 1, mes: 12 } : { ano: mesSel.ano, mes: mesSel.mes - 1 };
+      carregarAtividadesDoMes();
+    });
+    $('gsMesProx').addEventListener('click', () => {
+      mesSel = mesSel.mes === 12 ? { ano: mesSel.ano + 1, mes: 1 } : { ano: mesSel.ano, mes: mesSel.mes + 1 };
+      carregarAtividadesDoMes();
+    });
+    $('gsReuniaoAnt').addEventListener('click', () => { if(reuniaoIdx > 0){ reuniaoIdx--; desenharReuniao(); } });
+    $('gsReuniaoProx').addEventListener('click', () => { if(reuniaoIdx < datasReuniao.length - 1){ reuniaoIdx++; desenharReuniao(); } });
+    window.addEventListener('clube:desempenho-classes', () => { if(ativo() && ligada){ desenharClasses(); desenharKpis(atividadesDoMes.length); } });
+    document.addEventListener('cedros:loggedin', aplicarVisibilidade);
+    computador.addEventListener('change', aplicarVisibilidade);
+    document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible' && ativo() && ligada) carregar(); });
+    aplicarVisibilidade();
+  })();
 
   document.querySelectorAll('[data-back]').forEach(btn => {
     btn.addEventListener('click', () => showView(btn.getAttribute('data-back')));
