@@ -1605,6 +1605,185 @@
   .un-perf-bar-fill{ display:block; height:100%; border-radius:4px; }
   .un-perf-bar-pct{ flex-shrink:0; width:32px; text-align:right; font-size:11px; font-weight:800; color:var(--cream); }
 
+  /* ---- Cantinho da Unidade: painel (Visão Geral) ---- */
+  .unc{ container-type:inline-size; display:flex; flex-direction:column; gap:12px; }
+  .unc .un-empty-hint{ padding:4px 0; }
+  .unc-card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+    border:1px solid rgba(255,255,255,0.09); border-radius:18px; padding:14px;
+  }
+  .unc-card-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .unc-card-title{
+    margin:0; display:flex; align-items:center; gap:7px;
+    font-size:12.5px; font-weight:900; letter-spacing:0.04em; text-transform:uppercase; color:var(--gold);
+  }
+  .unc-card-title svg{ flex-shrink:0; }
+  .unc-card-sub{ font-size:11.5px; font-weight:800; color:var(--ink-dim); }
+  .unc-link{ font-size:12.5px; font-weight:800; color:var(--accent); text-decoration:none; white-space:nowrap; }
+
+  /* Faixa de abertura: emblema + nome + dados, com a foto do cantinho ao fundo */
+  .unc-hero{
+    position:relative; overflow:hidden; display:flex; align-items:center; gap:14px;
+    min-height:132px; padding:16px; border-radius:20px;
+    background:linear-gradient(135deg, rgba(63,203,107,0.10), rgba(10,19,12,0.9) 60%);
+    border:1px solid rgba(255,255,255,0.12);
+  }
+  .unc-hero-photo{
+    position:absolute; inset:0 0 0 50%; background-size:cover; background-position:center;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 45%);
+            mask-image:linear-gradient(90deg, transparent, #000 45%);
+    opacity:0.85;
+  }
+  .unc-hero::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(90deg, rgba(8,15,10,0.95) 0%, rgba(8,15,10,0.85) 55%, rgba(8,15,10,0.35) 100%);
+  }
+  .unc-emblem, .unc-hero-body{ position:relative; z-index:1; }
+  .unc-emblem{
+    flex-shrink:0; width:76px; height:76px; border-radius:22px;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    font-size:32px; font-weight:900; color:#08130A;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .unc-emblem img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .unc-emblem.has-img{ background:transparent !important; box-shadow:none; border-radius:0; }
+  .unc-hero-body{ min-width:0; flex:1; }
+  .unc-name{ margin:0; font-size:22px; font-weight:900; line-height:1.15; color:var(--cream); }
+  .unc-motto{
+    margin:3px 0 0; font-size:13.5px; font-style:italic; font-weight:700; color:var(--ink-soft);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .unc-facts{ list-style:none; margin:9px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; }
+  .unc-facts li{ display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:var(--cream); min-width:0; }
+  .unc-facts li span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .unc-facts svg{ flex-shrink:0; color:var(--accent); }
+
+  /* Ícones coloridos (quadradinhos) */
+  .unc-ico, .unc-qico{ display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .unc-ico{ width:40px; height:40px; border-radius:12px; }
+  .unc-qico{ width:32px; height:32px; border-radius:10px; }
+  .unc .c-green{ background:var(--accent); color:#08130A; }
+  .unc .c-blue{ background:#5B9BFF; }
+  .unc .c-gold{ background:var(--gold); color:#2B2010; }
+  .unc .c-purple{ background:#B98BFF; color:#1E1033; }
+  .unc .c-orange{ background:#FF9F43; color:#2B1606; }
+  .unc .c-red{ background:#FF6B5C; }
+
+  /* Indicadores */
+  .unc-stats{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .unc-stat{
+    display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:13px;
+    border-radius:16px; text-decoration:none;
+    background:rgba(255,255,255,0.045); border:1px solid rgba(255,255,255,0.09);
+  }
+  .unc-stat:active{ background:rgba(255,255,255,0.08); }
+  .unc-stat .unc-ico{ margin-bottom:6px; }
+  .unc-stat-value{ font-size:26px; font-weight:900; line-height:1; color:var(--cream); }
+  .unc-stat-label{ font-size:13px; font-weight:700; color:var(--ink-soft); }
+
+  /* Progresso: rosca + barras por área */
+  .unc-progress{ display:flex; align-items:center; gap:18px; }
+  .unc-donut{
+    position:relative; flex-shrink:0; width:128px; height:128px; border-radius:50%;
+    background:conic-gradient(var(--accent) calc(var(--pct)*1%), rgba(255,255,255,0.09) 0);
+    box-shadow:0 0 26px rgba(63,203,107,0.18);
+  }
+  .unc-donut-inner{
+    position:absolute; inset:11px; border-radius:50%; background:#0C160E;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  }
+  .unc-donut-value{ font-size:28px; font-weight:900; line-height:1; color:var(--cream); }
+  .unc-donut-label{ margin-top:5px; font-size:10.5px; font-weight:700; line-height:1.25; color:var(--ink-soft); }
+  .unc-bars{ flex:1; min-width:0; display:flex; flex-direction:column; gap:10px; }
+  .unc-bar{ display:flex; align-items:center; gap:9px; }
+  .unc-bar .unc-qico{ width:30px; height:30px; border-radius:50%; }
+  .unc-bar-name{ width:74px; flex-shrink:0; font-size:12.5px; font-weight:700; color:var(--cream); }
+  .unc-bar-track{ flex:1; height:8px; border-radius:6px; background:rgba(255,255,255,0.1); overflow:hidden; }
+  .unc-bar-fill{ display:block; height:100%; border-radius:6px; transition:width .35s ease; }
+  .unc-bar-pct{ width:38px; flex-shrink:0; text-align:right; font-size:12.5px; font-weight:900; color:var(--cream); }
+
+  /* Próximos encontros + desafio */
+  .unc-duo{ display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
+  .unc-meet-list{ display:flex; flex-direction:column; gap:8px; }
+  .unc-meet{
+    display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:14px; text-decoration:none;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  }
+  .unc-meet:active{ background:rgba(255,255,255,0.08); }
+  .unc-meet-date{
+    flex-shrink:0; width:48px; height:48px; border-radius:12px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size:11.5px; font-weight:900; line-height:1.15; color:#08130A; background:var(--accent);
+  }
+  .unc-meet:nth-child(2n) .unc-meet-date{ background:#5B9BFF; color:#fff; }
+  .unc-meet-body{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .unc-meet-day{ font-size:12.5px; font-weight:800; color:var(--cream); }
+  .unc-meet-title{ font-size:13.5px; font-weight:700; color:var(--cream); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .unc-meet-time{ font-size:12px; font-weight:700; color:var(--ink-dim); }
+  .unc-meet > svg{ flex-shrink:0; color:var(--ink-dim); }
+
+  .unc-challenge{
+    display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; text-decoration:none;
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  }
+  .unc-challenge-art{ flex-shrink:0; color:var(--accent); }
+  .unc-challenge-title{ font-size:14.5px; font-weight:800; line-height:1.3; color:var(--cream); }
+  .unc-challenge-desc{ font-size:12px; font-weight:600; color:var(--ink-dim); margin-top:2px; }
+  .unc-challenge-bar{ display:flex; align-items:center; gap:12px; margin-top:12px; }
+  .unc-challenge-bar .unc-bar-track{ height:10px; }
+  .unc-challenge-pct{ font-size:17px; font-weight:900; color:var(--cream); }
+
+  /* Conquistas */
+  .unc-ach-row{
+    display:grid; grid-auto-flow:column; grid-auto-columns:minmax(104px, 1fr); gap:8px;
+    overflow-x:auto; scrollbar-width:none; padding-bottom:2px;
+  }
+  .unc-ach-row::-webkit-scrollbar{ display:none; }
+  .unc-ach-row > .un-empty-hint{ grid-column:1/-1; }
+  .unc-ach{
+    display:flex; flex-direction:column; align-items:center; gap:8px; padding:12px 8px; border-radius:14px;
+    text-align:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); cursor:pointer;
+  }
+  .unc-ach-title{
+    font-size:12px; font-weight:700; line-height:1.25; color:var(--cream);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+
+  /* Acesso rápido */
+  .unc-quick{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .unc-quick-item{
+    position:relative; display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px;
+    text-decoration:none; font-size:13.5px; font-weight:700; color:var(--cream);
+    background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+  }
+  .unc-quick-item:active{ background:rgba(255,255,255,0.08); }
+  .unc-quick-item > span:not(.unc-qico){ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .unc-quick-badge{
+    margin-left:auto; min-width:22px; height:22px; padding:0 6px; border-radius:11px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:900; color:#1E1033; background:#B98BFF;
+  }
+
+  @container (min-width: 560px){
+    .unc-stats{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .unc-quick{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .unc-hero-photo{ inset:0 0 0 38%; }
+    .unc-hero::after{ background:linear-gradient(90deg, rgba(8,15,10,0.92) 0%, rgba(8,15,10,0.7) 45%, rgba(8,15,10,0.15) 100%); }
+    .unc-hero{ min-height:150px; padding:18px 20px; }
+    .unc-emblem{ width:96px; height:96px; font-size:40px; }
+    .unc-name{ font-size:27px; }
+  }
+  @container (min-width: 640px){
+    .unc-duo{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .unc-donut{ width:150px; height:150px; }
+    .unc-donut-inner{ inset:13px; }
+    .unc-donut-value{ font-size:32px; }
+  }
+  @container (max-width: 360px){
+    .unc-progress{ flex-direction:column; align-items:stretch; }
+    .unc-donut{ align-self:center; }
+  }
+
   /* ---- Membros ---- */
   .un-member-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
   .un-member-row{
@@ -9996,62 +10175,107 @@
 
           <div class="pl-content" id="unContent">
 
-            <!-- ---- Visão Geral ---- -->
-            <div class="un-panel" data-un-panel="overview" id="unPanelOverview">
-              <div class="un-section">
-                <div class="un-summary-head">
-                  <h4 class="un-section-title" style="margin:0;">Resumo do Mês</h4>
-                  <span class="un-summary-month" id="unSummaryMonth">—</span>
-                </div>
-                <div class="un-stat-grid">
-                  <div class="un-stat-tile">
-                    <span class="un-stat-icon c-green"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                    <span class="un-stat-value" id="unStatMembers">0</span>
-                    <span class="un-stat-label">Membros</span>
-                  </div>
-                  <div class="un-stat-tile">
-                    <span class="un-stat-icon c-blue"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M9 12h6M9 16h6"/></svg></span>
-                    <span class="un-stat-value" id="unStatActivities">0</span>
-                    <span class="un-stat-label">Atividades</span>
-                  </div>
-                  <div class="un-stat-tile">
-                    <span class="un-stat-icon c-gold"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 9 22 10 17 15 18 22 12 18.5 6 22 7 15 2 10 9 9Z"/></svg></span>
-                    <span class="un-stat-value" id="unStatPerformance">0%</span>
-                    <span class="un-stat-label">Desempenho</span>
-                  </div>
-                  <a href="#" class="un-stat-tile un-stat-editable" id="unStatSpecialtiesTile">
-                    <span class="un-stat-icon c-purple"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v18"/><path d="M4 4h13l-2.5 4L17 12H4"/></svg></span>
-                    <span class="un-stat-value" id="unStatSpecialties">0</span>
-                    <span class="un-stat-label">Especialidades</span>
-                  </a>
+            <!-- ---- Visão Geral = Cantinho da Unidade (painel da unidade) ---- -->
+            <div class="un-panel unc" data-un-panel="overview" id="unPanelOverview">
+
+              <div class="unc-hero" id="uncHero">
+                <div class="unc-hero-photo" id="uncHeroPhoto" aria-hidden="true"></div>
+                <div class="unc-emblem" id="uncEmblem" aria-hidden="true"></div>
+                <div class="unc-hero-body">
+                  <h2 class="unc-name" id="uncName">—</h2>
+                  <p class="unc-motto" id="uncMotto" style="display:none;"></p>
+                  <ul class="unc-facts">
+                    <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span id="uncCounselor">Conselheiro(a): —</span></li>
+                    <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5"/></svg><span id="uncClass">Classe: —</span></li>
+                    <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span id="uncMembersLine">0 membros</span></li>
+                  </ul>
                 </div>
               </div>
 
-              <div class="un-section">
-                <div class="un-summary-head">
-                  <h4 class="un-section-title" style="margin:0;">Próximas Atividades</h4>
-                  <a href="#" class="un-link-small" data-un-goto="activities">Ver todas</a>
-                </div>
-                <div class="un-mini-list" id="unUpcomingList">
-                  <p class="un-empty-hint">Nenhuma atividade agendada.</p>
-                </div>
+              <div class="unc-stats">
+                <a href="#" class="unc-stat" data-un-goto="members">
+                  <span class="unc-ico c-green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                  <span class="unc-stat-value" id="unStatMembers">0</span>
+                  <span class="unc-stat-label">Membros</span>
+                </a>
+                <a href="#" class="unc-stat" data-un-goto="evaluations">
+                  <span class="unc-ico c-gold"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+                  <span class="unc-stat-value" id="unStatPerformance">0%</span>
+                  <span class="unc-stat-label">Desempenho</span>
+                </a>
+                <a href="#" class="unc-stat" data-un-goto="achievements">
+                  <span class="unc-ico c-blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span>
+                  <span class="unc-stat-value" id="uncStatGoals">0</span>
+                  <span class="unc-stat-label">Objetivos</span>
+                </a>
+                <a href="#" class="unc-stat" data-un-goto="achievements">
+                  <span class="unc-ico c-purple"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg></span>
+                  <span class="unc-stat-value" id="uncStatAch">0</span>
+                  <span class="unc-stat-label">Conquistas</span>
+                </a>
               </div>
 
-              <div class="un-section">
-                <div class="un-summary-head">
-                  <h4 class="un-section-title" style="margin:0;">Desempenho da Unidade</h4>
-                  <a href="#" class="un-link-small" data-un-goto="reports">Ver relatório</a>
+              <section class="unc-card">
+                <div class="unc-card-head">
+                  <h4 class="unc-card-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Progresso da Unidade</h4>
+                  <span class="unc-card-sub" id="unSummaryMonth">—</span>
                 </div>
-                <div class="un-perf-row">
-                  <div class="un-donut" id="unDonut" style="--pct:0;">
-                    <div class="un-donut-inner">
-                      <span class="un-donut-value" id="unDonutValue">0%</span>
-                      <span class="un-donut-label">Desempenho<br>geral</span>
+                <div class="unc-progress">
+                  <div class="unc-donut" id="unDonut" style="--pct:0;">
+                    <div class="unc-donut-inner">
+                      <span class="unc-donut-value" id="unDonutValue">0%</span>
+                      <span class="unc-donut-label">Desempenho<br>da Unidade</span>
                     </div>
                   </div>
-                  <div class="un-perf-bars" id="unPerfBars"></div>
+                  <div class="unc-bars" id="unPerfBars"></div>
                 </div>
+              </section>
+
+              <div class="unc-duo">
+                <section class="unc-card">
+                  <div class="unc-card-head">
+                    <h4 class="unc-card-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Próximos encontros</h4>
+                    <a href="#" class="unc-link" data-un-goto="activities">Ver todos</a>
+                  </div>
+                  <div class="unc-meet-list" id="unUpcomingList">
+                    <p class="un-empty-hint">Nenhuma atividade agendada.</p>
+                  </div>
+                </section>
+
+                <section class="unc-card">
+                  <div class="unc-card-head">
+                    <h4 class="unc-card-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>Desafio do mês</h4>
+                    <a href="#" class="unc-link" data-un-goto="achievements">Ver todos</a>
+                  </div>
+                  <div id="uncChallenge">
+                    <p class="un-empty-hint">Nenhum desafio em andamento.</p>
+                  </div>
+                </section>
               </div>
+
+              <section class="unc-card">
+                <div class="unc-card-head">
+                  <h4 class="unc-card-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg>Conquistas</h4>
+                  <a href="#" class="unc-link" data-un-goto="achievements">Ver todas</a>
+                </div>
+                <div class="unc-ach-row" id="uncAchRow">
+                  <p class="un-empty-hint">Nenhuma conquista registrada ainda.</p>
+                </div>
+              </section>
+
+              <section class="unc-card">
+                <div class="unc-card-head">
+                  <h4 class="unc-card-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Acesso rápido</h4>
+                </div>
+                <div class="unc-quick">
+                  <a href="#" class="unc-quick-item" data-un-goto="members"><span class="unc-qico c-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Membros</span></a>
+                  <a href="#" class="unc-quick-item" data-un-goto="activities"><span class="unc-qico c-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span>Agenda</span></a>
+                  <a href="#" class="unc-quick-item" data-un-goto="evaluations"><span class="unc-qico c-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span><span>Metas</span></a>
+                  <a href="#" class="unc-quick-item" data-goto="view-classes"><span class="unc-qico c-gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></span><span>Classes</span></a>
+                  <a href="#" class="unc-quick-item" id="unStatSpecialtiesTile"><span class="unc-qico c-purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg></span><span>Especialidades</span><b class="unc-quick-badge" id="unStatSpecialties" title="Especialidades no mês">0</b></a>
+                  <a href="#" class="unc-quick-item" data-un-goto="achievements"><span class="unc-qico c-gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg></span><span>Conquistas</span></a>
+                </div>
+              </section>
             </div>
 
             <!-- ---- Membros ---- -->
@@ -22411,11 +22635,34 @@
       return Math.round(vals.reduce((s, v) => s + v, 0) / vals.length);
     }
 
+    // Ícones e cores das 4 áreas mostradas no painel (mesma ordem de OVERVIEW_AREAS).
+    const AREA_ICON = {
+      'Espiritual': '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+      'Intelectual': '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+      'Físico': '<circle cx="15" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v4"/><path d="M5 11l3-3.5 4.5 1 2.5 3 3.5 1"/><path d="M11 15l1.5-6"/>',
+      'Social': '<path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'
+    };
+    const ACH_TILE_ICONS = [
+      { color:'green', icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/>' },
+      { color:'gold', icon:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' },
+      { color:'blue', icon:'<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>' },
+      { color:'orange', icon:'<circle cx="15" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v4"/><path d="M5 11l3-3.5 4.5 1 2.5 3 3.5 1"/><path d="M11 15l1.5-6"/>' },
+      { color:'purple', icon:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>' }
+    ];
+    const WEEKDAY_ABBR = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    function svgIcon(paths, size){
+      return '<svg width="' + (size || 18) + '" height="' + (size || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+    }
+    function achievementPct(a){
+      const meta = a.progresso_meta || 0;
+      return meta > 0 ? Math.min(100, Math.round((a.progresso_atual || 0) / meta * 100)) : 0;
+    }
+
     function renderOverviewStats(){
       document.getElementById('unSummaryMonth').textContent = mesLabelOf(currentEvalMonth);
-      document.getElementById('unStatMembers').textContent = MEMBER_COUNT[currentUnit] || 0;
-      const today = todayStr();
-      document.getElementById('unStatActivities').textContent = activityRows.filter(a => a.data >= today).length;
+      const members = MEMBER_COUNT[currentUnit] || 0;
+      document.getElementById('unStatMembers').textContent = members;
+      document.getElementById('uncMembersLine').textContent = members + (members === 1 ? ' membro' : ' membros');
       const perf = evalAverage(OVERVIEW_AREAS);
       document.getElementById('unStatPerformance').textContent = perf + '%';
       document.getElementById('unStatSpecialties').textContent = specialtiesCount;
@@ -22429,14 +22676,14 @@
         const areaMeta = EVAL_AREAS.find(a => a.area === area);
         const val = evalScores[area] || 0;
         const row = document.createElement('div');
-        row.className = 'un-perf-bar-row';
+        row.className = 'unc-bar';
         row.innerHTML =
-          '<span class="un-perf-bar-dot cl-class-dot cl-color-' + areaMeta.color + '"></span>' +
-          '<span class="un-perf-bar-name"></span>' +
-          '<span class="un-perf-bar-track"><span class="un-perf-bar-fill" style="width:' + val + '%; background:' + COLOR_HEX[areaMeta.color] + ';"></span></span>' +
-          '<span class="un-perf-bar-pct"></span>';
-        row.querySelector('.un-perf-bar-name').textContent = area;
-        row.querySelector('.un-perf-bar-pct').textContent = val + '%';
+          '<span class="unc-qico c-' + areaMeta.color + '">' + svgIcon(AREA_ICON[area] || '', 16) + '</span>' +
+          '<span class="unc-bar-name"></span>' +
+          '<span class="unc-bar-track"><span class="unc-bar-fill" style="width:' + val + '%; background:' + COLOR_HEX[areaMeta.color] + ';"></span></span>' +
+          '<span class="unc-bar-pct"></span>';
+        row.querySelector('.unc-bar-name').textContent = area;
+        row.querySelector('.unc-bar-pct').textContent = val + '%';
         bars.appendChild(row);
       });
     }
@@ -22451,20 +22698,134 @@
         return;
       }
       upcoming.forEach(a => {
-        const parts = fmtDateParts(a.data);
-        const row = document.createElement('div');
-        row.className = 'un-mini-row';
+        const p = a.data.split('-').map(n => parseInt(n, 10));
+        const wd = WEEKDAY_ABBR[new Date(p[0], p[1] - 1, p[2]).getDay()];
+        const dm = String(p[2]).padStart(2, '0') + '/' + String(p[1]).padStart(2, '0');
+        const row = document.createElement('a');
+        row.href = '#';
+        row.className = 'unc-meet';
         row.innerHTML =
-          '<span class="un-mini-date"><b></b><em></em></span>' +
-          '<span class="un-mini-body"><span class="un-mini-title"></span><span class="un-mini-meta"></span></span>' +
-          '<span class="un-mini-time"></span>';
-        row.querySelector('.un-mini-date b').textContent = parts.day;
-        row.querySelector('.un-mini-date em').textContent = parts.monAbbr;
-        row.querySelector('.un-mini-title').textContent = a.titulo;
-        row.querySelector('.un-mini-meta').textContent = a.descricao || '';
-        row.querySelector('.un-mini-time').textContent = a.hora || '';
+          '<span class="unc-meet-date"><span></span><span></span></span>' +
+          '<span class="unc-meet-body"><span class="unc-meet-day"></span><span class="unc-meet-title"></span><span class="unc-meet-time"></span></span>' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        const chip = row.querySelectorAll('.unc-meet-date span');
+        chip[0].textContent = wd + ',';
+        chip[1].textContent = dm;
+        row.querySelector('.unc-meet-day').textContent = wd + ', ' + dm;
+        row.querySelector('.unc-meet-title').textContent = a.titulo;
+        const time = row.querySelector('.unc-meet-time');
+        if(a.hora) time.textContent = a.hora; else time.remove();
+        row.addEventListener('click', (e) => { e.preventDefault(); setTab('activities'); });
         list.appendChild(row);
       });
+    }
+
+    // Faixa de abertura: emblema (ou inicial na cor da unidade), conselheiro,
+    // classe mais comum entre os membros, e a foto mais recente do cantinho.
+    let overviewExtras = { conselheiro: '', classe: '', descricao: '', foto: '' };
+    function renderOverviewHero(){
+      const name = currentUnit || '';
+      document.getElementById('uncName').textContent = name;
+      const emblem = document.getElementById('uncEmblem');
+      const img = window.CLUBE && window.CLUBE.emblemas ? window.CLUBE.emblemas[name] : '';
+      emblem.innerHTML = '';
+      emblem.classList.toggle('has-img', !!img);
+      if(img){
+        const el = document.createElement('img');
+        el.src = img; el.alt = '';
+        emblem.appendChild(el);
+        emblem.style.background = '';
+      } else {
+        const meta = UNIT_META[name] || {};
+        emblem.textContent = name.trim().charAt(0).toUpperCase();
+        emblem.style.background = COLOR_HEX[meta.cor || UNIT_COLOR_DEFAULT[name]] || COLOR_HEX.green;
+      }
+      const motto = document.getElementById('uncMotto');
+      const desc = (overviewExtras.descricao || '').split('\n')[0].trim();
+      motto.textContent = desc;
+      motto.style.display = desc ? '' : 'none';
+      document.getElementById('uncCounselor').textContent = 'Conselheiro(a): ' + (overviewExtras.conselheiro || 'não definido');
+      document.getElementById('uncClass').textContent = 'Classe: ' + (overviewExtras.classe || '—');
+      const photo = document.getElementById('uncHeroPhoto');
+      photo.style.backgroundImage = overviewExtras.foto ? 'url("' + overviewExtras.foto.replace(/"/g, '%22') + '")' : '';
+    }
+
+    function renderOverviewAchievements(){
+      const earned = achievementRows.filter(a => a.conquistada);
+      const pending = achievementRows.filter(a => !a.conquistada);
+      document.getElementById('uncStatAch').textContent = earned.length;
+      document.getElementById('uncStatGoals').textContent = pending.length;
+
+      // Desafio do mês: a meta em andamento mais perto de ser concluída.
+      const box = document.getElementById('uncChallenge');
+      box.innerHTML = '';
+      if(!pending.length){
+        box.innerHTML = '<p class="un-empty-hint">Nenhum desafio em andamento. Cadastre metas em Conquistas.</p>';
+      } else {
+        const ch = pending.slice().sort((a, b) => achievementPct(b) - achievementPct(a))[0];
+        const pct = achievementPct(ch);
+        const card = document.createElement('a');
+        card.href = '#';
+        card.className = 'unc-challenge-wrap';
+        card.style.textDecoration = 'none';
+        card.innerHTML =
+          '<div class="unc-challenge">' +
+            '<svg class="unc-challenge-art" width="52" height="40" viewBox="0 0 52 40" fill="currentColor" aria-hidden="true"><path d="M2 38 18 10l8 13 6-9 18 24Z" opacity=".9"/><path d="m18 10 4.5 7.5-4.5-2-4.5 2Z" fill="#fff" opacity=".85"/><path d="m32 14 3 4.5-3-1.2-3 1.2Z" fill="#fff" opacity=".7"/></svg>' +
+            '<div style="min-width:0;"><div class="unc-challenge-title"></div><div class="unc-challenge-desc"></div></div>' +
+          '</div>' +
+          '<div class="unc-challenge-bar"><span class="unc-bar-track"><span class="unc-bar-fill" style="width:' + pct + '%; background:var(--accent);"></span></span><span class="unc-challenge-pct">' + pct + '%</span></div>';
+        card.querySelector('.unc-challenge-title').textContent = ch.titulo;
+        const d = card.querySelector('.unc-challenge-desc');
+        const meta = ch.progresso_meta || 0;
+        d.textContent = ch.descricao || (meta ? (ch.progresso_atual || 0) + ' de ' + meta : '');
+        if(!d.textContent) d.remove();
+        card.addEventListener('click', (e) => { e.preventDefault(); setTab('achievements'); });
+        box.appendChild(card);
+      }
+
+      const row = document.getElementById('uncAchRow');
+      row.innerHTML = '';
+      if(!earned.length){
+        row.innerHTML = '<p class="un-empty-hint">Nenhuma conquista registrada ainda.</p>';
+        return;
+      }
+      earned.slice(-5).reverse().forEach((a, i) => {
+        const look = ACH_TILE_ICONS[i % ACH_TILE_ICONS.length];
+        const tile = document.createElement('div');
+        tile.className = 'unc-ach';
+        tile.innerHTML = '<span class="unc-qico c-' + look.color + '">' + svgIcon(look.icon, 18) + '</span><span class="unc-ach-title"></span>';
+        tile.querySelector('.unc-ach-title').textContent = a.titulo;
+        tile.addEventListener('click', () => setTab('achievements'));
+        row.appendChild(tile);
+      });
+    }
+
+    async function loadOverviewExtras(name){
+      const extras = { conselheiro: '', classe: '', descricao: '', foto: '' };
+      let conquistas = [];
+      if(supa){
+        const [funcoes, membros, cantinho, foto, ach] = await Promise.all([
+          supa.from('unit_funcoes').select('nome').eq('unidade', name).eq('funcao', 'Conselheiro(a)').maybeSingle(),
+          supa.from('usuarios').select('classe').eq('unidade', name).eq('ativo', true),
+          supa.from('unit_cantinho').select('descricao').eq('unidade', name).maybeSingle(),
+          supa.from('unit_cantinho_fotos').select('foto').eq('unidade', name).order('created_at', { ascending: false }).limit(1),
+          supa.from('unit_conquistas').select('*').eq('unidade', name).order('created_at')
+        ]);
+        if(funcoes.data && funcoes.data.nome) extras.conselheiro = funcoes.data.nome;
+        const contagem = {};
+        (membros.data || []).forEach(m => { if(m.classe) contagem[m.classe] = (contagem[m.classe] || 0) + 1; });
+        const top = Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a])[0];
+        if(top) extras.classe = top;
+        if(cantinho.data && cantinho.data.descricao) extras.descricao = cantinho.data.descricao;
+        if(foto.data && foto.data[0] && foto.data[0].foto) extras.foto = foto.data[0].foto;
+        conquistas = ach.data || [];
+      }
+      // A unidade pode ter mudado enquanto as consultas estavam em andamento.
+      if(currentUnit !== name) return;
+      overviewExtras = extras;
+      achievementRows = conquistas;
+      renderOverviewHero();
+      renderOverviewAchievements();
     }
 
     document.getElementById('unStatSpecialtiesTile').addEventListener('click', (e) => {
@@ -22696,6 +23057,10 @@
       if(supa){
         const { data } = await supa.from('unit_funcoes').select('funcao, nome').eq('unidade', name);
         (data || []).forEach(r => { byFunc[r.funcao] = r; });
+      }
+      if(currentUnit === name){
+        overviewExtras.conselheiro = (byFunc['Conselheiro(a)'] && byFunc['Conselheiro(a)'].nome) || '';
+        renderOverviewHero();
       }
       list.innerHTML = '';
       ROLE_LIST.forEach(rm => {
@@ -22963,6 +23328,7 @@
           list.appendChild(row);
         });
       }
+      renderOverviewAchievements();
     }
 
     function toggleAchFields(){
@@ -23235,6 +23601,7 @@
           if(data) newPhoto.id = data.id;
         }
       }
+      if(currentUnit === name) loadOverviewExtras(name);
     });
 
     // ---------------------------------------------------------------
@@ -23366,6 +23733,7 @@
 
     function setTab(tab){
       currentTab = tab;
+      if(currentUnit) titleEl.textContent = tab === 'overview' ? 'Cantinho da Unidade' : currentUnit;
       document.querySelectorAll('#unTabs .un-tab[data-un-tab]').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-un-tab') === tab));
       if(unTabMoreBtn) unTabMoreBtn.classList.toggle('active', UN_OVERFLOW_TABS.has(tab));
       document.querySelectorAll('#unContent .un-panel').forEach(panel => { panel.style.display = panel.getAttribute('data-un-panel') === tab ? '' : 'none'; });
@@ -23396,13 +23764,19 @@
       currentEvalMonth = mesRefOf(new Date());
       hub.style.display = 'none';
       detail.style.display = '';
-      titleEl.textContent = name;
+      titleEl.textContent = 'Cantinho da Unidade';
+      overviewExtras = { conselheiro: '', classe: '', descricao: '', foto: '' };
+      achievementRows = [];
+      renderOverviewHero();
+      renderOverviewAchievements();
       await Promise.all([loadUnitMeta(), loadMemberCounts()]);
       renderHub();
+      renderOverviewHero();
       await loadEvaluations(name);
       await loadActivities(name);
       await loadSpecialties(name);
       setTab('overview');
+      loadOverviewExtras(name);
     }
 
     // Só Administrador e Diretoria Executiva (gestão do clube todo) veem todas as unidades.
