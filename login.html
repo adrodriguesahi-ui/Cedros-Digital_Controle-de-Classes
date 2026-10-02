@@ -2057,11 +2057,18 @@
   .tr-rosca .centro{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none; }
   .tr-rosca .centro small{ font-size:10.5px; font-weight:800; color:var(--t-muted); }
   .tr-rosca .centro b{ font-size:15px; font-weight:900; color:var(--t-ink); }
+  /* Selo da saúde financeira no centro da rosca */
+  .tr-selo{ margin-top:2px; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:900; }
+  .tr-selo.ok{ background:color-mix(in srgb, var(--t-in) 18%, transparent); color:var(--t-in); }
+  .tr-selo.aten{ background:color-mix(in srgb, var(--t-gold) 20%, transparent); color:var(--t-gold); }
+  .tr-selo.crit{ background:color-mix(in srgb, var(--t-out) 18%, transparent); color:var(--t-out); }
+  .tr-saude-nota{ margin:10px 0 0; font-size:11.5px; font-weight:700; line-height:1.4; color:var(--t-muted); }
   .tr-rosca circle{ cursor:default; }
   table.tr-leg{ width:100%; border-collapse:collapse; font-size:11.5px; color:var(--t-ink); }
   table.tr-leg th{ text-align:right; font-size:9.5px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-faint); padding:0 3px 5px; }
   table.tr-leg th:first-child, table.tr-leg td:first-child{ text-align:left; }
   table.tr-leg td{ padding:4px 3px; font-weight:800; text-align:right; border-top:1px solid var(--t-line); white-space:nowrap; }
+  table.tr-leg td:first-child{ white-space:normal; padding-left:16px; text-indent:-16px; }
 
   /* Gráficos SVG */
   .tr-svg{ display:block; width:100%; height:auto; overflow:visible; }
@@ -2096,6 +2103,15 @@
   .tr-tipo-btn{ padding:10px 6px; border-radius:12px; border:1px solid var(--t-line); background:var(--t-card2); color:var(--t-muted); font-size:12.5px; font-weight:900; cursor:pointer; font-family:inherit; }
   .tr-tipo-btn.active{ background:color-mix(in srgb, var(--t-in) 15%, transparent); border-color:var(--t-in); color:var(--t-in); }
   .tr-tipo-btn.out.active{ background:color-mix(in srgb, var(--t-out) 14%, transparent); border-color:var(--t-out); color:var(--t-out); }
+  /* Categoria em botões com ícone (formulários de lançamento e orçamento) */
+  .tr-cat-grade{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; }
+  .tr-cat-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:62px; padding:8px 4px; border-radius:12px; border:1px solid var(--t-line); background:var(--t-card2); color:var(--t-muted); font-size:11px; font-weight:800; line-height:1.15; text-align:center; cursor:pointer; font-family:inherit; }
+  .tr-cat-ic{ font-size:20px; line-height:1; }
+  .tr-cat-btn:hover{ border-color:var(--t-line2); }
+  .tr-cat-btn.active{ border-color:var(--t-in); background:color-mix(in srgb, var(--t-in) 14%, transparent); color:var(--t-ink); box-shadow:inset 0 0 0 1px var(--t-in); }
+  .tr-cat-btn.out.active{ border-color:var(--t-out); background:color-mix(in srgb, var(--t-out) 12%, transparent); box-shadow:inset 0 0 0 1px var(--t-out); }
+  /* Etiqueta da categoria acima do detalhe nas listas */
+  .tr-cat-tag{ display:inline-block; margin-bottom:2px; font-size:10.5px; font-weight:900; letter-spacing:0.03em; text-transform:uppercase; color:var(--t-muted); }
   .tr-previa{ margin-top:12px; padding:10px 12px; border-radius:12px; font-size:12.5px; font-weight:800; color:var(--t-ink); background:color-mix(in srgb, var(--t-blue) 10%, var(--t-card)); border:1px solid color-mix(in srgb, var(--t-blue) 30%, transparent); }
   .tr-pessoas{ max-height:220px; overflow-y:auto; border:1px solid var(--t-line); border-radius:12px; padding:6px 10px; background:var(--t-card2); }
   .tr-pessoas label{ display:flex; align-items:center; gap:8px; padding:5px 0; font-size:13px; font-weight:700; color:var(--t-ink); }
@@ -2155,6 +2171,8 @@
     .tr-kpis{ grid-template-columns:repeat(6, minmax(0, 1fr)); }
     .tr-kpi b{ font-size:20px; }
     .tr-grade.g4{ grid-template-columns:1.1fr 1fr 1fr 1fr; }
+    .tr-grade.g4s{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
+    .tr-grade.g3{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
     .tr-grade.g2{ grid-template-columns:1.7fr 1fr; }
     .tr-grade.g2b{ grid-template-columns:1.3fr 1fr; }
     .tr-grade.g13{ grid-template-columns:1fr 2fr; }
@@ -11142,6 +11160,26 @@
               <button type="button" class="tr-mes-btn" id="trAnoProx" aria-label="Próximo ano">›</button>
             </div>
             <div class="tr-kpis" id="trKpis"></div>
+            <!-- Saúde financeira em roscas (desenharSaude) -->
+            <div class="tr-grade g4s">
+              <section class="tr-card tr-saude-card" id="trSaudeCard">
+                <div class="tr-card-h"><h5>Saúde financeira</h5><span id="trSaudeSub">entradas do ano</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaSaude"></div><table class="tr-leg" id="trLegSaude"></table></div>
+                <p class="tr-saude-nota" id="trSaudeNota"></p>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Gastos por caixa</h5><span>saídas do ano</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaGastoCaixa"></div><table class="tr-leg" id="trLegGastoCaixa"></table></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Controle do orçamento</h5><span>eventos com orçamento</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaOrc"></div><table class="tr-leg" id="trLegOrc"></table></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Adimplência</h5><span>parcelas vencidas no ano</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaAdim"></div><table class="tr-leg" id="trLegAdim"></table></div>
+              </section>
+            </div>
             <div class="tr-grade g4">
               <section class="tr-card">
                 <div class="tr-card-h"><h5>Seletor de caixa</h5><span>resultado no ano</span></div>
@@ -11262,7 +11300,12 @@
             <button type="button" class="tr-tipo-btn active" data-tipo="entrada">+ Entrada</button>
             <button type="button" class="tr-tipo-btn out" data-tipo="saida">− Saída</button>
           </div>
-          <label class="pl-field-label" for="trFieldDesc">Descrição</label>
+          <!-- Categoria primeiro, em botões com ícone; o detalhe vem depois.
+               O <select> escondido guarda o valor (ver montarCategorias). -->
+          <label class="pl-field-label">Categoria</label>
+          <div class="tr-cat-grade" id="trFieldCatChips" role="radiogroup" aria-label="Categoria"></div>
+          <select id="trFieldCategory" hidden></select>
+          <label class="pl-field-label" for="trFieldDesc">Detalhe</label>
           <input type="text" class="pl-input" id="trFieldDesc" placeholder="Ex.: Compra de lonas" maxlength="80">
           <div class="pl-field-row">
             <div class="pl-field-col pl-field-col-wide">
@@ -11274,18 +11317,10 @@
               <input type="date" class="pl-input" id="trFieldDate">
             </div>
           </div>
-          <div class="pl-field-row">
-            <div class="pl-field-col pl-field-col-wide">
-              <label class="pl-field-label" for="trFieldCategory">Categoria</label>
-              <select class="pl-input" id="trFieldCategory"></select>
-            </div>
-            <div class="pl-field-col pl-field-col-wide">
-              <label class="pl-field-label" for="trFieldPagamento">Pagamento</label>
-              <select class="pl-input" id="trFieldPagamento">
-                <option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option><option value="Transferência">Transferência</option><option value="Outro">Outro</option>
-              </select>
-            </div>
-          </div>
+          <label class="pl-field-label" for="trFieldPagamento">Pagamento</label>
+          <select class="pl-input" id="trFieldPagamento">
+            <option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option><option value="Transferência">Transferência</option><option value="Outro">Outro</option>
+          </select>
           <label class="pl-field-label" for="trFieldEvento">Onde entra</label>
           <select class="pl-input" id="trFieldEvento"></select>
           <div id="trFieldItemWrap" style="display:none;">
@@ -11348,12 +11383,13 @@
             <button type="button" class="tr-tipo-btn" data-tipo="entrada">+ Receita prevista</button>
             <button type="button" class="tr-tipo-btn out active" data-tipo="saida">− Despesa prevista</button>
           </div>
-          <label class="pl-field-label" for="trItemDesc">Descrição</label>
-          <input type="text" class="pl-input" id="trItemDesc" placeholder="Ex.: Transporte (ônibus)" maxlength="80">
-          <div class="pl-field-row">
-            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trItemCategoria">Categoria</label><select class="pl-input" id="trItemCategoria"></select></div>
-            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trItemValor">Valor previsto (R$)</label><input type="text" class="pl-input" id="trItemValor" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
-          </div>
+          <label class="pl-field-label">Categoria</label>
+          <div class="tr-cat-grade" id="trItemCatChips" role="radiogroup" aria-label="Categoria"></div>
+          <select id="trItemCategoria" hidden></select>
+          <label class="pl-field-label" for="trItemDesc">Detalhe</label>
+          <input type="text" class="pl-input" id="trItemDesc" placeholder="Ex.: Locação de ônibus + caminhão" maxlength="80">
+          <label class="pl-field-label" for="trItemValor">Valor previsto (R$)</label>
+          <input type="text" class="pl-input" id="trItemValor" inputmode="decimal" placeholder="0,00" autocomplete="off">
           <div class="pl-modal-actions">
             <button type="button" class="pl-btn pl-btn-danger" id="trItemExcluir" style="display:none;">Excluir</button>
             <button type="button" class="pl-btn pl-btn-primary" id="trItemSalvar">Salvar</button>
@@ -24376,8 +24412,18 @@
     const lista = $('trList');
 
     const CATEGORIAS = {
-      entrada: ['Mensalidade', 'Inscrição', 'Doação', 'Oferta / Patrocínio', 'Venda / Cantina', 'Reembolso', 'Outro'],
-      saida: ['Material', 'Alimentação', 'Transporte', 'Hospedagem / Taxas', 'Uniforme', 'Premiação', 'Manutenção', 'Outro']
+      entrada: ['Mensalidade', 'Inscrição', 'Venda / Cantina', 'Oferta / Patrocínio', 'Doação', 'Reembolso', 'Outro'],
+      saida: ['Transporte', 'Alimentação', 'Hospedagem / Taxas', 'Material', 'Uniforme', 'Premiação', 'Manutenção', 'Outro']
+    };
+    const ICONE_CAT = {
+      'Mensalidade': '🗓️', 'Inscrição': '📝', 'Venda / Cantina': '🍕', 'Oferta / Patrocínio': '⛪', 'Doação': '🤝', 'Reembolso': '↩️',
+      'Transporte': '🚌', 'Alimentação': '🍽️', 'Hospedagem / Taxas': '🏕️', 'Material': '🧰', 'Uniforme': '👕', 'Premiação': '🏆', 'Manutenção': '🔧', 'Outro': '•'
+    };
+    const EXEMPLO_CAT = {
+      'Mensalidade': 'Mensalidades de outubro', 'Inscrição': 'Inscrições — 1º lote', 'Venda / Cantina': 'Venda de pizzas', 'Oferta / Patrocínio': 'Patrocínio da igreja',
+      'Doação': 'Doação de ex-desbravador', 'Reembolso': 'Devolução da caução do sítio',
+      'Transporte': 'Locação de ônibus + caminhão', 'Alimentação': 'Compra de mantimentos', 'Hospedagem / Taxas': 'Inscrição na Associação',
+      'Material': 'Lonas, estacas e cordas', 'Uniforme': 'Camisetas e lenços', 'Premiação': 'Troféus e medalhas', 'Manutenção': 'Conserto das barracas', 'Outro': 'descreva o lançamento'
     };
     const TIPO_COB = { mensalidade: 'Mensalidade', taxa: 'Taxa única', parcelada: 'Parcelada', inscricao: 'Inscrição de evento' };
     const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
@@ -24649,6 +24695,7 @@
       kpi(k, 'Reserva', gastoMedio > 0 && saldo > 0 ? (saldo / gastoMedio).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses' : '—', '', 'gasto médio ' + compacto(gastoMedio) + '/mês', 'var(--t-aqua)', '⏳');
 
       desenharCaixas(doAno);
+      desenharSaude(doAno, entAno, saiAno, saldo, gastoMedio);
       rosca($('trRoscaEnt'), $('trLegEnt'), porCategoria(doAno.filter(x => x.tipo === 'entrada')), 'Entradas', String(anoSel));
       rosca($('trRoscaSai'), $('trLegSai'), porCategoria(doAno.filter(x => x.tipo === 'saida')), 'Saídas', String(anoSel));
       const chave = isoDe(new Date()).slice(0, 7);
@@ -24665,6 +24712,60 @@
     }
 
     // Caixa geral + cada evento, com quanto do orçamento já foi gasto.
+    // ---- Faixa "Saúde financeira": quatro roscas ----
+    // Selo: Saudável = ano no positivo e reserva de 3+ meses; Crítico = ano no
+    // negativo e reserva abaixo de 1 mês (ou saldo negativo); o resto, Atenção.
+    function desenharSaude(doAno, entAno, saiAno, saldo, gastoMedio){
+      const reserva = gastoMedio > 0 ? saldo / gastoMedio : (saldo > 0 ? Infinity : 0);
+      const resultado = entAno - saiAno;
+      const nivel = saldo < 0 || (resultado < 0 && reserva < 1) ? 'crit' : (resultado >= 0 && reserva >= 3 ? 'ok' : 'aten');
+      const ROT = { ok: 'Saudável', aten: 'Atenção', crit: 'Crítico' };
+      // 1) Das entradas, quanto foi gasto e quanto sobrou (ou quanto faltou).
+      const dados = resultado >= 0
+        ? [['Gasto', saiAno], ['Sobrou', resultado]]
+        : [['Coberto pelas entradas', entAno], ['Faltou (déficit)', -resultado]];
+      rosca($('trRoscaSaude'), $('trLegSaude'), dados, 'Entradas', String(anoSel),
+        resultado >= 0 ? ['var(--t-out)', 'var(--t-in)'] : ['var(--t-gold)', 'var(--t-out)'], 'Uso');
+      const centro = $('trRoscaSaude').querySelector('.centro');
+      if(centro){ centro.lastChild.remove(); centro.appendChild(el('span', 'tr-selo ' + nivel, ROT[nivel])); }
+      const pctGasto = entAno ? Math.round(saiAno / entAno * 100) : 0;
+      $('trSaudeNota').textContent = !entAno && !saiAno ? 'Sem lançamentos em ' + anoSel + '.'
+        : ROT[nivel] + ': gastou ' + pctGasto + '% do que entrou' +
+          (isFinite(reserva) && gastoMedio > 0 ? '; o saldo cobre ' + Math.max(0, reserva).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses de gastos.' : '.');
+      // 2) Saídas por caixa (caixa geral + eventos; 5 maiores + "Outros").
+      const porCaixa = {};
+      doAno.filter(x => x.tipo === 'saida').forEach(x => {
+        const nome = x.evento_id ? ((eventoPorId(x.evento_id) || {}).nome || 'Evento') : 'Caixa geral';
+        porCaixa[nome] = (porCaixa[nome] || 0) + x.valor;
+      });
+      const ord = Object.keys(porCaixa).sort((a, b) => porCaixa[b] - porCaixa[a]);
+      const caixas = ord.slice(0, ord.length > 6 ? 5 : 6).map(n => [n, porCaixa[n]]);
+      if(ord.length > 6) caixas.push(['Outros', ord.slice(5).reduce((s, n) => s + porCaixa[n], 0)]);
+      rosca($('trRoscaGastoCaixa'), $('trLegGastoCaixa'), caixas, 'Saídas', String(anoSel), null, 'Caixa');
+      // 3) Orçamento dos eventos do ano: gasto dentro do previsto, estouro e o que ainda sobra.
+      let dentro = 0, estouro = 0, disponivel = 0;
+      eventos.filter(e => (e.data_inicio || '').slice(0, 4) === String(anoSel)).forEach(ev => {
+        itens.filter(i => i.evento_id === ev.id && i.tipo === 'saida').forEach(item => {
+          const gasto = soma(lancamentos.filter(x => x.orcamento_item_id === item.id));
+          dentro += Math.min(gasto, item.valor);
+          estouro += Math.max(0, gasto - item.valor);
+          disponivel += Math.max(0, item.valor - gasto);
+        });
+      });
+      rosca($('trRoscaOrc'), $('trLegOrc'), [['Gasto no previsto', dentro], ['Estourou', estouro], ['Ainda disponível', disponivel]],
+        'Orçado', 'despesas', ['var(--t-blue)', 'var(--t-orange)', 'var(--s6)'], 'Situação');
+      // 4) Parcelas que venceram no ano: como foram (ou não) pagas.
+      const venc = parcelas.filter(p => p.vencimento.slice(0, 4) === String(anoSel) && p.vencimento <= hoje());
+      const g = { emDia: 0, atraso: 0, isento: 0, aberto: 0 };
+      venc.forEach(p => {
+        if(p.pago_em && p.forma_pagamento === 'Isento') g.isento += p.valor;
+        else if(p.pago_em) g[p.pago_em <= p.vencimento ? 'emDia' : 'atraso'] += p.valor;
+        else g.aberto += p.valor;
+      });
+      rosca($('trRoscaAdim'), $('trLegAdim'), [['Pago em dia', g.emDia], ['Pago com atraso', g.atraso], ['Isento (bolsa)', g.isento], ['Em atraso', g.aberto]],
+        'Vencido', 'até hoje', ['var(--t-in)', 'var(--t-gold)', 'var(--t-purple)', 'var(--t-out)'], 'Situação');
+    }
+
     // Caixa geral + cada evento; o uso do orçamento vai embaixo do nome, pra
     // tabela caber na coluna estreita do painel.
     function desenharCaixas(doAno){
@@ -24794,11 +24895,12 @@
       const ent = x.tipo === 'entrada';
       linha.appendChild(el('span', 'tr-row-icon ' + (ent ? 'tr-icon-in' : 'tr-icon-out'), ent ? '+' : '−'));
       const corpo = el('span', 'tr-row-body');
+      if(x.categoria) corpo.appendChild(el('span', 'tr-cat-tag', (ICONE_CAT[x.categoria] || '•') + ' ' + x.categoria));
       const desc = el('span', 'tr-row-desc', x.descricao);
       const ev = mostrarEvento && x.evento_id ? eventoPorId(x.evento_id) : null;
       if(ev) desc.appendChild(el('span', 'tr-row-evento', ev.nome));
       corpo.appendChild(desc);
-      corpo.appendChild(el('span', 'tr-row-meta', [x.categoria, x.forma_pagamento, dataCurta(x.data), x.registrado_por].filter(Boolean).join(' · ')));
+      corpo.appendChild(el('span', 'tr-row-meta', [x.forma_pagamento, dataCurta(x.data), x.registrado_por].filter(Boolean).join(' · ')));
       linha.appendChild(corpo);
       linha.appendChild(el('span', 'tr-row-value ' + (ent ? 'tr-value-in' : 'tr-value-out'), (ent ? '+ ' : '− ') + brl(x.valor)));
       if(x.observacao) linha.title = x.observacao;
@@ -24931,6 +25033,41 @@
       kpi(k, 'Resultado', comSinal(t.resultado), t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '', t.orc.length ? 'previsto ' + comSinal(t.prevResultado) : 'entradas − saídas', 'var(--t-purple)', '=');
       corpo.appendChild(k);
 
+      // Gráficos do evento: de onde vem, para onde vai, inscrições e o caixa no tempo.
+      const g3 = el('div', 'tr-grade g3');
+      const cartaoRosca = (titulo, sub) => {
+        const c = el('section', 'tr-card');
+        const h = el('div', 'tr-card-h'); h.append(el('h5', null, titulo), el('span', null, sub));
+        const box = el('div', 'tr-rosca-box'); const r = el('div', 'tr-rosca'); const lg = el('table', 'tr-leg');
+        box.append(r, lg); c.append(h, box); g3.appendChild(c);
+        return [r, lg];
+      };
+      const nomeItem = x => { const it = x.orcamento_item_id && itens.find(i => i.id === x.orcamento_item_id); return it ? it.descricao.replace(/\s*\(.*\)$/, '') : (x.categoria || 'Outro'); };
+      const agrupar = lanc => {
+        const m = {}; lanc.forEach(x => { const n = nomeItem(x); m[n] = (m[n] || 0) + x.valor; });
+        const ord = Object.keys(m).sort((a, b) => m[b] - m[a]);
+        const top = ord.slice(0, ord.length > 6 ? 5 : 6).map(n => [n, m[n]]);
+        if(ord.length > 6) top.push(['Outros', ord.slice(5).reduce((s, n) => s + m[n], 0)]);
+        return top;
+      };
+      const [rE, lE] = cartaoRosca('De onde vem', 'receitas do evento');
+      rosca(rE, lE, agrupar(t.lanc.filter(x => x.tipo === 'entrada')), 'Recebido', 'até agora', null, 'Origem');
+      const [rS, lS] = cartaoRosca('Para onde vai', 'despesas do evento');
+      rosca(rS, lS, agrupar(t.lanc.filter(x => x.tipo === 'saida')), 'Gasto', 'até agora', null, 'Item');
+      const [rI, lI] = cartaoRosca('Inscrições', 'parcelas dos participantes');
+      const sit = { pago: 0, isento: 0, avencer: 0, atrasado: 0 };
+      t.parc.forEach(p => { sit[situacaoParcela(p)] += p.valor; });
+      rosca(rI, lI, [['Pago', sit.pago], ['Isento (bolsa)', sit.isento], ['A vencer', sit.avencer], ['Atrasado', sit.atrasado]],
+        'Cobrado', t.parc.length ? new Set(t.parc.map(p => p.desbravador_id || p.pessoa_nome)).size + ' pessoas' : '',
+        ['var(--t-in)', 'var(--t-purple)', 'var(--t-gold)', 'var(--t-out)'], 'Situação');
+      corpo.appendChild(g3);
+      const cLinha = el('section', 'tr-card');
+      const hLinha = el('div', 'tr-card-h'); hLinha.append(el('h5', null, 'Caixa do evento ao longo do tempo'), el('span', null, 'resultado acumulado a cada lançamento'));
+      const boxLinha = el('div');
+      cLinha.append(hLinha, boxLinha);
+      corpo.appendChild(cLinha);
+      requestAnimationFrame(() => desenharLinhaEvento(boxLinha, t.lanc, t.prevResultado, t.orc.length > 0));
+
       const grade = el('div', 'tr-grade g2b');
       // Orçamento x realizado
       const cOrc = el('section', 'tr-card');
@@ -24946,7 +25083,7 @@
         doTipo.forEach(item => {
           const real = soma(t.lanc.filter(x => x.orcamento_item_id === item.id));
           prevT += item.valor; realT += real;
-          tb.appendChild(linhaOrc(item.descricao + (item.categoria ? ' · ' + item.categoria : ''), item.valor, real, tipo, pode && ev.status === 'aberto' ? () => abrirLancamento(null, { evento: ev.id, tipo, item: item.id }) : null, pode ? () => abrirItem(item) : null));
+          tb.appendChild(linhaOrc(item.descricao, item.valor, real, tipo, pode && ev.status === 'aberto' ? () => abrirLancamento(null, { evento: ev.id, tipo, item: item.id }) : null, pode ? () => abrirItem(item) : null, item.categoria));
         });
         const fora = t.lanc.filter(x => x.tipo === tipo && !x.orcamento_item_id);
         if(fora.length){
@@ -24980,7 +25117,16 @@
       cDir.appendChild(hL);
       const lst = el('div', 'tr-list');
       if(!t.lanc.length) lst.appendChild(vazio('Nenhuma entrada ou saída lançada ainda.'));
-      t.lanc.forEach(x => lst.appendChild(linhaLancamento(x, false)));
+      // Os 8 mais recentes; o resto abre no "Ver todos" (evento grande tem dezenas).
+      const VISIVEIS = 8;
+      t.lanc.slice(0, VISIVEIS).forEach(x => lst.appendChild(linhaLancamento(x, false)));
+      if(t.lanc.length > VISIVEIS){
+        const mais = botao('▾ Ver todos os ' + t.lanc.length + ' lançamentos', 'pl-list-add-btn', () => {
+          t.lanc.slice(VISIVEIS).forEach(x => lst.insertBefore(linhaLancamento(x, false), mais));
+          mais.remove();
+        });
+        lst.appendChild(mais);
+      }
       cDir.appendChild(lst);
       grade.appendChild(cDir);
       corpo.appendChild(grade);
@@ -24995,9 +25141,59 @@
       else cIns.appendChild(tabelaPessoas(cobsEv.map(c => c.id), true));
       corpo.appendChild(cIns);
     }
-    function linhaOrc(descricao, previsto, real, tipo, aoLancar, aoEditar){
+    // Resultado acumulado do evento, lançamento a lançamento (degraus por data),
+    // com a linha tracejada do resultado previsto no orçamento.
+    function desenharLinhaEvento(box, lanc, previsto, temOrc){
+      box.innerHTML = '';
+      if(!lanc.length){ box.appendChild(vazio('Nenhum lançamento ainda.')); return; }
+      const porDia = {};
+      lanc.forEach(x => { porDia[x.data] = (porDia[x.data] || 0) + sinal(x); });
+      const dias = Object.keys(porDia).sort();
+      let acc = 0;
+      const pts = dias.map(d => { acc += porDia[d]; return [d, acc]; });
+      const W = largura(box), H = 200, pl = 62, pr = 16, pt = 20, pb = 24;
+      const valores = pts.map(p => p[1]).concat(temOrc ? [previsto] : []);
+      const maxV = Math.max(0, ...valores), minV = Math.min(0, ...valores);
+      const topo = maxV > 0 ? topoRedondo(maxV) : 0, fundo = minV < 0 ? -topoRedondo(-minV) : 0;
+      const alto = topo - fundo || 1;
+      const y = v => pt + (H - pt - pb) * (topo - v) / alto;
+      const t0 = new Date(dias[0] + 'T12:00:00').getTime(), t1 = new Date(dias[dias.length - 1] + 'T12:00:00').getTime();
+      const x = d => pl + (W - pl - pr) * (t1 === t0 ? 0.5 : (new Date(d + 'T12:00:00').getTime() - t0) / (t1 - t0));
+      const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'tr-svg', role: 'img', 'aria-label': 'Resultado acumulado do evento' });
+      [topo, fundo].filter(v => v).forEach(v => {
+        svgEl('line', { x1: pl, x2: W - pr, y1: y(v), y2: y(v), class: 'tr-grade-l' }, svg);
+        svgEl('text', { x: pl - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = compacto(v);
+      });
+      svgEl('line', { x1: pl, x2: W - pr, y1: y(0), y2: y(0), class: 'tr-base zero' }, svg);
+      svgEl('text', { x: pl - 8, y: y(0) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = 'R$ 0';
+      if(temOrc){
+        const lp = svgEl('line', { x1: pl, x2: W - pr, y1: y(previsto), y2: y(previsto), style: 'stroke:var(--t-purple);stroke-width:1.5;stroke-dasharray:6 4' }, svg);
+        dica(lp, 'Resultado previsto no orçamento: ' + comSinal(previsto));
+        svgEl('text', { x: W - pr, y: y(previsto) - 6, 'text-anchor': 'end', style: 'fill:var(--t-purple);font-size:11px;font-weight:800' }, svg).textContent = 'previsto ' + compacto(previsto);
+      }
+      // Degraus: o valor só muda no dia do lançamento.
+      let d = 'M' + x(pts[0][0]) + ',' + y(pts[0][1]);
+      for(let i = 1; i < pts.length; i++) d += 'H' + x(pts[i][0]) + 'V' + y(pts[i][1]);
+      svgEl('path', { d, class: 'tr-linha' }, svg);
+      pts.forEach(([dia, v]) => {
+        const g = svgEl('g', { class: 'tr-ponto' }, svg);
+        svgEl('circle', { cx: x(dia), cy: y(v), r: 11, class: 'tr-alvo' }, g);
+        svgEl('circle', { cx: x(dia), cy: y(v), r: 3.5, class: v < 0 ? 'neg' : '' }, g);
+        dica(g, dataLonga(dia) + ': no dia ' + comSinal(porDia[dia]) + ' · acumulado ' + comSinal(v));
+      });
+      const ult = pts[pts.length - 1];
+      svgEl('text', { x: x(ult[0]), y: y(ult[1]) + (ult[1] < 0 ? 18 : -10), 'text-anchor': 'end', class: 'tr-rotulo' + (ult[1] < 0 ? ' neg' : '') }, svg).textContent = compacto(ult[1]);
+      // Datas: primeira, última e até 4 no meio.
+      const marcas = dias.length <= 6 ? dias : [0, 0.2, 0.4, 0.6, 0.8, 1].map(f => dias[Math.round(f * (dias.length - 1))]);
+      [...new Set(marcas)].forEach(dia => svgEl('text', { x: x(dia), y: H - 6, 'text-anchor': 'middle', class: 'tr-eixo' }, svg).textContent = dataCurta(dia));
+      box.appendChild(svg);
+    }
+
+    function linhaOrc(descricao, previsto, real, tipo, aoLancar, aoEditar, categoria){
       const tr = el('tr');
       const n = el('td'); const d = el('span', 'tr-dot'); d.style.background = tipo === 'entrada' ? 'var(--t-in)' : 'var(--t-out)';
+      // Categoria (ícone + nome) em cima, detalhe embaixo.
+      if(categoria){ n.append(el('span', 'tr-cat-tag', (ICONE_CAT[categoria] || '•') + ' ' + categoria), el('br')); }
       n.append(d, document.createTextNode(descricao));
       if(aoEditar){ n.style.cursor = 'pointer'; n.title = 'Editar item'; n.addEventListener('click', aoEditar); }
       const exec = el('td');
@@ -25246,6 +25442,30 @@
       CATEGORIAS[tipo].forEach(c => { const o = el('option', null, c); o.value = c; select.appendChild(o); });
       if(atual && CATEGORIAS[tipo].indexOf(atual) === -1){ const o = el('option', null, atual); o.value = atual; select.appendChild(o); }
       if(atual) select.value = atual;
+      const par = CHIPS_DE[select.id];
+      if(par) montarCategorias($(par[0]), select, tipo, $(par[1]));
+    }
+    // Botões de categoria (ícone + nome) ligados ao <select> escondido; o
+    // campo de detalhe ganha um exemplo da categoria escolhida.
+    const CHIPS_DE = { trFieldCategory: ['trFieldCatChips', 'trFieldDesc'], trItemCategoria: ['trItemCatChips', 'trItemDesc'] };
+    function montarCategorias(box, select, tipo, detalhe){
+      box.innerHTML = '';
+      const marcar = () => {
+        box.querySelectorAll('.tr-cat-btn').forEach(b => {
+          const on = b.dataset.cat === select.value;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-checked', on ? 'true' : 'false');
+        });
+        if(detalhe) detalhe.placeholder = 'Ex.: ' + (EXEMPLO_CAT[select.value] || 'descreva o lançamento');
+      };
+      Array.from(select.options).forEach(o => {
+        const b = el('button', 'tr-cat-btn' + (tipo === 'saida' ? ' out' : ''));
+        b.type = 'button'; b.dataset.cat = o.value; b.setAttribute('role', 'radio');
+        b.append(el('span', 'tr-cat-ic', ICONE_CAT[o.value] || '•'), el('span', null, o.value));
+        b.addEventListener('click', () => { select.value = o.value; marcar(); if(detalhe && !detalhe.value) detalhe.focus(); });
+        box.appendChild(b);
+      });
+      marcar();
     }
     function preencherEventos(sel, atual, rotuloGeral){
       sel.innerHTML = '';
