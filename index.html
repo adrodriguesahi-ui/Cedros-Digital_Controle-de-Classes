@@ -32216,7 +32216,9 @@ const REQ_SUMMARIES = {
         return;
       }
       forgotPasswordBtn.textContent = 'Enviando…';
-      const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.href.split('#')[0] });
+      // Volta sempre pro endereço publicado do clube: o app Android antigo
+      // tinha endereço interno (https://localhost) e o link do e-mail não abria.
+      const { error } = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.CLUBE_CONFIG.urlPublicaApp });
       forgotPasswordBtn.textContent = originalText;
       forgotPasswordMsg.style.color = error ? '#FF6B5C' : 'var(--accent)';
       forgotPasswordMsg.textContent = error
