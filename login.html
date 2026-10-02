@@ -24479,7 +24479,14 @@
       if(!supa || agenda.length) return;
       const ano = new Date().getFullYear();
       const { data } = await supa.from('eventos_agenda').select('id, titulo, dia, mes_indice').order('mes_indice').order('dia');
-      agenda = (data || []).map(a => Object.assign({}, a, { iso: ano + '-' + String(a.mes_indice).padStart(2, '0') + '-' + String(a.dia).padStart(2, '0') }));
+      // A Agenda guarda só dia e mês. Data mais de 6 meses no passado é do ano
+      // que vem (ex.: em outubro, um evento de 11/01 é janeiro do ano seguinte).
+      const limite = somaMeses(hoje(), -6);
+      agenda = (data || []).map(a => {
+        let iso = ano + '-' + String(a.mes_indice).padStart(2, '0') + '-' + String(a.dia).padStart(2, '0');
+        if(iso < limite) iso = (ano + 1) + iso.slice(4);
+        return Object.assign({}, a, { iso });
+      }).sort((x, y) => x.iso.localeCompare(y.iso));
     }
     async function carregarPessoas(){
       if(!supa || pessoas.length) return;
@@ -25332,7 +25339,8 @@
       await carregarAgenda();
       const sel = $('trEvAgenda'); sel.innerHTML = '';
       const n = el('option', null, '— Evento só da Tesouraria —'); n.value = ''; sel.appendChild(n);
-      agenda.forEach(a => { const o = el('option', null, dataCurta(a.iso) + ' · ' + a.titulo); o.value = a.id; sel.appendChild(o); });
+      // Próximos primeiro; os que já passaram vão pro fim.
+      agenda.filter(a => a.iso >= hoje()).concat(agenda.filter(a => a.iso < hoje())).forEach(a => { const o = el('option', null, dataLonga(a.iso) + ' · ' + a.titulo); o.value = a.id; sel.appendChild(o); });
       sel.value = ev && ev.evento_agenda_id ? ev.evento_agenda_id : '';
       $('trEventoModalTitulo').textContent = ev ? 'Editar evento' : 'Novo evento';
       $('trEvNome').value = ev ? ev.nome : '';
