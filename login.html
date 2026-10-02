@@ -1910,37 +1910,257 @@
   .dv-card[data-read="1"] .dv-read-mark{ background:var(--accent); border-color:var(--accent); }
 
   /* ---- Tesouraria ---- */
-  .tr-balance-card{
-    background:linear-gradient(135deg, rgba(63,203,107,0.16), rgba(63,203,107,0.04));
-    border:1px solid rgba(63,203,107,0.25);
-    border-radius:20px; padding:20px; margin-bottom:20px;
-    display:flex; flex-direction:column; align-items:center; text-align:center;
+  /* ================================================================
+     TESOURARIA — painel, lançamentos, eventos e cobranças.
+     Cores em variáveis (--t-*) pra o tema claro/escuro (data-tema no
+     #view-treasury, escolha guardada no aparelho). Só esta tela muda.
+     ================================================================ */
+  #view-treasury{
+    --t-bg:var(--night); --t-ink:#F5EFE1; --t-muted:rgba(245,239,225,0.62); --t-faint:rgba(245,239,225,0.42);
+    --t-card:#121810; --t-card2:#171f15; --t-line:rgba(255,255,255,0.09); --t-line2:rgba(255,255,255,0.22);
+    --t-track:rgba(255,255,255,0.08); --t-hover:rgba(255,255,255,0.04); --t-sombra:none;
+    --t-in:#3FCB6B; --t-out:#FF6B5C; --t-blue:#5B9BFF; --t-gold:#D8A83E; --t-purple:#B98BFF; --t-orange:#FF9F43; --t-aqua:#199e70;
+    --t-on:#06170C; --t-modal:#0F1B11;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#6b6f68;
+    background:var(--t-bg);
   }
-  .tr-balance-label{ font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em; color:rgba(245,239,225,0.55); }
-  .tr-balance-value{ font-size:32px; font-weight:900; color:var(--accent); margin:4px 0 14px; }
-  .tr-balance-split{ display:flex; gap:28px; }
-  .tr-split-item{ display:flex; flex-direction:column; font-size:11px; font-weight:700; color:rgba(245,239,225,0.5); }
-  .tr-split-item b{ font-size:14.5px; font-weight:900; color:var(--cream); margin-bottom:2px; }
+  #view-treasury[data-tema="claro"]{
+    --t-bg:#EEF2EC; --t-ink:#17221A; --t-muted:rgba(23,34,26,0.66); --t-faint:rgba(23,34,26,0.48);
+    --t-card:#FFFFFF; --t-card2:#F5F7F3; --t-line:rgba(20,40,25,0.11); --t-line2:rgba(20,40,25,0.26);
+    --t-track:rgba(20,40,25,0.09); --t-hover:rgba(20,40,25,0.035); --t-sombra:0 1px 2px rgba(20,40,25,0.06), 0 4px 14px rgba(20,40,25,0.05);
+    --t-in:#16924A; --t-out:#D23F33; --t-blue:#2A6FD0; --t-gold:#A87708; --t-purple:#6E4FD0; --t-orange:#C9680E; --t-aqua:#138a60;
+    --t-on:#FFFFFF; --t-modal:#FFFFFF;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#9a9d95;
+  }
+  /* Peças comuns do app, recoloridas só aqui dentro no tema claro. */
+  #view-treasury[data-tema="claro"] .pl-title,
+  #view-treasury[data-tema="claro"] .pl-modal-title,
+  #view-treasury[data-tema="claro"] .pl-dayview-title{ color:var(--t-ink); }
+  #view-treasury[data-tema="claro"] .pl-back,
+  #view-treasury[data-tema="claro"] .pl-modal-close,
+  #view-treasury[data-tema="claro"] .pl-dayview-icon-btn{ background:var(--t-card); border:1px solid var(--t-line); color:var(--t-ink); }
+  #view-treasury[data-tema="claro"] .pl-modal{ background:var(--t-modal); border-color:var(--t-line); box-shadow:0 -8px 30px rgba(20,40,25,0.15); }
+  #view-treasury[data-tema="claro"] .pl-modal-overlay{ background:rgba(20,40,25,0.35); }
+  #view-treasury[data-tema="claro"] .pl-field-label{ color:var(--t-faint); }
+  #view-treasury[data-tema="claro"] .pl-input{ background:var(--t-card2); border-color:var(--t-line); color:var(--t-ink); }
+  #view-treasury[data-tema="claro"] .pl-btn-neutral{ background:var(--t-card2); color:var(--t-ink); border:1px solid var(--t-line); }
+  #view-treasury[data-tema="claro"] .pl-btn-danger{ background:rgba(210,63,51,0.1); color:var(--t-out); }
+  #view-treasury[data-tema="claro"] .pl-reminder-hint,
+  #view-treasury[data-tema="claro"] .un-empty-hint,
+  #view-treasury[data-tema="claro"] .pl-dayview-subtitle{ color:var(--t-muted); }
+  #view-treasury[data-tema="claro"] .pl-list-add-btn{ border-color:var(--t-line2); color:var(--t-in); }
+  #view-treasury[data-tema="claro"] .pl-dayview-overlay{ background:var(--t-bg); }
+  #view-treasury .pl-dayview-overlay{ background:var(--t-bg); }
+  #view-treasury .pl-topbar{ background:linear-gradient(180deg, var(--t-bg) 60%, color-mix(in srgb, var(--t-bg) 85%, transparent) 85%, transparent); }
+  /* Nome quebra em linha; números e botões nunca são cortados. */
+  table.tr-t td:first-child{ white-space:normal; min-width:110px; }
+  #trCaixas table.tr-t td:first-child{ min-width:0; }
 
-  .tr-list{ display:flex; flex-direction:column; gap:8px; }
-  .tr-row{
-    display:flex; align-items:center; gap:12px;
-    background:rgba(255,255,255,0.045); border:1px solid rgba(255,255,255,0.08);
-    border-radius:16px; padding:12px 14px; text-decoration:none;
-  }
-  .tr-row-icon{
-    flex-shrink:0; width:34px; height:34px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size:17px; font-weight:900;
-  }
-  .tr-icon-in{ background:rgba(63,203,107,0.16); color:var(--accent); }
-  .tr-icon-out{ background:rgba(255,107,92,0.16); color:#FF6B5C; }
-  .tr-row-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
-  .tr-row-desc{ font-size:14px; font-weight:800; color:var(--cream); }
-  .tr-row-meta{ font-size:11.5px; font-weight:600; color:rgba(245,239,225,0.5); }
+  .tr-tema-btn{ flex-shrink:0; display:flex; align-items:center; gap:6px; height:36px; padding:0 11px; border-radius:18px; border:1px solid var(--t-line); background:var(--t-card); color:var(--t-ink); font-size:12px; font-weight:900; cursor:pointer; font-family:inherit; }
+
+  /* Abas */
+  .tr-abas{ display:flex; gap:4px; padding:4px; margin-bottom:12px; border-radius:13px; background:var(--t-card); border:1px solid var(--t-line); box-shadow:var(--t-sombra); }
+  .tr-aba{ flex:1 1 0; position:relative; padding:9px 4px; border:none; border-radius:10px; background:none; color:var(--t-muted); font-size:12.5px; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; }
+  .tr-aba.active{ background:var(--t-in); color:var(--t-on); }
+  .tr-aba em{ font-style:normal; margin-left:5px; padding:1px 6px; border-radius:9px; background:var(--t-out); color:#fff; font-size:10px; }
+
+  .tr-mes{ display:flex; align-items:center; justify-content:center; gap:14px; margin:0 0 12px; font-size:14.5px; font-weight:900; color:var(--t-ink); }
+  .tr-mes-btn{ width:32px; height:32px; border-radius:10px; border:1px solid var(--t-line); background:var(--t-card); color:var(--t-ink); font-size:17px; font-weight:900; cursor:pointer; }
+  .tr-positivo{ color:var(--t-in) !important; }
+  .tr-negativo{ color:var(--t-out) !important; }
+  .tr-value-in{ color:var(--t-in); } .tr-value-out{ color:var(--t-out); }
+  .tr-mut{ color:var(--t-muted); }
+  .tr-vazio{ margin:4px 0; padding:6px 0; font-size:12.5px; font-weight:600; color:var(--t-muted); }
+
+  /* Indicadores com faixa colorida */
+  .tr-kpis{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; margin-bottom:12px; }
+  .tr-kpi{ position:relative; padding:11px 12px 10px 15px; border-radius:14px; background:var(--t-card); border:1px solid var(--t-line); box-shadow:var(--t-sombra); overflow:hidden; min-width:0; }
+  .tr-kpi::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--c, var(--t-in)); }
+  .tr-kpi-rot{ display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:10px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-muted); }
+  .tr-kpi-ic{ flex-shrink:0; width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:var(--c); background:color-mix(in srgb, var(--c) 16%, transparent); }
+  .tr-kpi b{ display:block; margin-top:5px; font-size:17.5px; font-weight:900; color:var(--t-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tr-kpi small{ display:block; font-size:11px; font-weight:700; color:var(--t-muted); }
+
+  /* Cartões / grade */
+  .tr-grade{ display:grid; grid-template-columns:minmax(0, 1fr); gap:10px; margin-bottom:10px; }
+  .tr-card{ background:var(--t-card); border:1px solid var(--t-line); border-radius:16px; padding:14px; min-width:0; box-shadow:var(--t-sombra); }
+  .tr-card-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:11px; }
+  .tr-card-h h5{ margin:0; font-size:12px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-ink); }
+  .tr-card-h > span{ font-size:11px; font-weight:700; color:var(--t-faint); }
+  .tr-legenda{ display:flex; align-items:center; gap:10px; font-size:11px; font-weight:800; color:var(--t-muted); }
+  .tr-legenda i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+  .tr-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; flex-shrink:0; }
+  .tr-chip{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:10.5px; font-weight:900; white-space:nowrap; }
+  .tr-chip.ok{ background:color-mix(in srgb, var(--t-in) 15%, transparent); color:var(--t-in); }
+  .tr-chip.pend{ background:color-mix(in srgb, var(--t-gold) 17%, transparent); color:var(--t-gold); }
+  .tr-chip.atr{ background:color-mix(in srgb, var(--t-out) 15%, transparent); color:var(--t-out); }
+  .tr-chip.azul, .tr-chip.aberto, .tr-chip.aberta{ background:color-mix(in srgb, var(--t-blue) 15%, transparent); color:var(--t-blue); }
+  .tr-chip.roxo{ background:color-mix(in srgb, var(--t-purple) 15%, transparent); color:var(--t-purple); }
+  .tr-chip.encerrado, .tr-chip.encerrada{ background:var(--t-track); color:var(--t-muted); }
+  .tr-barra{ display:block; height:8px; border-radius:5px; background:var(--t-track); overflow:hidden; }
+  .tr-barra i{ display:block; height:100%; border-radius:5px; background:var(--t-out); min-width:2px; }
+  .tr-barra i.in{ background:var(--t-in); } .tr-barra i.uso{ background:var(--t-blue); } .tr-barra i.estouro{ background:var(--t-orange); }
+  .tr-btn{ padding:7px 12px; border-radius:10px; border:1px solid var(--t-line); background:var(--t-card2); color:var(--t-ink); font-size:12.5px; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; }
+  .tr-btn.prim{ background:var(--t-in); border-color:var(--t-in); color:var(--t-on); }
+  .tr-btn.sai{ background:var(--t-out); border-color:var(--t-out); color:#fff; }
+  .tr-btn.contorno{ background:none; border-color:var(--t-in); color:var(--t-in); }
+  .tr-btn:disabled{ opacity:0.5; cursor:default; }
+
+  /* Tabelas */
+  .tr-tabela-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table.tr-t{ width:100%; border-collapse:collapse; font-size:12.5px; color:var(--t-ink); }
+  table.tr-t th{ text-align:left; padding:8px 8px; font-size:10px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-faint); background:var(--t-card2); white-space:nowrap; }
+  table.tr-t td{ padding:8px 8px; font-weight:700; border-top:1px solid var(--t-line); white-space:nowrap; }
+  table.tr-t tbody tr:hover td{ background:var(--t-hover); }
+  table.tr-t .r{ text-align:right; }
+  table.tr-t tr.grupo td{ padding-top:12px; font-size:10px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-faint); border-top:none; background:none; }
+  table.tr-t tr.sub td{ font-weight:900; background:var(--t-card2); }
+  table.tr-t tfoot td{ font-weight:900; border-top:2px solid color-mix(in srgb, var(--t-in) 45%, transparent); background:color-mix(in srgb, var(--t-in) 8%, var(--t-card)); }
+  table.tr-t tr.clicavel{ cursor:pointer; }
+  table.tr-t tr.on td{ background:color-mix(in srgb, var(--t-in) 9%, transparent); }
+
+  /* Saldo (aba Lançamentos) */
+  .tr-balance-card{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:18px; margin-bottom:12px; border-radius:18px; background:color-mix(in srgb, var(--t-in) 10%, var(--t-card)); border:1px solid color-mix(in srgb, var(--t-in) 30%, transparent); box-shadow:var(--t-sombra); }
+  .tr-balance-label{ font-size:11.5px; font-weight:900; letter-spacing:0.04em; text-transform:uppercase; color:var(--t-muted); }
+  .tr-balance-value{ margin:4px 0 6px; font-size:30px; font-weight:900; color:var(--t-in); }
+  .tr-balance-value.negativo{ color:var(--t-out); }
+  .tr-balance-nota{ font-size:11.5px; font-weight:700; color:var(--t-muted); }
+  .tr-resumo{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:12px; }
+  .tr-resumo-item{ display:flex; flex-direction:column; gap:3px; padding:10px 12px; border-radius:13px; background:var(--t-card); border:1px solid var(--t-line); box-shadow:var(--t-sombra); }
+  .tr-resumo-item span{ font-size:10.5px; font-weight:900; text-transform:uppercase; letter-spacing:0.03em; color:var(--t-muted); }
+  .tr-resumo-item b{ font-size:14px; font-weight:900; color:var(--t-ink); white-space:nowrap; }
+  .tr-cats{ margin-bottom:12px; }
+  .tr-cat{ display:grid; grid-template-columns:110px 1fr 120px; align-items:center; gap:10px; padding:4px 0; font-size:12.5px; font-weight:700; color:var(--t-ink); }
+  .tr-cat > span:first-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tr-cat b{ text-align:right; font-weight:900; white-space:nowrap; }
+  .tr-cat b small{ margin-left:6px; font-size:10.5px; font-weight:800; color:var(--t-faint); }
+  .tr-filtros-linha{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .tr-filtros{ display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; }
+  .tr-filtro{ flex-shrink:0; padding:7px 12px; border-radius:20px; border:1px solid var(--t-line); background:var(--t-card); color:var(--t-muted); font-size:12px; font-weight:900; cursor:pointer; font-family:inherit; }
+  .tr-filtro.active{ background:var(--t-blue); border-color:var(--t-blue); color:#fff; }
+  .tr-busca{ flex:1; min-width:180px; margin:0 !important; padding:8px 12px !important; font-size:13px !important; }
+  .tr-list{ display:flex; flex-direction:column; gap:7px; }
+  .tr-row{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:14px; background:var(--t-card); border:1px solid var(--t-line); text-decoration:none; cursor:pointer; box-shadow:var(--t-sombra); }
+  .tr-row.so-leitura{ cursor:default; }
+  .tr-row-icon{ flex-shrink:0; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; }
+  .tr-icon-in{ background:color-mix(in srgb, var(--t-in) 16%, transparent); color:var(--t-in); }
+  .tr-icon-out{ background:color-mix(in srgb, var(--t-out) 16%, transparent); color:var(--t-out); }
+  .tr-row-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .tr-row-desc{ font-size:13.5px; font-weight:800; color:var(--t-ink); }
+  .tr-row-meta{ font-size:11.5px; font-weight:700; color:var(--t-muted); }
   .tr-row-value{ flex-shrink:0; font-size:13.5px; font-weight:900; white-space:nowrap; }
-  .tr-value-in{ color:var(--accent); }
-  .tr-value-out{ color:#FF6B5C; }
+  .tr-row-evento{ display:inline-block; margin-left:6px; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:800; background:color-mix(in srgb, var(--t-purple) 15%, transparent); color:var(--t-purple); }
+
+  /* Roscas com tabela */
+  .tr-rosca-box{ display:grid; grid-template-columns:1fr; justify-items:center; gap:10px; }
+  .tr-rosca{ position:relative; width:150px; height:150px; }
+  .tr-rosca .centro{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none; }
+  .tr-rosca .centro small{ font-size:10.5px; font-weight:800; color:var(--t-muted); }
+  .tr-rosca .centro b{ font-size:15px; font-weight:900; color:var(--t-ink); }
+  .tr-rosca circle{ cursor:default; }
+  table.tr-leg{ width:100%; border-collapse:collapse; font-size:11.5px; color:var(--t-ink); }
+  table.tr-leg th{ text-align:right; font-size:9.5px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-faint); padding:0 3px 5px; }
+  table.tr-leg th:first-child, table.tr-leg td:first-child{ text-align:left; }
+  table.tr-leg td{ padding:4px 3px; font-weight:800; text-align:right; border-top:1px solid var(--t-line); white-space:nowrap; }
+
+  /* Gráficos SVG */
+  .tr-svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .tr-svg text{ font-family:'Nunito',sans-serif; }
+  .tr-svg .tr-grade-l{ stroke:var(--t-line); stroke-width:1; }
+  .tr-svg .tr-base{ stroke:var(--t-line2); stroke-width:1; }
+  .tr-svg .tr-base.zero{ stroke-dasharray:4 4; }
+  .tr-svg .tr-eixo{ fill:var(--t-faint); font-size:11px; font-weight:700; }
+  .tr-svg .tr-eixo.atual{ fill:var(--t-ink); font-weight:900; }
+  .tr-svg .tr-alvo{ fill:transparent; }
+  .tr-svg .tr-grupo:hover .tr-alvo{ fill:var(--t-hover); }
+  .tr-svg .tr-linha{ fill:none; stroke:var(--t-blue); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+  .tr-svg .tr-area{ fill:color-mix(in srgb, var(--t-blue) 13%, transparent); }
+  .tr-svg .tr-ponto circle:not(.tr-alvo){ fill:var(--t-blue); stroke:var(--t-card); stroke-width:2; }
+  .tr-svg .tr-ponto circle.neg{ fill:var(--t-out); }
+  .tr-svg .tr-rotulo{ fill:var(--t-ink); font-size:12px; font-weight:900; }
+  .tr-svg .tr-rotulo.neg{ fill:var(--t-out); }
+  .tr-div{ display:grid; grid-template-columns:minmax(110px, 0.8fr) 1fr 96px; align-items:center; gap:10px; width:100%; padding:6px 4px; border:none; border-radius:9px; background:none; cursor:pointer; font-family:inherit; text-align:left; }
+  .tr-div:hover{ background:var(--t-hover); }
+  .tr-div-nome{ font-size:12.5px; font-weight:800; color:var(--t-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tr-div-trilho{ display:grid; grid-template-columns:1fr 2px 1fr; align-items:center; height:12px; }
+  .tr-div-lado{ display:flex; height:10px; } .tr-div-lado.neg{ justify-content:flex-end; }
+  .tr-div-lado i{ display:block; height:100%; min-width:2px; }
+  .tr-div-lado.pos i{ background:var(--t-in); border-radius:0 4px 4px 0; }
+  .tr-div-lado.neg i{ background:var(--t-out); border-radius:4px 0 0 4px; }
+  .tr-div-zero{ height:16px; background:var(--t-line2); }
+  .tr-div b{ font-size:12.5px; font-weight:900; text-align:right; white-space:nowrap; color:var(--t-ink); }
+
+  /* Tipo nos modais */
+  .tr-tipo{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+  .tr-tipo.quatro{ grid-template-columns:1fr 1fr; }
+  .tr-tipo-btn{ padding:10px 6px; border-radius:12px; border:1px solid var(--t-line); background:var(--t-card2); color:var(--t-muted); font-size:12.5px; font-weight:900; cursor:pointer; font-family:inherit; }
+  .tr-tipo-btn.active{ background:color-mix(in srgb, var(--t-in) 15%, transparent); border-color:var(--t-in); color:var(--t-in); }
+  .tr-tipo-btn.out.active{ background:color-mix(in srgb, var(--t-out) 14%, transparent); border-color:var(--t-out); color:var(--t-out); }
+  .tr-previa{ margin-top:12px; padding:10px 12px; border-radius:12px; font-size:12.5px; font-weight:800; color:var(--t-ink); background:color-mix(in srgb, var(--t-blue) 10%, var(--t-card)); border:1px solid color-mix(in srgb, var(--t-blue) 30%, transparent); }
+  .tr-pessoas{ max-height:220px; overflow-y:auto; border:1px solid var(--t-line); border-radius:12px; padding:6px 10px; background:var(--t-card2); }
+  .tr-pessoas label{ display:flex; align-items:center; gap:8px; padding:5px 0; font-size:13px; font-weight:700; color:var(--t-ink); }
+
+  /* Eventos */
+  .tr-eventos{ display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+  .tr-ev-card{ display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:16px; background:var(--t-card); border:1px solid var(--t-line); cursor:pointer; text-align:left; font-family:inherit; color:var(--t-ink); box-shadow:var(--t-sombra); }
+  .tr-ev-card:hover{ background:var(--t-card2); }
+  .tr-ev-topo{ display:flex; align-items:flex-start; gap:10px; }
+  .tr-ev-nome{ flex:1; min-width:0; font-size:14.5px; font-weight:900; }
+  .tr-ev-nome small{ display:block; margin-top:2px; font-size:11.5px; font-weight:700; color:var(--t-muted); }
+  .tr-ev-nums{ display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; }
+  .tr-ev-nums div{ display:flex; flex-direction:column; gap:2px; font-size:10.5px; font-weight:800; text-transform:uppercase; color:var(--t-muted); }
+  .tr-ev-nums b{ font-size:13.5px; text-transform:none; color:var(--t-ink); white-space:nowrap; }
+  .tr-ev-orc{ font-size:11.5px; font-weight:700; color:var(--t-muted); }
+
+  /* Detalhe do evento */
+  .tr-det-topo{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 2px 12px; font-size:12.5px; font-weight:700; color:var(--t-muted); }
+  .tr-det-acoes{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .tr-resultado{ padding:16px; border-radius:16px; text-align:center; border:1px solid; margin-bottom:10px; }
+  .tr-resultado.pos{ background:color-mix(in srgb, var(--t-in) 9%, var(--t-card)); border-color:color-mix(in srgb, var(--t-in) 32%, transparent); }
+  .tr-resultado.neg{ background:color-mix(in srgb, var(--t-out) 9%, var(--t-card)); border-color:color-mix(in srgb, var(--t-out) 32%, transparent); }
+  .tr-resultado span{ display:block; font-size:11px; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--t-muted); }
+  .tr-resultado b{ display:block; margin:5px 0 3px; font-size:27px; font-weight:900; }
+  .tr-resultado.pos b{ color:var(--t-in); } .tr-resultado.neg b{ color:var(--t-out); }
+  .tr-resultado small{ font-size:12px; font-weight:700; color:var(--t-muted); }
+  .tr-mini-btn{ padding:4px 9px; border-radius:8px; border:1px solid var(--t-in); background:none; color:var(--t-in); font-size:11.5px; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; }
+  .tr-parcelas{ display:inline-flex; gap:3px; vertical-align:middle; }
+  .tr-parcelas i{ width:11px; height:11px; border-radius:50%; border:2px solid var(--t-line2); box-sizing:border-box; }
+  .tr-parcelas i.pg{ background:var(--t-in); border-color:var(--t-in); }
+  .tr-parcelas i.ise{ background:var(--t-purple); border-color:var(--t-purple); }
+  .tr-parcelas i.atr{ border-color:var(--t-out); background:color-mix(in srgb, var(--t-out) 30%, transparent); }
+
+  /* Cobranças */
+  .tr-cob{ display:block; width:100%; text-align:left; font-family:inherit; color:var(--t-ink); padding:12px; border-radius:13px; border:1px solid var(--t-line); background:var(--t-card2); margin-bottom:8px; cursor:pointer; }
+  .tr-cob.on{ border-color:var(--t-in); box-shadow:inset 3px 0 0 var(--t-in); }
+  .tr-cob-t{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; font-size:13.5px; font-weight:900; }
+  .tr-cob-t small{ display:block; margin-top:2px; font-size:11.5px; font-weight:700; color:var(--t-muted); }
+  .tr-cob-b{ display:flex; gap:2px; height:8px; margin:9px 0 6px; border-radius:5px; overflow:hidden; background:var(--t-track); }
+  .tr-cob-b i{ display:block; height:100%; }
+  .tr-cob-n{ display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; font-weight:800; color:var(--t-muted); }
+  .tr-pessoa{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:13px; background:var(--t-card2); border:1px solid var(--t-line); margin-bottom:7px; }
+  .tr-pessoa .ini{ width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:900; color:var(--t-ink); background:var(--t-card); border:1px solid var(--t-line); }
+  .tr-pessoa > div{ flex:1; min-width:0; font-size:13px; font-weight:800; color:var(--t-ink); }
+  .tr-pessoa > div small{ display:block; font-size:11px; font-weight:700; color:var(--t-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tr-pessoa > b{ text-align:right; font-size:13px; white-space:nowrap; color:var(--t-ink); }
+  .tr-pessoa > b small{ display:block; margin-top:3px; }
+  .tr-so-web{ display:none; }
+
+  @media (min-width:700px){
+    .tr-kpis{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+    .tr-det-acoes{ display:flex; flex-wrap:wrap; }
+  }
+  @media (min-width:900px){
+    #view-treasury .pl-content{ max-width:clamp(760px, 84vw, 1440px); }
+    #view-treasury .pl-topbar{ max-width:clamp(760px, 84vw, 1440px); margin-left:auto; margin-right:auto; }
+    .tr-kpis{ grid-template-columns:repeat(6, minmax(0, 1fr)); }
+    .tr-kpi b{ font-size:20px; }
+    .tr-grade.g4{ grid-template-columns:1.1fr 1fr 1fr 1fr; }
+    .tr-grade.g2{ grid-template-columns:1.7fr 1fr; }
+    .tr-grade.g2b{ grid-template-columns:1.3fr 1fr; }
+    .tr-grade.g13{ grid-template-columns:1fr 2fr; }
+    .tr-so-web{ display:block; } table.tr-so-web{ display:table; } .tr-so-app{ display:none; }
+    #trEventoOverlay .pl-dayview-list-wrap{ max-width:1440px; margin:0 auto; width:100%; }
+  }
 
   /* ---- Manual de Especialidades: busca ---- */
   .sp-search-wrap{ position:relative; padding:2px 16px 0; }
@@ -10889,7 +11109,12 @@
     </section>
 
     <!-- ===== VIEW: TESOURARIA ===== -->
-    <section class="view view-planning" id="view-treasury">
+    <!-- Tesouraria: Painel (gráficos), Lançamentos (caixa do mês), Eventos
+         (orçamento x realizado) e Cobranças (mensalidades, taxas, parcelas).
+         Gravado em tesouraria_* (ver supabase/schema.sql). Saldo único:
+         geral + eventos. Lançar/editar: Tesoureiro(a), Diretoria e Admin.
+         Tema claro/escuro só desta tela (data-tema, guardado no aparelho). -->
+    <section class="view view-planning" id="view-treasury" data-tema="escuro">
       <div class="pl-scroll">
 
         <div class="pl-topbar">
@@ -10897,125 +11122,311 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <h3 class="pl-title">Tesouraria</h3>
-          <span class="pl-topbar-spacer" aria-hidden="true"></span>
+          <button type="button" class="tr-tema-btn" id="trTemaBtn" aria-label="Trocar tema claro/escuro">☀ Claro</button>
         </div>
 
         <div class="pl-content" id="trContent">
+          <div class="tr-abas" id="trAbas" role="tablist">
+            <button type="button" class="tr-aba active" data-aba="painel">Painel</button>
+            <button type="button" class="tr-aba" data-aba="geral">Lançamentos</button>
+            <button type="button" class="tr-aba" data-aba="eventos">Eventos</button>
+            <button type="button" class="tr-aba" data-aba="cobrancas">Cobranças<em id="trAbaAtraso" style="display:none;"></em></button>
+          </div>
+          <p class="pl-reminder-hint" id="trSoLeitura" style="display:none; margin:-2px 2px 12px;">Você pode consultar a Tesouraria. Lançar e editar valores é do(a) Tesoureiro(a), da Diretoria e do Administrador.</p>
 
-          <div class="tr-balance-card">
-            <span class="tr-balance-label">Saldo atual</span>
-            <span class="tr-balance-value" id="trBalanceValue">R$ 0,00</span>
-            <div class="tr-balance-split">
-              <span class="tr-split-item"><b id="trTotalIn">R$ 0,00</b>Entradas</span>
-              <span class="tr-split-item"><b id="trTotalOut">R$ 0,00</b>Saídas</span>
+          <!-- ===== Painel ===== -->
+          <div id="trAbaPainel">
+            <div class="tr-mes">
+              <button type="button" class="tr-mes-btn" id="trAnoAnt" aria-label="Ano anterior">‹</button>
+              <span id="trAnoNome">—</span>
+              <button type="button" class="tr-mes-btn" id="trAnoProx" aria-label="Próximo ano">›</button>
+            </div>
+            <div class="tr-kpis" id="trKpis"></div>
+            <div class="tr-grade g4">
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Seletor de caixa</h5><span>resultado no ano</span></div>
+                <div id="trCaixas"></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>De onde vem</h5><span>entradas do ano</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaEnt"></div><table class="tr-leg" id="trLegEnt"></table></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Cobranças do mês</h5><span id="trRoscaCobSub">mensalidades e parcelas</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaCob"></div><table class="tr-leg" id="trLegCob"></table></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Para onde vai</h5><span>saídas do ano</span></div>
+                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaSai"></div><table class="tr-leg" id="trLegSai"></table></div>
+              </section>
+            </div>
+            <div class="tr-grade g2">
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Fluxo de caixa mensal</h5><span class="tr-legenda"><span><i style="background:var(--t-in)"></i>Entradas</span><span><i style="background:var(--t-out)"></i>Saídas</span></span></div>
+                <div id="trGrafFluxo"></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Evolução do saldo</h5><span>fim de cada mês</span></div>
+                <div id="trGrafSaldo"></div>
+              </section>
+            </div>
+            <section class="tr-card">
+              <div class="tr-card-h"><h5>Resultado por evento</h5><span>lucro (+) ou prejuízo (−)</span></div>
+              <div id="trGrafEventos"></div>
+            </section>
+          </div>
+
+          <!-- ===== Lançamentos ===== -->
+          <div id="trAbaGeral" style="display:none;">
+            <div class="tr-balance-card">
+              <span class="tr-balance-label">Saldo do clube</span>
+              <span class="tr-balance-value" id="trBalanceValue">R$ 0,00</span>
+              <span class="tr-balance-nota" id="trBalanceNota">Caixa geral + eventos</span>
+            </div>
+            <div class="tr-mes">
+              <button type="button" class="tr-mes-btn" id="trMesAnt" aria-label="Mês anterior">‹</button>
+              <span id="trMesNome">—</span>
+              <button type="button" class="tr-mes-btn" id="trMesProx" aria-label="Próximo mês">›</button>
+            </div>
+            <div class="tr-resumo">
+              <div class="tr-resumo-item"><span>Entradas</span><b class="tr-value-in" id="trTotalIn">R$ 0,00</b></div>
+              <div class="tr-resumo-item"><span>Saídas</span><b class="tr-value-out" id="trTotalOut">R$ 0,00</b></div>
+              <div class="tr-resumo-item"><span>Resultado</span><b id="trResultadoMes">R$ 0,00</b></div>
+            </div>
+            <div class="tr-cats" id="trCats"></div>
+            <div class="tr-filtros-linha">
+              <div class="tr-filtros" id="trFiltros">
+                <button type="button" class="tr-filtro active" data-filtro="todos">Todos</button>
+                <button type="button" class="tr-filtro" data-filtro="entrada">Entradas</button>
+                <button type="button" class="tr-filtro" data-filtro="saida">Saídas</button>
+                <button type="button" class="tr-filtro" data-filtro="geral">Caixa geral</button>
+                <button type="button" class="tr-filtro" data-filtro="eventos">Eventos</button>
+              </div>
+              <input type="search" class="pl-input tr-busca" id="trBusca" placeholder="Buscar descrição, categoria, evento…" autocomplete="off">
+            </div>
+            <div class="tr-list" id="trList"><p class="un-empty-hint">Carregando...</p></div>
+          </div>
+
+          <!-- ===== Eventos ===== -->
+          <div id="trAbaEventos" style="display:none;">
+            <button type="button" class="pl-list-add-btn" id="trNovoEventoBtn" style="margin-top:0;">+ Novo evento</button>
+            <div class="tr-eventos" id="trEventosLista"></div>
+          </div>
+
+          <!-- ===== Cobranças ===== -->
+          <div id="trAbaCobrancas" style="display:none;">
+            <div class="tr-kpis" id="trCobKpis"></div>
+            <div class="tr-grade g13">
+              <section class="tr-card">
+                <div class="tr-card-h"><h5>Cobranças</h5><button type="button" class="tr-btn prim" id="trNovaCobBtn">+ Nova cobrança</button></div>
+                <div class="tr-filtros" id="trCobFiltros" style="margin-bottom:10px;">
+                  <button type="button" class="tr-filtro active" data-st="aberta">Abertas</button>
+                  <button type="button" class="tr-filtro" data-st="encerrada">Encerradas</button>
+                </div>
+                <div id="trCobLista"></div>
+              </section>
+              <section class="tr-card" id="trCobDetalhe"></section>
             </div>
           </div>
-
-          <div class="tr-list" id="trList">
-            <a href="#" class="tr-row" data-desc="Mensalidades de Agosto" data-category="Mensalidade" data-day="05" data-mon="AGO" data-kind="in" data-value="480,00">
-              <span class="tr-row-icon tr-icon-in">+</span>
-              <span class="tr-row-body">
-                <span class="tr-row-desc">Mensalidades de Agosto</span>
-                <span class="tr-row-meta">Mensalidade · 05 AGO</span>
-              </span>
-              <span class="tr-row-value tr-value-in">+ R$ 480,00</span>
-            </a>
-            <a href="#" class="tr-row" data-desc="Compra de material de acampamento" data-category="Material" data-day="09" data-mon="AGO" data-kind="out" data-value="135,50">
-              <span class="tr-row-icon tr-icon-out">−</span>
-              <span class="tr-row-body">
-                <span class="tr-row-desc">Compra de material de acampamento</span>
-                <span class="tr-row-meta">Material · 09 AGO</span>
-              </span>
-              <span class="tr-row-value tr-value-out">− R$ 135,50</span>
-            </a>
-            <a href="#" class="tr-row" data-desc="Doação de um membro" data-category="Doação" data-day="11" data-mon="AGO" data-kind="in" data-value="100,00">
-              <span class="tr-row-icon tr-icon-in">+</span>
-              <span class="tr-row-body">
-                <span class="tr-row-desc">Doação de um membro</span>
-                <span class="tr-row-meta">Doação · 11 AGO</span>
-              </span>
-              <span class="tr-row-value tr-value-in">+ R$ 100,00</span>
-            </a>
-            <a href="#" class="tr-row" data-desc="Lanche do Concurso de Ordem Unida" data-category="Evento" data-day="12" data-mon="AGO" data-kind="out" data-value="78,90">
-              <span class="tr-row-icon tr-icon-out">−</span>
-              <span class="tr-row-body">
-                <span class="tr-row-desc">Lanche do Concurso de Ordem Unida</span>
-                <span class="tr-row-meta">Evento · 12 AGO</span>
-              </span>
-              <span class="tr-row-value tr-value-out">− R$ 78,90</span>
-            </a>
-          </div>
-
         </div>
       </div>
 
-      <button type="button" class="pl-fab" id="trAddBtn" aria-label="Adicionar lançamento">
+      <button type="button" class="pl-fab" id="trAddBtn" aria-label="Novo lançamento" style="display:none;">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
 
+      <!-- Detalhe do evento: tudo do evento num lugar só -->
+      <div class="pl-dayview-overlay" id="trEventoOverlay">
+        <div class="pl-dayview-head">
+          <button type="button" class="pl-dayview-icon-btn" id="trEventoVoltar" aria-label="Voltar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <h3 class="pl-dayview-title" style="text-transform:none;" id="trEventoTitulo">Evento</h3>
+          <button type="button" class="pl-dayview-icon-btn" id="trEventoEditar" aria-label="Editar evento">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+        </div>
+        <div class="pl-dayview-list-wrap" id="trEventoCorpo"></div>
+      </div>
+
+      <!-- Lançamento -->
       <div class="pl-modal-overlay" id="trModalOverlay">
         <div class="pl-modal">
           <div class="pl-modal-head">
-            <h4 class="pl-modal-title" id="trModalTitle">Novo Lançamento</h4>
+            <h4 class="pl-modal-title" id="trModalTitle">Novo lançamento</h4>
             <button type="button" class="pl-modal-close" id="trModalClose" aria-label="Fechar">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-
-          <label class="pl-field-label">Descrição</label>
-          <input type="text" class="pl-input" id="trFieldDesc" placeholder="Ex.: Mensalidade de Agosto" maxlength="60">
-
+          <div class="tr-tipo" id="trFieldKind" role="radiogroup" aria-label="Tipo">
+            <button type="button" class="tr-tipo-btn active" data-tipo="entrada">+ Entrada</button>
+            <button type="button" class="tr-tipo-btn out" data-tipo="saida">− Saída</button>
+          </div>
+          <label class="pl-field-label" for="trFieldDesc">Descrição</label>
+          <input type="text" class="pl-input" id="trFieldDesc" placeholder="Ex.: Compra de lonas" maxlength="80">
           <div class="pl-field-row">
-            <div class="pl-field-col">
-              <label class="pl-field-label">Tipo</label>
-              <select class="pl-input" id="trFieldKind">
-                <option value="in">Entrada</option>
-                <option value="out">Saída</option>
-              </select>
+            <div class="pl-field-col pl-field-col-wide">
+              <label class="pl-field-label" for="trFieldValue">Valor (R$)</label>
+              <input type="text" class="pl-input" id="trFieldValue" inputmode="decimal" placeholder="0,00" autocomplete="off">
             </div>
             <div class="pl-field-col pl-field-col-wide">
-              <label class="pl-field-label">Valor (R$)</label>
-              <input type="number" class="pl-input" id="trFieldValue" min="0" step="0.01" placeholder="0,00">
+              <label class="pl-field-label" for="trFieldDate">Data</label>
+              <input type="date" class="pl-input" id="trFieldDate">
             </div>
           </div>
-
-          <label class="pl-field-label">Categoria</label>
-          <select class="pl-input" id="trFieldCategory">
-            <option value="Mensalidade">Mensalidade</option>
-            <option value="Evento">Evento</option>
-            <option value="Doação">Doação</option>
-            <option value="Material">Material</option>
-            <option value="Outro">Outro</option>
-          </select>
-
           <div class="pl-field-row">
-            <div class="pl-field-col">
-              <label class="pl-field-label">Dia</label>
-              <input type="number" class="pl-input" id="trFieldDay" min="1" max="31" placeholder="Dia">
+            <div class="pl-field-col pl-field-col-wide">
+              <label class="pl-field-label" for="trFieldCategory">Categoria</label>
+              <select class="pl-input" id="trFieldCategory"></select>
             </div>
             <div class="pl-field-col pl-field-col-wide">
-              <label class="pl-field-label">Mês</label>
-              <select class="pl-input" id="trFieldMonth">
-                <option value="JAN">Janeiro</option>
-                <option value="FEV">Fevereiro</option>
-                <option value="MAR">Março</option>
-                <option value="ABR">Abril</option>
-                <option value="MAI">Maio</option>
-                <option value="JUN">Junho</option>
-                <option value="JUL">Julho</option>
-                <option value="AGO" selected>Agosto</option>
-                <option value="SET">Setembro</option>
-                <option value="OUT">Outubro</option>
-                <option value="NOV">Novembro</option>
-                <option value="DEZ">Dezembro</option>
+              <label class="pl-field-label" for="trFieldPagamento">Pagamento</label>
+              <select class="pl-input" id="trFieldPagamento">
+                <option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option><option value="Transferência">Transferência</option><option value="Outro">Outro</option>
               </select>
             </div>
           </div>
-
+          <label class="pl-field-label" for="trFieldEvento">Onde entra</label>
+          <select class="pl-input" id="trFieldEvento"></select>
+          <div id="trFieldItemWrap" style="display:none;">
+            <label class="pl-field-label" for="trFieldItem">Item do orçamento</label>
+            <select class="pl-input" id="trFieldItem"></select>
+          </div>
+          <label class="pl-field-label" for="trFieldObs">Observação</label>
+          <input type="text" class="pl-input" id="trFieldObs" placeholder="Opcional (ex.: recibo nº 12)" maxlength="120">
+          <p class="pl-reminder-hint" id="trLancCobAviso" style="display:none;">Este lançamento veio do recebimento de uma cobrança. Excluir aqui também desfaz o recebimento.</p>
           <div class="pl-modal-actions">
             <button type="button" class="pl-btn pl-btn-danger" id="trDeleteBtn" style="display:none;">Excluir</button>
             <button type="button" class="pl-btn pl-btn-primary" id="trSaveBtn">Salvar</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Evento -->
+      <div class="pl-modal-overlay" id="trEventoModal">
+        <div class="pl-modal">
+          <div class="pl-modal-head">
+            <h4 class="pl-modal-title" id="trEventoModalTitulo">Novo evento</h4>
+            <button type="button" class="pl-modal-close" id="trEventoModalFechar" aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <label class="pl-field-label" for="trEvAgenda">Evento da Agenda Anual (opcional)</label>
+          <select class="pl-input" id="trEvAgenda"></select>
+          <label class="pl-field-label" for="trEvNome">Nome do evento</label>
+          <input type="text" class="pl-input" id="trEvNome" placeholder="Ex.: Acampamento de Primavera" maxlength="80">
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trEvInicio">Início</label><input type="date" class="pl-input" id="trEvInicio"></div>
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trEvFim">Fim</label><input type="date" class="pl-input" id="trEvFim"></div>
+          </div>
+          <div id="trEvStatusWrap" style="display:none;">
+            <label class="pl-field-label" for="trEvStatus">Situação</label>
+            <select class="pl-input" id="trEvStatus">
+              <option value="aberto">Aberto (ainda recebe lançamentos)</option>
+              <option value="encerrado">Encerrado (contas fechadas)</option>
+            </select>
+          </div>
+          <label class="pl-field-label" for="trEvObs">Observação</label>
+          <input type="text" class="pl-input" id="trEvObs" placeholder="Opcional (ex.: local, nº de inscritos)" maxlength="160">
+          <div class="pl-modal-actions">
+            <button type="button" class="pl-btn pl-btn-danger" id="trEvExcluir" style="display:none;">Excluir</button>
+            <button type="button" class="pl-btn pl-btn-primary" id="trEvSalvar">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item do orçamento -->
+      <div class="pl-modal-overlay" id="trItemModal">
+        <div class="pl-modal">
+          <div class="pl-modal-head">
+            <h4 class="pl-modal-title" id="trItemModalTitulo">Item do orçamento</h4>
+            <button type="button" class="pl-modal-close" id="trItemModalFechar" aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="tr-tipo" id="trItemTipo" role="radiogroup" aria-label="Tipo">
+            <button type="button" class="tr-tipo-btn" data-tipo="entrada">+ Receita prevista</button>
+            <button type="button" class="tr-tipo-btn out active" data-tipo="saida">− Despesa prevista</button>
+          </div>
+          <label class="pl-field-label" for="trItemDesc">Descrição</label>
+          <input type="text" class="pl-input" id="trItemDesc" placeholder="Ex.: Transporte (ônibus)" maxlength="80">
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trItemCategoria">Categoria</label><select class="pl-input" id="trItemCategoria"></select></div>
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trItemValor">Valor previsto (R$)</label><input type="text" class="pl-input" id="trItemValor" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+          </div>
+          <div class="pl-modal-actions">
+            <button type="button" class="pl-btn pl-btn-danger" id="trItemExcluir" style="display:none;">Excluir</button>
+            <button type="button" class="pl-btn pl-btn-primary" id="trItemSalvar">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nova cobrança -->
+      <div class="pl-modal-overlay" id="trCobModal">
+        <div class="pl-modal">
+          <div class="pl-modal-head">
+            <h4 class="pl-modal-title">Nova cobrança</h4>
+            <button type="button" class="pl-modal-close" id="trCobFechar" aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="tr-tipo quatro" id="trCobTipo" role="radiogroup" aria-label="Tipo de cobrança">
+            <button type="button" class="tr-tipo-btn active" data-tipo="mensalidade">↻ Mensalidade</button>
+            <button type="button" class="tr-tipo-btn" data-tipo="taxa">Taxa única</button>
+            <button type="button" class="tr-tipo-btn" data-tipo="parcelada">Parcelada</button>
+            <button type="button" class="tr-tipo-btn" data-tipo="inscricao">Inscrição de evento</button>
+          </div>
+          <label class="pl-field-label" for="trCobDesc">Descrição</label>
+          <input type="text" class="pl-input" id="trCobDesc" maxlength="80">
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trCobValor">Valor por pessoa (R$)</label><input type="text" class="pl-input" id="trCobValor" inputmode="decimal" placeholder="0,00" autocomplete="off"></div>
+            <div class="pl-field-col"><label class="pl-field-label" for="trCobParcelas">Parcelas</label><select class="pl-input" id="trCobParcelas"></select></div>
+          </div>
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trCobVenc" id="trCobVencRot">Vencimento</label><input type="date" class="pl-input" id="trCobVenc"></div>
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trCobCategoria">Categoria</label><select class="pl-input" id="trCobCategoria"></select></div>
+          </div>
+          <label class="pl-field-label" for="trCobEvento">Onde entra o dinheiro</label>
+          <select class="pl-input" id="trCobEvento"></select>
+          <label class="pl-field-label">Quem paga</label>
+          <div class="tr-filtros" id="trCobQuem" style="flex-wrap:wrap;">
+            <button type="button" class="tr-filtro active" data-quem="todos">Todos os desbravadores</button>
+            <button type="button" class="tr-filtro" data-quem="classe">Por classe</button>
+            <button type="button" class="tr-filtro" data-quem="escolher">Escolher</button>
+          </div>
+          <select class="pl-input" id="trCobClasse" style="display:none; margin-top:8px;"></select>
+          <div class="tr-pessoas" id="trCobPessoas" style="display:none; margin-top:8px;"></div>
+          <div class="tr-previa" id="trCobPrevia"></div>
+          <div class="pl-modal-actions">
+            <button type="button" class="pl-btn pl-btn-primary" id="trCobSalvar">Gerar cobranças</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receber parcela -->
+      <div class="pl-modal-overlay" id="trReceberModal">
+        <div class="pl-modal">
+          <div class="pl-modal-head">
+            <h4 class="pl-modal-title" id="trRecTitulo">Receber</h4>
+            <button type="button" class="pl-modal-close" id="trRecFechar" aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <p class="pl-reminder-hint" id="trRecInfo" style="margin-top:0;"></p>
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trRecValor">Valor recebido (R$)</label><input type="text" class="pl-input" id="trRecValor" inputmode="decimal" autocomplete="off"></div>
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trRecData">Data</label><input type="date" class="pl-input" id="trRecData"></div>
+          </div>
+          <label class="pl-field-label" for="trRecForma">Forma de pagamento</label>
+          <select class="pl-input" id="trRecForma">
+            <option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option><option value="Transferência">Transferência</option><option value="Outro">Outro</option>
+          </select>
+          <p class="pl-reminder-hint">Valor menor que o cobrado = desconto. A entrada vai sozinha para o caixa.</p>
+          <div class="pl-modal-actions">
+            <button type="button" class="pl-btn pl-btn-neutral" id="trRecIsentar">Isentar (bolsa)</button>
+            <button type="button" class="pl-btn pl-btn-primary" id="trRecSalvar">Receber</button>
+          </div>
+          <button type="button" class="pl-list-add-btn" id="trRecDesfazer" style="display:none;">Desfazer recebimento</button>
         </div>
       </div>
     </section>
@@ -23949,148 +24360,1272 @@
     [fieldTitle, fieldDay].forEach(f => f.addEventListener('input', () => { f.style.borderColor = ''; }));
   })();
 
-  // Tesouraria: lançamentos financeiros (entradas / saídas) + cálculo de saldo
+  // Tesouraria: Painel (gestão em gráficos), Lançamentos (caixa do mês),
+  // Eventos (orçamento x realizado, com tudo do evento num lugar só) e
+  // Cobranças (mensalidades, taxas, parceladas e inscrições). Grava em
+  // tesouraria_eventos / _orcamento / _lancamentos / _cobrancas / _parcelas
+  // (ver supabase/schema.sql). Saldo único: o saldo do clube soma o caixa
+  // geral (evento_id nulo) e os eventos. Receber uma parcela cria a entrada no
+  // caixa e guarda o vínculo (parcela.lancamento_id), então os dois andam
+  // juntos. Lança/edita: Tesoureiro(a), Diretor(a), Dir. Associado(a) e
+  // Administrador; os demais só consultam. Tema claro/escuro só desta tela.
   (function(){
-    const overlay = document.getElementById('trModalOverlay');
-    const list = document.getElementById('trList');
-    if(!overlay || !list) return;
+    const view = document.getElementById('view-treasury');
+    if(!view) return;
+    const $ = id => document.getElementById(id);
+    const lista = $('trList');
 
-    const fieldDesc = document.getElementById('trFieldDesc');
-    const fieldKind = document.getElementById('trFieldKind');
-    const fieldValue = document.getElementById('trFieldValue');
-    const fieldCategory = document.getElementById('trFieldCategory');
-    const fieldDay = document.getElementById('trFieldDay');
-    const fieldMonth = document.getElementById('trFieldMonth');
-    const modalTitle = document.getElementById('trModalTitle');
-    const deleteBtn = document.getElementById('trDeleteBtn');
-    const saveBtn = document.getElementById('trSaveBtn');
-    const addBtn = document.getElementById('trAddBtn');
-    const closeBtn = document.getElementById('trModalClose');
-    const balanceValueEl = document.getElementById('trBalanceValue');
-    const totalInEl = document.getElementById('trTotalIn');
-    const totalOutEl = document.getElementById('trTotalOut');
+    const CATEGORIAS = {
+      entrada: ['Mensalidade', 'Inscrição', 'Doação', 'Oferta / Patrocínio', 'Venda / Cantina', 'Reembolso', 'Outro'],
+      saida: ['Material', 'Alimentação', 'Transporte', 'Hospedagem / Taxas', 'Uniforme', 'Premiação', 'Manutenção', 'Outro']
+    };
+    const TIPO_COB = { mensalidade: 'Mensalidade', taxa: 'Taxa única', parcelada: 'Parcelada', inscricao: 'Inscrição de evento' };
+    const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    const MES_CURTO = MESES.map(m => m.slice(0, 3));
+    const moeda = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    const brl = v => moeda.format(v || 0);
+    const comSinal = v => (v > 0 ? '+ ' : v < 0 ? '− ' : '') + brl(Math.abs(v));
+    // Aceita "1.234,56", "1234,56" e "1234.56".
+    function lerValor(texto){
+      let s = String(texto || '').trim().replace(/[R$\s]/g, '');
+      if(!s) return NaN;
+      if(s.indexOf(',') !== -1) s = s.replace(/\./g, '').replace(',', '.');
+      const n = Number(s);
+      return isFinite(n) ? Math.round(n * 100) / 100 : NaN;
+    }
+    const valorParaCampo = v => (v == null ? '' : Number(v).toFixed(2).replace('.', ','));
+    const isoDe = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const hoje = () => isoDe(new Date());
+    const dataCurta = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '';
+    const dataLonga = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '';
+    // Soma meses mantendo o dia (31/01 + 1 mês = 28 ou 29/02).
+    function somaMeses(iso, n){
+      const [a, m, d] = iso.split('-').map(Number);
+      const alvo = new Date(a, m - 1 + n, 1);
+      const ultimo = new Date(alvo.getFullYear(), alvo.getMonth() + 1, 0).getDate();
+      alvo.setDate(Math.min(d, ultimo));
+      return isoDe(alvo);
+    }
+    const el = (tag, cls, texto) => {
+      const e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(texto != null) e.textContent = texto;
+      return e;
+    };
+    const vazio = texto => el('p', 'tr-vazio', texto);
+    const normalizar = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    const iniciais = nome => (nome || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('');
 
-    let editingRow = null;
-
-    function fmtBRL(n){
-      return 'R$ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d)(?=,))/g, '.');
+    function podeEditar(){
+      const u = window.__currentUsuario;
+      if(!u) return false;
+      if(u.papel === 'Administrador' || (u.papeisAdicionais || []).indexOf('Administrador') !== -1) return true;
+      const cargo = normalizar(u.cargo);
+      return /tesoure/.test(cargo) || ['diretor', 'diretora', 'dir. associado', 'dir. associada'].indexOf(cargo) !== -1;
     }
 
-    function parseValue(v){
-      return parseFloat((v || '0').toString().replace(',', '.')) || 0;
+    // ---- Tema claro/escuro (só desta tela, guardado no aparelho) ----
+    const TEMA_KEY = 'cedros_tesouraria_tema';
+    function aplicarTema(tema){
+      view.dataset.tema = tema === 'claro' ? 'claro' : 'escuro';
+      $('trTemaBtn').textContent = tema === 'claro' ? '☾ Escuro' : '☀ Claro';
     }
-
-    function recalcBalance(){
-      let totalIn = 0, totalOut = 0;
-      list.querySelectorAll('.tr-row').forEach(row => {
-        const v = parseValue(row.dataset.value);
-        if(row.dataset.kind === 'in') totalIn += v; else totalOut += v;
-      });
-      const balance = totalIn - totalOut;
-      balanceValueEl.textContent = fmtBRL(balance);
-      balanceValueEl.style.color = balance < 0 ? '#FF6B5C' : '';
-      totalInEl.textContent = fmtBRL(totalIn);
-      totalOutEl.textContent = fmtBRL(totalOut);
-    }
-
-    function openModal(mode, row){
-      editingRow = row || null;
-      if(mode === 'edit' && row){
-        modalTitle.textContent = 'Editar Lançamento';
-        deleteBtn.style.display = '';
-        fieldDesc.value = row.dataset.desc || '';
-        fieldKind.value = row.dataset.kind || 'in';
-        fieldValue.value = row.dataset.value ? row.dataset.value.replace(',', '.') : '';
-        fieldCategory.value = row.dataset.category || 'Outro';
-        fieldDay.value = row.dataset.day || '';
-        fieldMonth.value = row.dataset.mon || 'AGO';
-      } else {
-        modalTitle.textContent = 'Novo Lançamento';
-        deleteBtn.style.display = 'none';
-        fieldDesc.value = '';
-        fieldKind.value = 'in';
-        fieldValue.value = '';
-        fieldCategory.value = 'Mensalidade';
-        fieldDay.value = '';
-      }
-      overlay.classList.add('show');
-      setTimeout(() => fieldDesc.focus(), 150);
-    }
-
-    function closeModal(){
-      overlay.classList.remove('show');
-      editingRow = null;
-    }
-
-    function buildRowHTML(desc, category, day, mon, kind, valueStr){
-      const a = document.createElement('a');
-      a.href = '#';
-      a.className = 'tr-row';
-      a.dataset.desc = desc;
-      a.dataset.category = category;
-      a.dataset.day = day;
-      a.dataset.mon = mon;
-      a.dataset.kind = kind;
-      a.dataset.value = valueStr;
-      a.innerHTML =
-        '<span class="tr-row-icon tr-icon-' + kind + '">' + (kind === 'in' ? '+' : '−') + '</span>' +
-        '<span class="tr-row-body">' +
-          '<span class="tr-row-desc"></span>' +
-          '<span class="tr-row-meta"></span>' +
-        '</span>' +
-        '<span class="tr-row-value tr-value-' + kind + '"></span>';
-      a.querySelector('.tr-row-desc').textContent = desc;
-      a.querySelector('.tr-row-meta').textContent = category + ' · ' + day + ' ' + mon;
-      a.querySelector('.tr-row-value').textContent = (kind === 'in' ? '+ ' : '− ') + fmtBRL(parseValue(valueStr));
-      a.addEventListener('click', (e) => { e.preventDefault(); openModal('edit', a); });
-      return a;
-    }
-
-    function saveEntry(){
-      const desc = fieldDesc.value.trim();
-      const kind = fieldKind.value;
-      const value = parseValue(fieldValue.value);
-      const category = fieldCategory.value;
-      const day = fieldDay.value.trim();
-      const mon = fieldMonth.value;
-
-      if(!desc || !fieldValue.value || value <= 0){
-        fieldDesc.style.borderColor = desc ? '' : '#FF6B5C';
-        fieldValue.style.borderColor = (fieldValue.value && value > 0) ? '' : '#FF6B5C';
-        return;
-      }
-      const dayStr = day ? (day.length === 1 ? ('0' + day) : day) : '--';
-      const valueStr = value.toFixed(2);
-
-      const newRow = buildRowHTML(desc, category, dayStr, mon, kind, valueStr);
-      if(editingRow){
-        editingRow.replaceWith(newRow);
-      } else {
-        list.insertBefore(newRow, list.firstChild);
-      }
-      recalcBalance();
-      closeModal();
-    }
-
-    function deleteEntry(){
-      if(!editingRow) return;
-      editingRow.remove();
-      recalcBalance();
-      closeModal();
-    }
-
-    list.querySelectorAll('.tr-row').forEach(row => {
-      row.addEventListener('click', (e) => { e.preventDefault(); openModal('edit', row); });
+    try { aplicarTema(localStorage.getItem(TEMA_KEY) || 'escuro'); } catch(e){ aplicarTema('escuro'); }
+    $('trTemaBtn').addEventListener('click', () => {
+      const novo = view.dataset.tema === 'claro' ? 'escuro' : 'claro';
+      aplicarTema(novo);
+      try { localStorage.setItem(TEMA_KEY, novo); } catch(e){ /* só nesta sessão */ }
+      desenharTudo(); // os gráficos leem as cores do tema
     });
 
-    addBtn.addEventListener('click', () => openModal('create'));
-    closeBtn.addEventListener('click', closeModal);
-    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
-    saveBtn.addEventListener('click', saveEntry);
-    deleteBtn.addEventListener('click', deleteEntry);
-    [fieldDesc, fieldValue].forEach(f => f.addEventListener('input', () => { f.style.borderColor = ''; }));
+    // ---- Estado ----
+    let lancamentos = [], eventos = [], itens = [], cobrancas = [], parcelas = [], agenda = [], pessoas = [];
+    let cobrancasOk = true;
+    const agora = new Date();
+    let mesSel = { ano: agora.getFullYear(), mes: agora.getMonth() + 1 };
+    let anoSel = agora.getFullYear();
+    let filtro = 'todos', busca = '', cobFiltro = 'aberta', cobSel = null;
+    let eventoAberto = null;
 
-    recalcBalance();
+    const num = x => Object.assign({}, x, { valor: Number(x.valor) || 0 });
+    async function carregar(){
+      if(!supa) return;
+      const [l, e, o, c, p] = await Promise.all([
+        supa.from('tesouraria_lancamentos').select('*').order('data', { ascending: false }).order('created_at', { ascending: false }),
+        supa.from('tesouraria_eventos').select('*').order('data_inicio', { ascending: false }),
+        supa.from('tesouraria_orcamento').select('*').order('created_at'),
+        supa.from('tesouraria_cobrancas').select('*').order('primeiro_vencimento', { ascending: false }),
+        supa.from('tesouraria_parcelas').select('*').order('vencimento')
+      ]);
+      const erro = l.error || e.error || o.error;
+      if(erro){
+        const msg = erro.message || '';
+        lista.innerHTML = '';
+        lista.appendChild(vazio(/does not exist|schema cache|tesouraria_/i.test(msg)
+          ? 'A Tesouraria ainda não foi criada no banco. Rode o SQL da Tesouraria (supabase/schema.sql) no Supabase.'
+          : 'Não consegui carregar a Tesouraria: ' + msg));
+        return;
+      }
+      lancamentos = (l.data || []).map(num);
+      eventos = e.data || [];
+      itens = (o.data || []).map(num);
+      cobrancasOk = !c.error && !p.error;
+      cobrancas = cobrancasOk ? (c.data || []).map(num) : [];
+      parcelas = cobrancasOk ? (p.data || []).map(num) : [];
+      if(cobSel && !cobrancas.some(x => x.id === cobSel)) cobSel = null;
+      desenharTudo();
+    }
+    async function carregarAgenda(){
+      if(!supa || agenda.length) return;
+      const ano = new Date().getFullYear();
+      const { data } = await supa.from('eventos_agenda').select('id, titulo, dia, mes_indice').order('mes_indice').order('dia');
+      agenda = (data || []).map(a => Object.assign({}, a, { iso: ano + '-' + String(a.mes_indice).padStart(2, '0') + '-' + String(a.dia).padStart(2, '0') }));
+    }
+    async function carregarPessoas(){
+      if(!supa || pessoas.length) return;
+      const { data } = await supa.from('desbravadores').select('id, nome, classe').order('nome');
+      pessoas = data || [];
+    }
+
+    const sinal = x => x.tipo === 'entrada' ? x.valor : -x.valor;
+    const soma = (arr, tipo) => arr.filter(x => !tipo || x.tipo === tipo).reduce((s, x) => s + x.valor, 0);
+    const eventoPorId = id => eventos.find(e => e.id === id) || null;
+    const cobPorId = id => cobrancas.find(c => c.id === id) || null;
+    // pago | isento | atrasado | avencer
+    function situacaoParcela(p){
+      if(p.pago_em) return p.forma_pagamento === 'Isento' ? 'isento' : 'pago';
+      return p.vencimento < hoje() ? 'atrasado' : 'avencer';
+    }
+    // Valor que a parcela cobra (o recebido pode ter tido desconto), com a mesma
+    // divisão de centavos de criarCobranca() — usado ao reabrir uma parcela.
+    function valorCobrado(p){
+      const c = cobPorId(p.cobranca_id);
+      if(!c) return p.valor;
+      const base = Math.floor(c.valor / c.parcelas * 100) / 100;
+      return p.numero === c.parcelas ? Math.round((c.valor - base * (c.parcelas - 1)) * 100) / 100 : base;
+    }
+    const ROTULO_SIT = { pago: ['ok', 'Pago'], isento: ['roxo', 'Isento'], atrasado: ['atr', 'Atrasado'], avencer: ['pend', 'A vencer'] };
+
+    function totaisDoEvento(ev){
+      const lanc = lancamentos.filter(x => x.evento_id === ev.id);
+      const orc = itens.filter(x => x.evento_id === ev.id);
+      const cobs = cobrancas.filter(c => c.evento_id === ev.id).map(c => c.id);
+      const parc = parcelas.filter(p => cobs.indexOf(p.cobranca_id) !== -1);
+      const entradas = soma(lanc, 'entrada'), saidas = soma(lanc, 'saida');
+      const prevEntradas = soma(orc, 'entrada'), prevSaidas = soma(orc, 'saida');
+      const abertas = parc.filter(p => !p.pago_em);
+      return { lanc, orc, parc, entradas, saidas, resultado: entradas - saidas, prevEntradas, prevSaidas, prevResultado: prevEntradas - prevSaidas,
+        aReceber: soma(abertas), atrasadas: abertas.filter(p => p.vencimento < hoje()).length, abertas: abertas.length };
+    }
+
+    function desenharTudo(){
+      const pode = podeEditar();
+      $('trSoLeitura').style.display = pode ? 'none' : '';
+      $('trAddBtn').style.display = pode ? '' : 'none';
+      $('trNovoEventoBtn').style.display = pode ? '' : 'none';
+      $('trNovaCobBtn').style.display = pode ? '' : 'none';
+      $('trEventoEditar').style.visibility = pode ? 'visible' : 'hidden';
+      const pessoasAtrasadas = new Set(parcelas.filter(p => situacaoParcela(p) === 'atrasado').map(p => p.desbravador_id || p.pessoa_nome)).size;
+      $('trAbaAtraso').style.display = pessoasAtrasadas ? '' : 'none';
+      $('trAbaAtraso').textContent = pessoasAtrasadas;
+      if($('trAbaPainel').style.display !== 'none') desenharPainel();
+      desenharGeral();
+      desenharEventos();
+      desenharCobrancas();
+      if(eventoAberto && $('trEventoOverlay').classList.contains('show')) desenharDetalhe();
+    }
+
+    // ---------------------------------------------------------------
+    // Componentes de gráfico
+    // ---------------------------------------------------------------
+    const NS = 'http://www.w3.org/2000/svg';
+    function svgEl(tag, attrs, pai){
+      const e = document.createElementNS(NS, tag);
+      Object.keys(attrs || {}).forEach(k => e.setAttribute(k, attrs[k]));
+      if(pai) pai.appendChild(e);
+      return e;
+    }
+    const dica = (alvo, texto) => { svgEl('title', null, alvo).textContent = texto; };
+    // Largura real em px: viewBox 1:1 com a tela, texto do eixo sempre do mesmo tamanho.
+    const largura = box => Math.max(280, Math.round(box.clientWidth || 600));
+    function compacto(v){
+      const a = Math.abs(v);
+      const s = a >= 1000 ? (a / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mil' : Math.round(a).toLocaleString('pt-BR');
+      return (v < 0 ? '−R$ ' : 'R$ ') + s;
+    }
+    function topoRedondo(v){
+      if(v <= 0) return 100;
+      const p = Math.pow(10, Math.floor(Math.log10(v)));
+      return [1, 2, 2.5, 5, 10].map(m => m * p).find(x => x >= v);
+    }
+    // Rosca com tabela ao lado (valor e %), pra identidade não depender só da cor.
+    const CORES_CAT = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)', 'var(--s5)', 'var(--s6)'];
+    function rosca(box, leg, dados, rotulo, sub, cores, cabecalho){
+      box.innerHTML = ''; leg.innerHTML = '';
+      const total = dados.reduce((t, d) => t + d[1], 0);
+      if(!total){ box.style.display = 'none'; leg.appendChild(el('tbody')).appendChild(el('tr')).appendChild(el('td', 'tr-vazio', 'Nada lançado ainda.')); return; }
+      box.style.display = '';
+      cores = cores || CORES_CAT;
+      const tam = 150, r = tam / 2 - 13, c = 2 * Math.PI * r;
+      const svg = svgEl('svg', { viewBox: '0 0 ' + tam + ' ' + tam, width: tam, height: tam }, box);
+      let off = 0;
+      dados.forEach((d, i) => {
+        if(!d[1]) return;
+        const comp = d[1] / total * c, vis = Math.max(comp - 2, 1);
+        const arco = svgEl('circle', { cx: tam / 2, cy: tam / 2, r, fill: 'none', style: 'stroke:' + cores[i], 'stroke-width': 22,
+          'stroke-dasharray': vis + ' ' + (c - vis), 'stroke-dashoffset': -off, transform: 'rotate(-90 ' + tam / 2 + ' ' + tam / 2 + ')' }, svg);
+        dica(arco, d[0] + ': ' + brl(d[1]) + ' (' + Math.round(d[1] / total * 100) + '%)');
+        const ang = (off + comp / 2) / c * 2 * Math.PI - Math.PI / 2, pct = Math.round(d[1] / total * 100);
+        if(pct >= 8) svgEl('text', { x: tam / 2 + r * Math.cos(ang), y: tam / 2 + r * Math.sin(ang) + 4, 'text-anchor': 'middle', fill: '#fff', 'font-size': 10.5, 'font-weight': 900, 'pointer-events': 'none' }, svg).textContent = pct + '%';
+        off += comp;
+      });
+      const centro = el('div', 'centro');
+      centro.append(el('small', null, rotulo), el('b', null, brl(total).replace(',00', '')), el('small', null, sub));
+      box.appendChild(centro);
+      const th = el('thead'); const trh = el('tr');
+      [cabecalho || 'Categoria', 'R$', '%'].forEach(t => trh.appendChild(el('th', null, t)));
+      th.appendChild(trh); leg.appendChild(th);
+      const tb = el('tbody');
+      dados.forEach((d, i) => {
+        const tr = el('tr');
+        const nome = el('td');
+        const dot = el('span', 'tr-dot'); dot.style.background = cores[i];
+        nome.append(dot, document.createTextNode(d[0]));
+        tr.append(nome, el('td', null, brl(d[1]).replace(',00', '')), el('td', null, (d[1] / total * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%'));
+        tb.appendChild(tr);
+      });
+      leg.appendChild(tb);
+    }
+    // Top 5 categorias + "Outras" (nunca uma 7ª cor).
+    function porCategoria(lanc){
+      const m = {};
+      lanc.forEach(x => { const c = x.categoria || 'Outro'; m[c] = (m[c] || 0) + x.valor; });
+      const ord = Object.keys(m).sort((a, b) => m[b] - m[a]);
+      const top = ord.slice(0, ord.length > 6 ? 5 : 6).map(c => [c, m[c]]);
+      if(ord.length > 6) top.push(['Outras', ord.slice(5).reduce((s, c) => s + m[c], 0)]);
+      return top;
+    }
+    function kpi(box, rotulo, valor, cls, sub, cor, icone){
+      const k = el('div', 'tr-kpi');
+      k.style.setProperty('--c', cor);
+      const rot = el('div', 'tr-kpi-rot', rotulo);
+      rot.appendChild(el('span', 'tr-kpi-ic', icone));
+      k.append(rot, el('b', cls, valor), el('small', null, sub));
+      box.appendChild(k);
+    }
+
+    // ---------------------------------------------------------------
+    // Aba Painel
+    // ---------------------------------------------------------------
+    function mesesDecorridos(){
+      const h = new Date();
+      return anoSel < h.getFullYear() ? 12 : anoSel > h.getFullYear() ? 0 : h.getMonth() + 1;
+    }
+    function desenharPainel(){
+      $('trAnoNome').textContent = String(anoSel);
+      const doAno = lancamentos.filter(x => (x.data || '').slice(0, 4) === String(anoSel));
+      const porMes = Array.from({ length: 12 }, () => ({ ent: 0, sai: 0 }));
+      doAno.forEach(x => { porMes[Number(x.data.slice(5, 7)) - 1][x.tipo === 'entrada' ? 'ent' : 'sai'] += x.valor; });
+      const entAno = soma(doAno, 'entrada'), saiAno = soma(doAno, 'saida');
+      const saldo = lancamentos.reduce((s, x) => s + sinal(x), 0);
+      const decorridos = mesesDecorridos();
+      const gastoMedio = decorridos ? saiAno / decorridos : 0;
+      const abertas = parcelas.filter(p => !p.pago_em);
+      const atrasoValor = soma(abertas.filter(p => p.vencimento < hoje()));
+
+      const k = $('trKpis'); k.innerHTML = '';
+      kpi(k, 'Saldo atual', (saldo < 0 ? '− ' : '') + brl(Math.abs(saldo)), saldo < 0 ? 'tr-negativo' : 'tr-positivo', 'caixa geral + eventos', 'var(--t-in)', '$');
+      kpi(k, 'Resultado ' + anoSel, comSinal(entAno - saiAno), entAno - saiAno > 0 ? 'tr-positivo' : entAno - saiAno < 0 ? 'tr-negativo' : '', 'entradas ' + compacto(entAno) + ' · saídas ' + compacto(saiAno), 'var(--t-purple)', '∑');
+      kpi(k, 'Entradas no ano', brl(entAno), '', doAno.filter(x => x.tipo === 'entrada').length + ' lançamentos', 'var(--t-blue)', '↓');
+      kpi(k, 'Saídas no ano', brl(saiAno), '', doAno.filter(x => x.tipo === 'saida').length + ' lançamentos', 'var(--t-out)', '↑');
+      kpi(k, 'A receber', brl(soma(abertas)), '', atrasoValor ? brl(atrasoValor) + ' em atraso' : abertas.length + ' parcelas em aberto', 'var(--t-gold)', '⌛');
+      kpi(k, 'Reserva', gastoMedio > 0 && saldo > 0 ? (saldo / gastoMedio).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses' : '—', '', 'gasto médio ' + compacto(gastoMedio) + '/mês', 'var(--t-aqua)', '⏳');
+
+      desenharCaixas(doAno);
+      rosca($('trRoscaEnt'), $('trLegEnt'), porCategoria(doAno.filter(x => x.tipo === 'entrada')), 'Entradas', String(anoSel));
+      rosca($('trRoscaSai'), $('trLegSai'), porCategoria(doAno.filter(x => x.tipo === 'saida')), 'Saídas', String(anoSel));
+      const chave = isoDe(new Date()).slice(0, 7);
+      const doMes = parcelas.filter(p => p.vencimento.slice(0, 7) === chave);
+      $('trRoscaCobSub').textContent = MESES[new Date().getMonth()] + ' · vencimentos';
+      rosca($('trRoscaCob'), $('trLegCob'), [
+        ['Recebido', soma(doMes.filter(p => situacaoParcela(p) === 'pago'))],
+        ['A vencer', soma(doMes.filter(p => situacaoParcela(p) === 'avencer'))],
+        ['Em atraso', soma(doMes.filter(p => situacaoParcela(p) === 'atrasado'))]
+      ], 'Cobrado', 'no mês', ['var(--t-in)', 'var(--t-gold)', 'var(--t-out)'], 'Situação');
+      desenharFluxo(porMes, decorridos);
+      desenharSaldo(porMes, decorridos);
+      desenharResultadoEventos();
+    }
+
+    // Caixa geral + cada evento, com quanto do orçamento já foi gasto.
+    // Caixa geral + cada evento; o uso do orçamento vai embaixo do nome, pra
+    // tabela caber na coluna estreita do painel.
+    function desenharCaixas(doAno){
+      const box = $('trCaixas'); box.innerHTML = '';
+      const t = el('table', 'tr-t');
+      t.innerHTML = '<thead><tr><th>Caixa</th><th class="r">Resultado</th></tr></thead>';
+      const tb = el('tbody');
+      const geral = doAno.filter(x => !x.evento_id).reduce((s, x) => s + sinal(x), 0);
+      let total = geral;
+      const linha = (cor, nome, pct, res, aoClicar) => {
+        const tr = el('tr', 'clicavel');
+        const n = el('td'); const d = el('span', 'tr-dot'); d.style.background = cor;
+        n.append(d, document.createTextNode(nome));
+        if(pct != null){
+          const sub = el('div'); sub.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11px;color:var(--t-muted)';
+          const b = el('span', 'tr-barra'); b.style.cssText = 'flex:1;max-width:90px';
+          const fi = el('i', pct > 100 ? 'estouro' : 'uso'); fi.style.width = Math.min(pct, 100) + '%';
+          b.appendChild(fi); sub.append(b, document.createTextNode(pct + '% do orçamento'));
+          n.appendChild(sub);
+        }
+        tr.append(n, el('td', 'r ' + (res > 0 ? 'tr-positivo' : res < 0 ? 'tr-negativo' : ''), comSinal(res).replace(',00', '')));
+        tr.addEventListener('click', aoClicar);
+        tb.appendChild(tr);
+      };
+      linha('var(--s6)', 'Caixa geral', null, geral, () => { trocarAba('geral'); filtro = 'geral'; marcarFiltro(); desenharGeral(); });
+      eventos.filter(e => (e.data_inicio || '').slice(0, 4) === String(anoSel) || doAno.some(x => x.evento_id === e.id)).forEach((ev, i) => {
+        const tt = totaisDoEvento(ev);
+        total += tt.resultado;
+        linha(CORES_CAT[i % 5], ev.nome, tt.prevSaidas ? Math.round(tt.saidas / tt.prevSaidas * 100) : null, tt.resultado, () => abrirDetalhe(ev.id));
+      });
+      t.appendChild(tb);
+      const tf = el('tfoot'); const tr = el('tr');
+      tr.append(el('td', null, 'Total'), el('td', 'r ' + (total >= 0 ? 'tr-positivo' : 'tr-negativo'), comSinal(total).replace(',00', '')));
+      tf.appendChild(tr); t.appendChild(tf);
+      box.appendChild(t);
+    }
+
+    function desenharFluxo(porMes, decorridos){
+      const box = $('trGrafFluxo'); box.innerHTML = '';
+      const maior = Math.max(0, ...porMes.map(m => Math.max(m.ent, m.sai)));
+      if(!maior){ box.appendChild(vazio('Nenhum lançamento em ' + anoSel + '.')); return; }
+      const W = largura(box), H = 220, pl = 58, pr = 6, pt = 10, pb = 24;
+      const topo = topoRedondo(maior);
+      const y = v => pt + (H - pt - pb) * (1 - v / topo);
+      const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'tr-svg', role: 'img', 'aria-label': 'Entradas e saídas por mês de ' + anoSel });
+      [0, 0.5, 1].forEach(f => {
+        svgEl('line', { x1: pl, x2: W - pr, y1: y(topo * f), y2: y(topo * f), class: f ? 'tr-grade-l' : 'tr-base' }, svg);
+        svgEl('text', { x: pl - 8, y: y(topo * f) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = compacto(topo * f);
+      });
+      const gw = (W - pl - pr) / 12, bw = Math.min(16, gw * 0.32);
+      porMes.forEach((m, i) => {
+        const cx = pl + gw * i + gw / 2;
+        const g = svgEl('g', { class: 'tr-grupo' }, svg);
+        svgEl('rect', { x: pl + gw * i, y: pt, width: gw, height: H - pt - pb, class: 'tr-alvo' }, g);
+        [[m.ent, 'var(--t-in)', cx - bw - 1], [m.sai, 'var(--t-out)', cx + 1]].forEach(([v, cor, x]) => {
+          if(!v) return;
+          const h = Math.max(3, y(0) - y(v));
+          svgEl('path', { d: 'M' + x + ',' + y(0) + 'v' + (-h + 3) + 'q0,-3 3,-3h' + (bw - 6) + 'q3,0 3,3v' + (h - 3) + 'z', style: 'fill:' + cor }, g);
+        });
+        const atual = anoSel === new Date().getFullYear() && i === decorridos - 1;
+        svgEl('text', { x: cx, y: H - 7, 'text-anchor': 'middle', class: 'tr-eixo' + (atual ? ' atual' : '') }, svg).textContent = MES_CURTO[i];
+        dica(g, MES_CURTO[i] + '/' + anoSel + ' — Entradas ' + brl(m.ent) + ' · Saídas ' + brl(m.sai) + ' · Resultado ' + comSinal(m.ent - m.sai));
+      });
+      box.appendChild(svg);
+    }
+
+    function desenharSaldo(porMes, decorridos){
+      const box = $('trGrafSaldo'); box.innerHTML = '';
+      const n = decorridos || 0;
+      if(!n || !lancamentos.length){ box.appendChild(vazio(n ? 'Nenhum lançamento ainda.' : 'Ano ainda não começou.')); return; }
+      const inicial = lancamentos.filter(x => (x.data || '') < anoSel + '-01-01').reduce((s, x) => s + sinal(x), 0);
+      const pontos = []; let acc = inicial;
+      for(let i = 0; i < n; i++){ acc += porMes[i].ent - porMes[i].sai; pontos.push(acc); }
+      const W = largura(box), H = 220, pl = 58, pr = 16, pt = 22, pb = 24;
+      const topo = topoRedondo(Math.max(1, ...pontos)), min = Math.min(0, ...pontos), fundo = min < 0 ? -topoRedondo(-min) : 0;
+      const y = v => pt + (H - pt - pb) * (topo - v) / (topo - fundo);
+      const gw = (W - pl - pr) / 12, x = i => pl + gw * i + gw / 2;
+      const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'tr-svg', role: 'img', 'aria-label': 'Saldo no fim de cada mês de ' + anoSel });
+      [topo, (topo + fundo) / 2, fundo < 0 ? fundo : null].filter(v => v != null).forEach(v => {
+        svgEl('line', { x1: pl, x2: W - pr, y1: y(v), y2: y(v), class: 'tr-grade-l' }, svg);
+        svgEl('text', { x: pl - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = compacto(v);
+      });
+      svgEl('line', { x1: pl, x2: W - pr, y1: y(0), y2: y(0), class: 'tr-base' + (fundo < 0 ? ' zero' : '') }, svg);
+      svgEl('text', { x: pl - 8, y: y(0) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = 'R$ 0';
+      const linha = pontos.map((v, i) => (i ? 'L' : 'M') + x(i) + ',' + y(v)).join('');
+      svgEl('path', { d: linha + 'L' + x(n - 1) + ',' + y(0) + 'L' + x(0) + ',' + y(0) + 'Z', class: 'tr-area' }, svg);
+      svgEl('path', { d: linha, class: 'tr-linha' }, svg);
+      pontos.forEach((v, i) => {
+        const g = svgEl('g', { class: 'tr-ponto' }, svg);
+        svgEl('circle', { cx: x(i), cy: y(v), r: 12, class: 'tr-alvo' }, g);
+        svgEl('circle', { cx: x(i), cy: y(v), r: 4, class: v < 0 ? 'neg' : '' }, g);
+        dica(g, 'Fim de ' + MES_CURTO[i] + '/' + anoSel + ': saldo ' + (v < 0 ? '− ' : '') + brl(Math.abs(v)));
+      });
+      const ult = pontos[n - 1];
+      svgEl('text', { x: x(n - 1), y: y(ult) - 10, 'text-anchor': n > 10 ? 'end' : 'middle', class: 'tr-rotulo' + (ult < 0 ? ' neg' : '') }, svg).textContent = compacto(ult);
+      for(let i = 0; i < 12; i++) svgEl('text', { x: x(i), y: H - 7, 'text-anchor': 'middle', class: 'tr-eixo' }, svg).textContent = MES_CURTO[i];
+      box.appendChild(svg);
+    }
+
+    function desenharResultadoEventos(){
+      const box = $('trGrafEventos'); box.innerHTML = '';
+      const doAno = eventos.filter(e => (e.data_inicio || '').slice(0, 4) === String(anoSel))
+        .map(e => Object.assign({ ev: e }, totaisDoEvento(e))).filter(t => t.lanc.length).sort((a, b) => b.resultado - a.resultado);
+      if(!doAno.length){ box.appendChild(vazio('Nenhum evento com lançamentos em ' + anoSel + '.')); return; }
+      const maior = Math.max(...doAno.map(t => Math.abs(t.resultado))) || 1;
+      doAno.forEach(t => {
+        const l = el('button', 'tr-div'); l.type = 'button';
+        l.title = t.ev.nome + ': entradas ' + brl(t.entradas) + ' · saídas ' + brl(t.saidas) + ' · resultado ' + comSinal(t.resultado);
+        const trilho = el('span', 'tr-div-trilho');
+        const neg = el('span', 'tr-div-lado neg'), pos = el('span', 'tr-div-lado pos');
+        const barra = el('i'); barra.style.width = (Math.abs(t.resultado) / maior * 100) + '%';
+        (t.resultado < 0 ? neg : pos).appendChild(barra);
+        trilho.append(neg, el('span', 'tr-div-zero'), pos);
+        l.append(el('span', 'tr-div-nome', t.ev.nome), trilho, el('b', t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '', comSinal(t.resultado)));
+        l.addEventListener('click', () => abrirDetalhe(t.ev.id));
+        box.appendChild(l);
+      });
+    }
+
+    // ---------------------------------------------------------------
+    // Aba Lançamentos
+    // ---------------------------------------------------------------
+    function linhaLancamento(x, mostrarEvento){
+      const pode = podeEditar();
+      const linha = el('a', 'tr-row' + (pode ? '' : ' so-leitura'));
+      linha.href = '#';
+      const ent = x.tipo === 'entrada';
+      linha.appendChild(el('span', 'tr-row-icon ' + (ent ? 'tr-icon-in' : 'tr-icon-out'), ent ? '+' : '−'));
+      const corpo = el('span', 'tr-row-body');
+      const desc = el('span', 'tr-row-desc', x.descricao);
+      const ev = mostrarEvento && x.evento_id ? eventoPorId(x.evento_id) : null;
+      if(ev) desc.appendChild(el('span', 'tr-row-evento', ev.nome));
+      corpo.appendChild(desc);
+      corpo.appendChild(el('span', 'tr-row-meta', [x.categoria, x.forma_pagamento, dataCurta(x.data), x.registrado_por].filter(Boolean).join(' · ')));
+      linha.appendChild(corpo);
+      linha.appendChild(el('span', 'tr-row-value ' + (ent ? 'tr-value-in' : 'tr-value-out'), (ent ? '+ ' : '− ') + brl(x.valor)));
+      if(x.observacao) linha.title = x.observacao;
+      linha.addEventListener('click', (e) => { e.preventDefault(); if(podeEditar()) abrirLancamento(x); });
+      return linha;
+    }
+    function desenharGeral(){
+      const saldo = lancamentos.reduce((s, x) => s + sinal(x), 0);
+      const saldoEl = $('trBalanceValue');
+      saldoEl.textContent = (saldo < 0 ? '− ' : '') + brl(Math.abs(saldo));
+      saldoEl.classList.toggle('negativo', saldo < 0);
+      const saldoEventos = lancamentos.filter(x => x.evento_id).reduce((s, x) => s + sinal(x), 0);
+      $('trBalanceNota').textContent = 'Caixa geral ' + comSinal(saldo - saldoEventos) + ' · Eventos ' + comSinal(saldoEventos);
+      const chave = mesSel.ano + '-' + String(mesSel.mes).padStart(2, '0');
+      $('trMesNome').textContent = MESES[mesSel.mes - 1].replace(/^./, c => c.toUpperCase()) + ' de ' + mesSel.ano;
+      const doMes = lancamentos.filter(x => (x.data || '').slice(0, 7) === chave);
+      const ent = soma(doMes, 'entrada'), sai = soma(doMes, 'saida');
+      $('trTotalIn').textContent = brl(ent);
+      $('trTotalOut').textContent = brl(sai);
+      const res = $('trResultadoMes');
+      res.textContent = comSinal(ent - sai);
+      res.className = ent - sai > 0 ? 'tr-positivo' : ent - sai < 0 ? 'tr-negativo' : '';
+      const cats = $('trCats'); cats.innerHTML = '';
+      const saidas = porCategoria(doMes.filter(x => x.tipo === 'saida'));
+      if(saidas.length){
+        const h = el('div', 'tr-card-h'); h.appendChild(el('h5', null, 'Saídas por categoria')); cats.appendChild(h);
+        const maior = saidas[0][1];
+        saidas.forEach(([c, v]) => {
+          const l = el('div', 'tr-cat');
+          const b = el('span', 'tr-barra'); const i = el('i'); i.style.width = (v / maior * 100) + '%'; b.appendChild(i);
+          const val = el('b', null, brl(v)); val.appendChild(el('small', null, Math.round(v / sai * 100) + '%'));
+          l.append(el('span', null, c), b, val);
+          cats.appendChild(l);
+        });
+      }
+      const termo = normalizar(busca);
+      const filtrados = doMes.filter(x => (filtro === 'todos' ? true : filtro === 'geral' ? !x.evento_id : filtro === 'eventos' ? !!x.evento_id : x.tipo === filtro)
+        && (!termo || normalizar([x.descricao, x.categoria, x.forma_pagamento, x.registrado_por, (eventoPorId(x.evento_id) || {}).nome].join(' ')).indexOf(termo) !== -1));
+      lista.innerHTML = '';
+      if(!filtrados.length){ lista.appendChild(vazio(doMes.length ? 'Nenhum lançamento com esse filtro neste mês.' : 'Nenhum lançamento em ' + MESES[mesSel.mes - 1] + '.')); return; }
+      filtrados.forEach(x => lista.appendChild(linhaLancamento(x, true)));
+    }
+
+    // ---------------------------------------------------------------
+    // Aba Eventos + detalhe
+    // ---------------------------------------------------------------
+    function periodo(ev){
+      if(!ev.data_inicio) return 'Sem data';
+      return ev.data_fim && ev.data_fim !== ev.data_inicio ? dataCurta(ev.data_inicio) + ' a ' + dataLonga(ev.data_fim) : dataLonga(ev.data_inicio);
+    }
+    function desenharEventos(){
+      const box = $('trEventosLista'); box.innerHTML = '';
+      if(!eventos.length){ box.appendChild(vazio('Nenhum evento cadastrado. Crie um para controlar orçamento, entradas, saídas e inscrições.')); return; }
+      eventos.slice().sort((a, b) => (a.status === b.status ? (b.data_inicio || '').localeCompare(a.data_inicio || '') : a.status === 'aberto' ? -1 : 1)).forEach(ev => {
+        const t = totaisDoEvento(ev);
+        const card = el('button', 'tr-ev-card'); card.type = 'button';
+        const topo = el('div', 'tr-ev-topo');
+        const nome = el('span', 'tr-ev-nome', ev.nome); nome.appendChild(el('small', null, periodo(ev)));
+        topo.append(nome, el('span', 'tr-chip ' + ev.status, ev.status === 'aberto' ? 'Aberto' : 'Encerrado'));
+        const nums = el('div', 'tr-ev-nums');
+        [['Entradas', brl(t.entradas), 'tr-value-in'], ['Saídas', brl(t.saidas), 'tr-value-out'],
+         [t.resultado >= 0 ? 'Lucro' : 'Prejuízo', comSinal(t.resultado), t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '']].forEach(([r, v, c]) => {
+          const d = el('div', null, r); d.appendChild(el('b', c, v)); nums.appendChild(d);
+        });
+        card.append(topo, nums);
+        const extra = [];
+        if(t.orc.length) extra.push('resultado previsto ' + comSinal(t.prevResultado));
+        if(t.abertas) extra.push(brl(t.aReceber) + ' a receber' + (t.atrasadas ? ' (' + t.atrasadas + ' atrasadas)' : ''));
+        card.appendChild(el('span', 'tr-ev-orc', extra.length ? extra.join(' · ') : 'Sem orçamento cadastrado'));
+        if(t.prevSaidas){
+          const usado = Math.round(t.saidas / t.prevSaidas * 100);
+          const barra = el('span', 'tr-barra'); const i = el('i', usado > 100 ? 'estouro' : 'uso'); i.style.width = Math.min(usado, 100) + '%';
+          barra.appendChild(i); card.appendChild(barra);
+        }
+        card.addEventListener('click', () => abrirDetalhe(ev.id));
+        box.appendChild(card);
+      });
+    }
+
+    function abrirDetalhe(id){
+      eventoAberto = id;
+      desenharDetalhe();
+      view.appendChild($('trEventoOverlay'));
+      $('trEventoOverlay').classList.add('show');
+    }
+    function botao(texto, cls, aoClicar){
+      const b = el('button', cls, texto); b.type = 'button';
+      b.addEventListener('click', aoClicar);
+      return b;
+    }
+    function desenharDetalhe(){
+      const ev = eventoPorId(eventoAberto);
+      const corpo = $('trEventoCorpo'); corpo.innerHTML = '';
+      if(!ev){ $('trEventoOverlay').classList.remove('show'); return; }
+      const pode = podeEditar();
+      const t = totaisDoEvento(ev);
+      $('trEventoTitulo').textContent = ev.nome;
+
+      const topo = el('p', 'tr-det-topo', periodo(ev));
+      topo.appendChild(el('span', 'tr-chip ' + ev.status, ev.status === 'aberto' ? 'Aberto' : 'Encerrado'));
+      if(ev.evento_agenda_id){ const ag = agenda.find(a => a.id === ev.evento_agenda_id); topo.appendChild(el('span', null, '· Agenda: ' + (ag ? ag.titulo : 'evento ligado'))); }
+      if(ev.observacao) topo.appendChild(el('span', null, '· ' + ev.observacao));
+      corpo.appendChild(topo);
+
+      if(pode){
+        const acoes = el('div', 'tr-det-acoes');
+        if(ev.status === 'aberto'){
+          acoes.append(
+            botao('+ Entrada', 'tr-btn prim', () => abrirLancamento(null, { evento: ev.id, tipo: 'entrada' })),
+            botao('− Saída', 'tr-btn sai', () => abrirLancamento(null, { evento: ev.id, tipo: 'saida' })),
+            botao('+ Item do orçamento', 'tr-btn', () => abrirItem(null)),
+            botao('+ Cobrar inscrição', 'tr-btn', () => abrirCobranca({ tipo: 'inscricao', evento: ev.id })));
+        }
+        acoes.appendChild(botao(ev.status === 'aberto' ? 'Encerrar evento' : 'Reabrir evento', 'tr-btn', async () => {
+          const novo = ev.status === 'aberto' ? 'encerrado' : 'aberto';
+          if(novo === 'encerrado' && !confirm('Encerrar "' + ev.nome + '"? As contas ficam fechadas com resultado ' + comSinal(t.resultado) + '.')) return;
+          const { error } = await supa.from('tesouraria_eventos').update({ status: novo }).eq('id', ev.id);
+          if(error){ alert('Não consegui alterar o evento: ' + error.message); return; }
+          await carregar();
+        }));
+        corpo.appendChild(acoes);
+      }
+
+      const k = el('div', 'tr-kpis');
+      kpi(k, 'Receita prevista', t.orc.length ? brl(t.prevEntradas) : '—', '', t.orc.filter(x => x.tipo === 'entrada').length + ' itens', 'var(--t-blue)', '↓');
+      kpi(k, 'Recebido', brl(t.entradas), 'tr-positivo', t.prevEntradas ? Math.round(t.entradas / t.prevEntradas * 100) + '% da receita prevista' : 'entradas do evento', 'var(--t-in)', '✓');
+      kpi(k, 'Despesa prevista', t.orc.length ? brl(t.prevSaidas) : '—', '', t.orc.filter(x => x.tipo === 'saida').length + ' itens', 'var(--t-orange)', '↑');
+      kpi(k, 'Gasto', brl(t.saidas), 'tr-negativo', t.prevSaidas ? Math.round(t.saidas / t.prevSaidas * 100) + '% do previsto' : 'saídas do evento', 'var(--t-out)', '−');
+      kpi(k, 'A receber', brl(t.aReceber), '', t.abertas ? t.abertas + ' parcelas' + (t.atrasadas ? ' · ' + t.atrasadas + ' atrasadas' : '') : 'nada pendente', 'var(--t-gold)', '⌛');
+      kpi(k, 'Resultado', comSinal(t.resultado), t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '', t.orc.length ? 'previsto ' + comSinal(t.prevResultado) : 'entradas − saídas', 'var(--t-purple)', '=');
+      corpo.appendChild(k);
+
+      const grade = el('div', 'tr-grade g2b');
+      // Orçamento x realizado
+      const cOrc = el('section', 'tr-card');
+      const hOrc = el('div', 'tr-card-h'); hOrc.append(el('h5', null, 'Orçamento × realizado'), el('span', null, pode ? 'use "+ Lançar" pra lançar no item' : ''));
+      cOrc.appendChild(hOrc);
+      const tab = el('table', 'tr-t');
+      tab.innerHTML = '<thead><tr><th>Item</th><th class="r">Previsto</th><th class="r">Realizado</th><th>Execução</th><th class="r">Diferença</th><th></th></tr></thead>';
+      const tb = el('tbody');
+      ['entrada', 'saida'].forEach(tipo => {
+        const g = el('tr', 'grupo'); const gc = el('td', null, tipo === 'entrada' ? 'Receitas' : 'Despesas'); gc.colSpan = 6; g.appendChild(gc); tb.appendChild(g);
+        const doTipo = t.orc.filter(x => x.tipo === tipo);
+        let prevT = 0, realT = 0;
+        doTipo.forEach(item => {
+          const real = soma(t.lanc.filter(x => x.orcamento_item_id === item.id));
+          prevT += item.valor; realT += real;
+          tb.appendChild(linhaOrc(item.descricao + (item.categoria ? ' · ' + item.categoria : ''), item.valor, real, tipo, pode && ev.status === 'aberto' ? () => abrirLancamento(null, { evento: ev.id, tipo, item: item.id }) : null, pode ? () => abrirItem(item) : null));
+        });
+        const fora = t.lanc.filter(x => x.tipo === tipo && !x.orcamento_item_id);
+        if(fora.length){
+          const real = soma(fora); realT += real;
+          tb.appendChild(linhaOrc('Fora do orçamento (' + fora.length + ')', 0, real, tipo, pode && ev.status === 'aberto' ? () => abrirLancamento(null, { evento: ev.id, tipo }) : null, null));
+        }
+        if(!doTipo.length && !fora.length){ const v = el('tr'); const c = el('td', 'tr-mut', tipo === 'entrada' ? 'Nenhuma receita prevista ou lançada.' : 'Nenhuma despesa prevista ou lançada.'); c.colSpan = 6; v.appendChild(c); tb.appendChild(v); }
+        const sub = el('tr', 'sub');
+        const dif = tipo === 'entrada' ? realT - prevT : prevT - realT;
+        sub.append(el('td', null, tipo === 'entrada' ? 'Total de receitas' : 'Total de despesas'), el('td', 'r', prevT ? brl(prevT) : '—'),
+          el('td', 'r ' + (tipo === 'entrada' ? 'tr-value-in' : 'tr-value-out'), brl(realT)), el('td'),
+          el('td', 'r ' + (prevT ? (dif >= 0 ? 'tr-positivo' : 'tr-negativo') : ''), prevT ? (tipo === 'entrada' ? comSinal(dif) : (dif >= 0 ? 'sobram ' + brl(dif) : 'estourou ' + brl(-dif))) : '—'), el('td'));
+        tb.appendChild(sub);
+      });
+      tab.appendChild(tb);
+      const tf = el('tfoot'); const tr = el('tr');
+      tr.append(el('td', null, 'Resultado'), el('td', 'r', t.orc.length ? comSinal(t.prevResultado) : '—'), el('td', 'r ' + (t.resultado >= 0 ? 'tr-positivo' : 'tr-negativo'), comSinal(t.resultado)), el('td'),
+        el('td', 'r', t.orc.length ? comSinal(t.resultado - t.prevResultado) : '—'), el('td'));
+      tf.appendChild(tr); tab.appendChild(tf);
+      const w = el('div', 'tr-tabela-wrap'); w.appendChild(tab); cOrc.appendChild(w);
+      grade.appendChild(cOrc);
+
+      // Resultado + lançamentos
+      const cDir = el('section', 'tr-card');
+      const pos = t.resultado >= 0;
+      const res = el('div', 'tr-resultado ' + (pos ? 'pos' : 'neg'));
+      res.append(el('span', null, pos ? (t.resultado ? 'Resultado positivo (lucro)' : 'Resultado') : 'Resultado negativo (prejuízo)'), el('b', null, comSinal(t.resultado)),
+        el('small', null, t.orc.length ? 'previsto no orçamento: ' + comSinal(t.prevResultado) : 'sem orçamento para comparar'));
+      cDir.appendChild(res);
+      const hL = el('div', 'tr-card-h'); hL.append(el('h5', null, 'Lançamentos (' + t.lanc.length + ')'), el('span', null, 'do evento'));
+      cDir.appendChild(hL);
+      const lst = el('div', 'tr-list');
+      if(!t.lanc.length) lst.appendChild(vazio('Nenhuma entrada ou saída lançada ainda.'));
+      t.lanc.forEach(x => lst.appendChild(linhaLancamento(x, false)));
+      cDir.appendChild(lst);
+      grade.appendChild(cDir);
+      corpo.appendChild(grade);
+
+      // Inscrições e parcelas (cobranças ligadas ao evento)
+      const cIns = el('section', 'tr-card');
+      const hI = el('div', 'tr-card-h'); hI.appendChild(el('h5', null, 'Inscrições e parcelas'));
+      hI.appendChild(legendaParcelas());
+      cIns.appendChild(hI);
+      const cobsEv = cobrancas.filter(c => c.evento_id === ev.id);
+      if(!cobsEv.length) cIns.appendChild(vazio(pode ? 'Nenhuma inscrição cobrada. Use "+ Cobrar inscrição" para gerar as parcelas de cada participante.' : 'Nenhuma inscrição cobrada.'));
+      else cIns.appendChild(tabelaPessoas(cobsEv.map(c => c.id), true));
+      corpo.appendChild(cIns);
+    }
+    function linhaOrc(descricao, previsto, real, tipo, aoLancar, aoEditar){
+      const tr = el('tr');
+      const n = el('td'); const d = el('span', 'tr-dot'); d.style.background = tipo === 'entrada' ? 'var(--t-in)' : 'var(--t-out)';
+      n.append(d, document.createTextNode(descricao));
+      if(aoEditar){ n.style.cursor = 'pointer'; n.title = 'Editar item'; n.addEventListener('click', aoEditar); }
+      const exec = el('td');
+      let difTxt = '—', difCls = 'tr-mut';
+      if(previsto){
+        const pct = Math.round(real / previsto * 100);
+        const b = el('span', 'tr-barra'); b.style.cssText = 'display:inline-block;width:80px;vertical-align:middle;margin-right:6px';
+        const i = el('i', tipo === 'entrada' ? 'in' : (pct > 100 ? 'estouro' : 'uso')); i.style.width = Math.min(pct, 100) + '%';
+        b.appendChild(i); exec.append(b, document.createTextNode(pct + '%'));
+        const falta = previsto - real;
+        if(tipo === 'entrada'){ difTxt = falta > 0 ? 'faltam ' + brl(falta) : 'meta atingida'; difCls = falta > 0 ? 'tr-mut' : 'tr-positivo'; }
+        else { difTxt = falta >= 0 ? 'sobram ' + brl(falta) : 'estourou ' + brl(-falta); difCls = falta >= 0 ? 'tr-mut' : 'tr-negativo'; }
+      } else { exec.className = 'tr-mut'; exec.textContent = 'fora do orçamento'; }
+      const acao = el('td');
+      if(aoLancar) acao.appendChild(botao('+ Lançar', 'tr-mini-btn', aoLancar));
+      tr.append(n, el('td', 'r', previsto ? brl(previsto) : '—'), el('td', 'r ' + (tipo === 'entrada' ? 'tr-value-in' : 'tr-value-out'), brl(real)), exec, el('td', 'r ' + difCls, difTxt), acao);
+      return tr;
+    }
+
+    // ---------------------------------------------------------------
+    // Pessoas x parcelas (usado no evento e nas cobranças)
+    // ---------------------------------------------------------------
+    function legendaParcelas(){
+      const l = el('span', 'tr-legenda');
+      [['pg', 'paga'], ['', 'a vencer'], ['atr', 'atrasada'], ['ise', 'isenta']].forEach(([c, t]) => {
+        const s = el('span'); const p = el('span', 'tr-parcelas'); p.appendChild(el('i', c)); s.append(p, document.createTextNode(' ' + t)); l.appendChild(s);
+      });
+      return l;
+    }
+    function agruparPorPessoa(ids){
+      const mapa = {};
+      parcelas.filter(p => ids.indexOf(p.cobranca_id) !== -1).forEach(p => {
+        const chave = p.cobranca_id + '|' + (p.desbravador_id || p.pessoa_nome);
+        (mapa[chave] = mapa[chave] || { nome: p.pessoa_nome, desbravador_id: p.desbravador_id, cobranca_id: p.cobranca_id, parcelas: [] }).parcelas.push(p);
+      });
+      return Object.values(mapa).map(g => {
+        g.parcelas.sort((a, b) => a.numero - b.numero);
+        g.pago = soma(g.parcelas.filter(p => situacaoParcela(p) === 'pago'));
+        g.falta = soma(g.parcelas.filter(p => !p.pago_em));
+        g.proxima = g.parcelas.find(p => !p.pago_em) || null;
+        g.atrasadas = g.parcelas.filter(p => situacaoParcela(p) === 'atrasado').length;
+        g.sit = g.atrasadas ? 'atrasado' : g.proxima ? 'avencer' : (g.parcelas.every(p => situacaoParcela(p) === 'isento') ? 'isento' : 'pago');
+        return g;
+      }).sort((a, b) => ({ atrasado: 0, avencer: 1, pago: 2, isento: 3 }[a.sit] - { atrasado: 0, avencer: 1, pago: 2, isento: 3 }[b.sit]) || a.nome.localeCompare(b.nome));
+    }
+    function bolinhas(g){
+      const p = el('span', 'tr-parcelas');
+      g.parcelas.forEach(x => { const s = situacaoParcela(x); p.appendChild(el('i', s === 'pago' ? 'pg' : s === 'isento' ? 'ise' : s === 'atrasado' ? 'atr' : '')); });
+      return p;
+    }
+    function rotuloSit(g){
+      const [c, t] = g.sit === 'pago' && g.parcelas.length > 1 ? ['ok', 'Quitado'] : g.sit === 'atrasado' && g.atrasadas > 1 ? ['atr', g.atrasadas + ' atrasadas'] : ROTULO_SIT[g.sit];
+      return el('span', 'tr-chip ' + c, t);
+    }
+    function tabelaPessoas(ids, mostrarCobranca){
+      const grupos = agruparPorPessoa(ids);
+      const pode = podeEditar();
+      const frag = document.createDocumentFragment();
+      if(!grupos.length){ frag.appendChild(vazio('Ninguém nesta cobrança.')); return frag; }
+      const classeDe = id => (pessoas.find(p => p.id === id) || {}).classe || '';
+      const plano = g => g.parcelas.length > 1 ? g.parcelas.length + ' × ' + brl(g.parcelas[0].valor).replace(',00', '') : 'À vista';
+      const acaoReceber = g => () => abrirReceber(g.proxima || g.parcelas[g.parcelas.length - 1]);
+      // Computador: tabela
+      const t = el('table', 'tr-t tr-so-web');
+      t.innerHTML = '<thead><tr><th>Pessoa</th>' + (mostrarCobranca ? '<th>Cobrança</th>' : '<th>Classe</th>') + '<th>Plano</th><th>Parcelas</th><th class="r">Pago</th><th class="r">Falta</th><th>Próximo vencimento</th><th>Situação</th><th></th></tr></thead>';
+      const tb = el('tbody');
+      grupos.forEach(g => {
+        const tr = el('tr');
+        const cob = cobPorId(g.cobranca_id) || {};
+        const venc = el('td', g.proxima && g.proxima.vencimento < hoje() ? 'tr-negativo' : '', g.proxima ? dataLonga(g.proxima.vencimento) + (g.proxima.vencimento < hoje() ? ' (atrasada)' : '') : '—');
+        const sit = el('td'); sit.appendChild(rotuloSit(g));
+        const ac = el('td');
+        if(pode) ac.appendChild(botao(g.proxima ? 'Receber' : 'Ver', g.proxima ? 'tr-mini-btn' : 'tr-btn', acaoReceber(g)));
+        const pc = el('td'); pc.appendChild(bolinhas(g));
+        tr.append(el('td', null, g.nome), el('td', 'tr-mut', mostrarCobranca ? cob.descricao : classeDe(g.desbravador_id)), el('td', null, plano(g)), pc,
+          el('td', 'r tr-value-in', brl(g.pago)), el('td', 'r', g.falta ? brl(g.falta) : '—'), venc, sit, ac);
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb);
+      const tf = el('tfoot'); const tr = el('tr');
+      const pagos = grupos.filter(g => !g.proxima).length;
+      const c1 = el('td', null, grupos.length + ' pessoas · ' + pagos + ' quitados'); c1.colSpan = 4;
+      const atraso = grupos.reduce((s, g) => s + soma(g.parcelas.filter(p => situacaoParcela(p) === 'atrasado')), 0);
+      const c3 = el('td', 'tr-negativo', atraso ? brl(atraso) + ' em atraso' : ''); c3.colSpan = 3;
+      tr.append(c1, el('td', 'r tr-value-in', brl(grupos.reduce((s, g) => s + g.pago, 0))), el('td', 'r', brl(grupos.reduce((s, g) => s + g.falta, 0))), c3);
+      tf.appendChild(tr); t.appendChild(tf);
+      const w = el('div', 'tr-tabela-wrap tr-so-web'); w.appendChild(t); frag.appendChild(w);
+      // Celular: cartões
+      const cel = el('div', 'tr-so-app');
+      grupos.forEach(g => {
+        const c = el('div', 'tr-pessoa');
+        const corpo = el('div', null, g.nome);
+        const sub = el('small'); sub.append(bolinhas(g), document.createTextNode(' · ' + (g.proxima ? (g.proxima.vencimento < hoje() ? 'venceu ' : 'vence ') + dataCurta(g.proxima.vencimento) : 'quitado')));
+        corpo.appendChild(sub);
+        const v = el('b', g.falta ? '' : 'tr-positivo', g.falta ? brl(g.falta) : brl(g.pago));
+        const sc = el('small'); sc.appendChild(rotuloSit(g)); v.appendChild(sc);
+        c.append(el('span', 'ini', iniciais(g.nome)), corpo, v);
+        if(pode){ c.style.cursor = 'pointer'; c.addEventListener('click', acaoReceber(g)); }
+        cel.appendChild(c);
+      });
+      frag.appendChild(cel);
+      return frag;
+    }
+
+    // ---------------------------------------------------------------
+    // Aba Cobranças
+    // ---------------------------------------------------------------
+    function contagem(ps){
+      const c = { pago: 0, isento: 0, atrasado: 0, avencer: 0 };
+      ps.forEach(p => { c[situacaoParcela(p)]++; });
+      return c;
+    }
+    function desenharCobrancas(){
+      const k = $('trCobKpis'); k.innerHTML = '';
+      const lst = $('trCobLista'); lst.innerHTML = '';
+      const det = $('trCobDetalhe'); det.innerHTML = '';
+      if(!cobrancasOk){
+        lst.appendChild(vazio('As cobranças ainda não foram criadas no banco. Rode o SQL das cobranças (supabase/schema.sql) no Supabase.'));
+        return;
+      }
+      const chave = hoje().slice(0, 7);
+      const fimMes = isoDe(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0));
+      const abertas = parcelas.filter(p => !p.pago_em);
+      const atrasadas = abertas.filter(p => p.vencimento < hoje());
+      const recebidoMes = parcelas.filter(p => p.pago_em && p.forma_pagamento !== 'Isento' && p.pago_em.slice(0, 7) === chave);
+      const vencidas = parcelas.filter(p => p.vencimento <= hoje());
+      const emDia = vencidas.filter(p => p.pago_em && p.pago_em <= p.vencimento).length;
+      const prox = abertas.filter(p => p.vencimento >= hoje()).sort((a, b) => a.vencimento.localeCompare(b.vencimento))[0];
+      kpi(k, 'A receber no mês', brl(soma(abertas.filter(p => p.vencimento <= fimMes))), '', abertas.filter(p => p.vencimento <= fimMes).length + ' parcelas até ' + dataCurta(fimMes), 'var(--t-blue)', '⌛');
+      kpi(k, 'Recebido no mês', brl(soma(recebidoMes)), 'tr-positivo', 'entrou no caixa sozinho', 'var(--t-in)', '✓');
+      kpi(k, 'Em atraso', brl(soma(atrasadas)), atrasadas.length ? 'tr-negativo' : '', new Set(atrasadas.map(p => p.desbravador_id || p.pessoa_nome)).size + ' pessoas', 'var(--t-out)', '!');
+      kpi(k, 'Adimplência', vencidas.length ? Math.round(emDia / vencidas.length * 100) + '%' : '—', '', 'pagos até o vencimento', 'var(--t-aqua)', '%');
+      kpi(k, 'Cobranças abertas', String(cobrancas.filter(c => c.status === 'aberta').length), '', abertas.length + ' parcelas em aberto', 'var(--t-purple)', '↻');
+      kpi(k, 'Próximo vencimento', prox ? dataCurta(prox.vencimento) : '—', '', prox ? (cobPorId(prox.cobranca_id) || {}).descricao || '' : 'nada a vencer', 'var(--t-gold)', '📅');
+
+      const doFiltro = cobrancas.filter(c => c.status === cobFiltro);
+      if(!doFiltro.length) lst.appendChild(vazio(cobFiltro === 'aberta' ? (podeEditar() ? 'Nenhuma cobrança aberta. Crie uma mensalidade, taxa ou parcelamento em "+ Nova cobrança".' : 'Nenhuma cobrança aberta.') : 'Nenhuma cobrança encerrada.'));
+      if(!cobSel || !doFiltro.some(c => c.id === cobSel)) cobSel = doFiltro.length ? doFiltro[0].id : null;
+      doFiltro.forEach(c => {
+        const ps = parcelas.filter(p => p.cobranca_id === c.id);
+        const n = contagem(ps), tot = ps.length || 1;
+        const card = el('button', 'tr-cob' + (c.id === cobSel ? ' on' : '')); card.type = 'button';
+        const tt = el('div', 'tr-cob-t');
+        const nome = el('span', null, c.descricao);
+        const pessoasN = new Set(ps.map(p => p.desbravador_id || p.pessoa_nome)).size;
+        nome.appendChild(el('small', null, brl(c.valor).replace(',00', '') + (c.parcelas > 1 ? ' em ' + c.parcelas + '×' : '') + ' · ' + pessoasN + ' pessoas · ' + TIPO_COB[c.tipo].toLowerCase()));
+        tt.append(nome, el('span', 'tr-chip ' + (c.evento_id ? 'roxo' : c.status), c.evento_id ? 'Evento' : c.status === 'aberta' ? 'Aberta' : 'Encerrada'));
+        const b = el('div', 'tr-cob-b');
+        [['pago', 'var(--t-in)'], ['isento', 'var(--t-purple)'], ['avencer', 'var(--t-gold)'], ['atrasado', 'var(--t-out)']].forEach(([s, cor]) => {
+          if(!n[s]) return; const i = el('i'); i.style.width = (n[s] / tot * 100) + '%'; i.style.background = cor; b.appendChild(i);
+        });
+        const ns = el('div', 'tr-cob-n');
+        if(n.pago) ns.appendChild(el('span', 'tr-positivo', n.pago + ' pagas'));
+        if(n.isento) ns.appendChild(el('span', null, n.isento + ' isentas'));
+        if(n.avencer){ const s = el('span', null, n.avencer + ' a vencer'); s.style.color = 'var(--t-gold)'; ns.appendChild(s); }
+        if(n.atrasado) ns.appendChild(el('span', 'tr-negativo', n.atrasado + ' atrasadas'));
+        card.append(tt, b, ns);
+        card.addEventListener('click', () => { cobSel = c.id; desenharCobrancas(); });
+        lst.appendChild(card);
+      });
+      desenharCobrancaDetalhe();
+    }
+    function desenharCobrancaDetalhe(){
+      const det = $('trCobDetalhe'); det.innerHTML = '';
+      const c = cobPorId(cobSel);
+      if(!c){ det.appendChild(vazio('Escolha uma cobrança para ver quem pagou.')); return; }
+      const pode = podeEditar();
+      const ps = parcelas.filter(p => p.cobranca_id === c.id);
+      const n = contagem(ps);
+      const h = el('div', 'tr-card-h');
+      const tit = el('h5', null, c.descricao + ' — quem pagou');
+      const chips = el('span', 'tr-legenda');
+      chips.append(el('span', 'tr-chip ok', n.pago + ' pagas'), el('span', 'tr-chip pend', n.avencer + ' a vencer'), el('span', 'tr-chip atr', n.atrasado + ' atrasadas'));
+      if(n.isento) chips.appendChild(el('span', 'tr-chip roxo', n.isento + ' isentas'));
+      h.append(tit, chips);
+      det.appendChild(h);
+      const ev = c.evento_id ? eventoPorId(c.evento_id) : null;
+      det.appendChild(el('p', 'tr-det-topo', TIPO_COB[c.tipo] + ' · ' + brl(c.valor) + ' por pessoa' + (c.parcelas > 1 ? ' em ' + c.parcelas + ' parcelas' : '') +
+        ' · 1º vencimento ' + dataLonga(c.primeiro_vencimento) + ' · entra em ' + (ev ? 'Evento: ' + ev.nome : 'Caixa geral') + (c.categoria ? ' (' + c.categoria + ')' : '')));
+      if(pode){
+        const acoes = el('div', 'tr-det-acoes');
+        if(c.tipo === 'mensalidade') acoes.appendChild(botao('↻ Gerar próxima mensalidade', 'tr-btn prim', () => gerarProximaMensalidade(c)));
+        acoes.appendChild(botao(c.status === 'aberta' ? 'Encerrar cobrança' : 'Reabrir', 'tr-btn', async () => {
+          const { error } = await supa.from('tesouraria_cobrancas').update({ status: c.status === 'aberta' ? 'encerrada' : 'aberta' }).eq('id', c.id);
+          if(error){ alert('Não consegui alterar: ' + error.message); return; }
+          if(c.status === 'aberta') cobFiltro = 'encerrada';
+          marcarCobFiltro(); await carregar();
+        }));
+        acoes.appendChild(botao('Excluir', 'tr-btn', async () => {
+          if(ps.some(p => p.lancamento_id)){ alert('Esta cobrança já tem pagamentos recebidos. Desfaça os recebimentos antes de excluir, ou encerre a cobrança.'); return; }
+          if(!confirm('Excluir a cobrança "' + c.descricao + '" e as ' + ps.length + ' parcelas dela?')) return;
+          const { error } = await supa.from('tesouraria_cobrancas').delete().eq('id', c.id);
+          if(error){ alert('Não consegui excluir: ' + error.message); return; }
+          cobSel = null; await carregar();
+        }));
+        det.appendChild(acoes);
+      }
+      det.appendChild(tabelaPessoas([c.id], false));
+    }
+
+    async function gerarProximaMensalidade(c){
+      const venc = somaMeses(c.primeiro_vencimento, 1);
+      const [a, m] = venc.split('-').map(Number);
+      const desc = 'Mensalidade · ' + MESES[m - 1] + '/' + a;
+      if(cobrancas.some(x => x.tipo === 'mensalidade' && x.primeiro_vencimento === venc)){ alert('Já existe a mensalidade de ' + MESES[m - 1] + '/' + a + '.'); return; }
+      const quem = agruparPorPessoa([c.id]);
+      if(!confirm('Gerar "' + desc + '" para as mesmas ' + quem.length + ' pessoas, ' + brl(c.valor) + ' cada, vencendo em ' + dataLonga(venc) + '?')) return;
+      await criarCobranca({ descricao: desc, tipo: 'mensalidade', valor: c.valor, parcelas: 1, primeiro_vencimento: venc, categoria: c.categoria, evento_id: c.evento_id, orcamento_item_id: c.orcamento_item_id },
+        quem.map(g => ({ id: g.desbravador_id, nome: g.nome })));
+    }
+
+    // Cria a cobrança e uma parcela por pessoa por número de parcela. Os centavos
+    // que sobram da divisão vão na última parcela (90 / 3 = 30 + 30 + 30; 100 / 3 = 33,33 + 33,33 + 33,34).
+    async function criarCobranca(cob, quem){
+      const r = await supa.from('tesouraria_cobrancas').insert(cob).select().single();
+      if(r.error){ alert('Não consegui criar a cobrança: ' + r.error.message); return false; }
+      const base = Math.floor(cob.valor / cob.parcelas * 100) / 100;
+      const linhas = [];
+      quem.forEach(p => {
+        for(let n = 1; n <= cob.parcelas; n++){
+          linhas.push({ cobranca_id: r.data.id, desbravador_id: p.id || null, pessoa_nome: p.nome, numero: n, total_parcelas: cob.parcelas,
+            valor: n === cob.parcelas ? Math.round((cob.valor - base * (cob.parcelas - 1)) * 100) / 100 : base,
+            vencimento: somaMeses(cob.primeiro_vencimento, n - 1) });
+        }
+      });
+      const { error } = await supa.from('tesouraria_parcelas').insert(linhas);
+      if(error){ alert('A cobrança foi criada, mas as parcelas não: ' + error.message); }
+      cobSel = r.data.id; cobFiltro = 'aberta'; marcarCobFiltro();
+      await carregar();
+      return true;
+    }
+
+    // ---------------------------------------------------------------
+    // Modais
+    // ---------------------------------------------------------------
+    function mostrarModal(overlay){
+      // Mesmo z-index: quem vem por último no DOM fica por cima (o detalhe do evento pode estar aberto).
+      view.appendChild(overlay);
+      overlay.classList.add('show');
+    }
+    function fecharAoTocarFora(id){ $(id).addEventListener('click', (e) => { if(e.target === $(id)) $(id).classList.remove('show'); }); }
+    ['trModalOverlay', 'trEventoModal', 'trItemModal', 'trCobModal', 'trReceberModal'].forEach(fecharAoTocarFora);
+    function marcarTipo(grupo, tipo){ grupo.querySelectorAll('.tr-tipo-btn').forEach(b => b.classList.toggle('active', b.dataset.tipo === tipo)); }
+    function preencherCategorias(select, tipo, atual){
+      select.innerHTML = '';
+      CATEGORIAS[tipo].forEach(c => { const o = el('option', null, c); o.value = c; select.appendChild(o); });
+      if(atual && CATEGORIAS[tipo].indexOf(atual) === -1){ const o = el('option', null, atual); o.value = atual; select.appendChild(o); }
+      if(atual) select.value = atual;
+    }
+    function preencherEventos(sel, atual, rotuloGeral){
+      sel.innerHTML = '';
+      const g = el('option', null, rotuloGeral || 'Caixa geral do clube'); g.value = ''; sel.appendChild(g);
+      eventos.filter(e => e.status === 'aberto' || e.id === atual).forEach(e => { const o = el('option', null, 'Evento: ' + e.nome); o.value = e.id; sel.appendChild(o); });
+      sel.value = atual || '';
+    }
+
+    // ---- Lançamento ----
+    let lancEditando = null, tipoLanc = 'entrada';
+    function preencherItens(atualItem){
+      const evId = $('trFieldEvento').value;
+      const doEvento = itens.filter(x => x.evento_id === evId && x.tipo === tipoLanc);
+      $('trFieldItemWrap').style.display = evId ? '' : 'none';
+      const sel = $('trFieldItem'); sel.innerHTML = '';
+      const n = el('option', null, doEvento.length ? 'Fora do orçamento' : 'Nenhum item previsto para ' + (tipoLanc === 'entrada' ? 'receitas' : 'despesas'));
+      n.value = ''; sel.appendChild(n);
+      doEvento.forEach(x => { const o = el('option', null, x.descricao + ' (previsto ' + brl(x.valor) + ')'); o.value = x.id; sel.appendChild(o); });
+      sel.value = doEvento.some(x => x.id === atualItem) ? atualItem : '';
+    }
+    function abrirLancamento(x, pre){
+      pre = pre || {};
+      lancEditando = x || null;
+      tipoLanc = x ? x.tipo : (pre.tipo || 'entrada');
+      marcarTipo($('trFieldKind'), tipoLanc);
+      $('trModalTitle').textContent = x ? 'Editar lançamento' : (tipoLanc === 'saida' ? 'Nova saída' : 'Nova entrada');
+      $('trFieldDesc').value = x ? x.descricao : '';
+      $('trFieldValue').value = x ? valorParaCampo(x.valor) : '';
+      $('trFieldDate').value = x ? x.data : hoje();
+      const item = pre.item ? itens.find(i => i.id === pre.item) : null;
+      preencherCategorias($('trFieldCategory'), tipoLanc, x ? x.categoria : (item ? item.categoria : null));
+      $('trFieldPagamento').value = x && x.forma_pagamento ? x.forma_pagamento : 'Pix';
+      preencherEventos($('trFieldEvento'), x ? x.evento_id : (pre.evento || ''));
+      preencherItens(x ? x.orcamento_item_id : (pre.item || null));
+      $('trFieldObs').value = x ? (x.observacao || '') : '';
+      $('trDeleteBtn').style.display = x ? '' : 'none';
+      $('trLancCobAviso').style.display = x && parcelas.some(p => p.lancamento_id === x.id) ? '' : 'none';
+      [$('trFieldDesc'), $('trFieldValue')].forEach(f => { f.style.borderColor = ''; });
+      mostrarModal($('trModalOverlay'));
+      setTimeout(() => $(item ? 'trFieldValue' : 'trFieldDesc').focus(), 150);
+      if(item && !x) $('trFieldDesc').value = item.descricao;
+    }
+    $('trFieldKind').querySelectorAll('.tr-tipo-btn').forEach(b => b.addEventListener('click', () => {
+      tipoLanc = b.dataset.tipo; marcarTipo($('trFieldKind'), tipoLanc);
+      preencherCategorias($('trFieldCategory'), tipoLanc, null); preencherItens(null);
+    }));
+    $('trFieldEvento').addEventListener('change', () => preencherItens(null));
+    $('trModalClose').addEventListener('click', () => $('trModalOverlay').classList.remove('show'));
+    $('trSaveBtn').addEventListener('click', async () => {
+      const descricao = $('trFieldDesc').value.trim();
+      const valor = lerValor($('trFieldValue').value);
+      let ok = true;
+      if(!descricao){ $('trFieldDesc').style.borderColor = 'var(--t-out)'; ok = false; }
+      if(!(valor > 0)){ $('trFieldValue').style.borderColor = 'var(--t-out)'; ok = false; }
+      if(!$('trFieldDate').value){ alert('Informe a data do lançamento.'); ok = false; }
+      if(!ok) return;
+      const linha = {
+        data: $('trFieldDate').value, descricao, tipo: tipoLanc, valor,
+        categoria: $('trFieldCategory').value || null, forma_pagamento: $('trFieldPagamento').value || null,
+        evento_id: $('trFieldEvento').value || null, orcamento_item_id: ($('trFieldEvento').value && $('trFieldItem').value) || null,
+        observacao: $('trFieldObs').value.trim() || null,
+        registrado_por: (window.__currentUsuario && window.__currentUsuario.nome) || null
+      };
+      $('trSaveBtn').disabled = true;
+      const { error } = lancEditando
+        ? await supa.from('tesouraria_lancamentos').update(linha).eq('id', lancEditando.id)
+        : await supa.from('tesouraria_lancamentos').insert(linha);
+      $('trSaveBtn').disabled = false;
+      if(error){ alert('Não consegui salvar o lançamento: ' + error.message); return; }
+      $('trModalOverlay').classList.remove('show');
+      // Lançou num mês que não está na tela: vai pra ele, senão parece que sumiu.
+      const [a, m] = linha.data.split('-').map(Number);
+      if(!$('trEventoOverlay').classList.contains('show')) mesSel = { ano: a, mes: m };
+      await carregar();
+    });
+    $('trDeleteBtn').addEventListener('click', async () => {
+      if(!lancEditando || !confirm('Excluir o lançamento "' + lancEditando.descricao + '" de ' + brl(lancEditando.valor) + '?')) return;
+      // Veio de uma cobrança: a parcela volta a ficar em aberto.
+      const ligada = parcelas.find(p => p.lancamento_id === lancEditando.id);
+      if(ligada) await supa.from('tesouraria_parcelas').update({ pago_em: null, forma_pagamento: null, lancamento_id: null, valor: valorCobrado(ligada) }).eq('id', ligada.id);
+      const { error } = await supa.from('tesouraria_lancamentos').delete().eq('id', lancEditando.id);
+      if(error){ alert('Não consegui excluir: ' + error.message); return; }
+      $('trModalOverlay').classList.remove('show');
+      await carregar();
+    });
+
+    // ---- Evento ----
+    let evEditando = null;
+    async function abrirEvento(ev){
+      evEditando = ev || null;
+      await carregarAgenda();
+      const sel = $('trEvAgenda'); sel.innerHTML = '';
+      const n = el('option', null, '— Evento só da Tesouraria —'); n.value = ''; sel.appendChild(n);
+      agenda.forEach(a => { const o = el('option', null, dataCurta(a.iso) + ' · ' + a.titulo); o.value = a.id; sel.appendChild(o); });
+      sel.value = ev && ev.evento_agenda_id ? ev.evento_agenda_id : '';
+      $('trEventoModalTitulo').textContent = ev ? 'Editar evento' : 'Novo evento';
+      $('trEvNome').value = ev ? ev.nome : '';
+      $('trEvInicio').value = ev ? (ev.data_inicio || '') : '';
+      $('trEvFim').value = ev ? (ev.data_fim || '') : '';
+      $('trEvObs').value = ev ? (ev.observacao || '') : '';
+      $('trEvStatusWrap').style.display = ev ? '' : 'none';
+      $('trEvStatus').value = ev ? ev.status : 'aberto';
+      $('trEvExcluir').style.display = ev ? '' : 'none';
+      $('trEvNome').style.borderColor = '';
+      mostrarModal($('trEventoModal'));
+    }
+    // Escolher da Agenda já preenche nome e data.
+    $('trEvAgenda').addEventListener('change', () => {
+      const a = agenda.find(x => x.id === $('trEvAgenda').value);
+      if(!a) return;
+      $('trEvNome').value = a.titulo; $('trEvInicio').value = a.iso;
+      if(!$('trEvFim').value || $('trEvFim').value < a.iso) $('trEvFim').value = a.iso;
+    });
+    $('trNovoEventoBtn').addEventListener('click', () => abrirEvento(null));
+    $('trEventoEditar').addEventListener('click', () => { const ev = eventoPorId(eventoAberto); if(ev && podeEditar()) abrirEvento(ev); });
+    $('trEventoModalFechar').addEventListener('click', () => $('trEventoModal').classList.remove('show'));
+    $('trEvSalvar').addEventListener('click', async () => {
+      const nome = $('trEvNome').value.trim();
+      if(!nome){ $('trEvNome').style.borderColor = 'var(--t-out)'; return; }
+      const ini = $('trEvInicio').value || null;
+      let fim = $('trEvFim').value || null;
+      if(ini && fim && fim < ini){ alert('A data de fim é antes do início.'); return; }
+      if(ini && !fim) fim = ini;
+      const linha = { nome, data_inicio: ini, data_fim: fim, evento_agenda_id: $('trEvAgenda').value || null, observacao: $('trEvObs').value.trim() || null };
+      if(evEditando) linha.status = $('trEvStatus').value;
+      $('trEvSalvar').disabled = true;
+      const resp = evEditando
+        ? await supa.from('tesouraria_eventos').update(linha).eq('id', evEditando.id).select().single()
+        : await supa.from('tesouraria_eventos').insert(linha).select().single();
+      $('trEvSalvar').disabled = false;
+      if(resp.error){ alert('Não consegui salvar o evento: ' + resp.error.message); return; }
+      $('trEventoModal').classList.remove('show');
+      await carregar();
+      if(!evEditando && resp.data) abrirDetalhe(resp.data.id);
+    });
+    $('trEvExcluir').addEventListener('click', async () => {
+      if(!evEditando) return;
+      const n = lancamentos.filter(x => x.evento_id === evEditando.id).length;
+      const nc = cobrancas.filter(c => c.evento_id === evEditando.id).length;
+      if(n || nc){ alert('"' + evEditando.nome + '" tem ' + [n ? n + ' lançamento(s)' : '', nc ? nc + ' cobrança(s)' : ''].filter(Boolean).join(' e ') + '. Exclua ou mude esses registros antes de excluir o evento.'); return; }
+      if(!confirm('Excluir o evento "' + evEditando.nome + '" e o orçamento dele?')) return;
+      const { error } = await supa.from('tesouraria_eventos').delete().eq('id', evEditando.id);
+      if(error){ alert('Não consegui excluir: ' + error.message); return; }
+      $('trEventoModal').classList.remove('show'); $('trEventoOverlay').classList.remove('show');
+      eventoAberto = null;
+      await carregar();
+    });
+
+    // ---- Item do orçamento ----
+    let itemEditando = null, tipoItem = 'saida';
+    function abrirItem(item){
+      itemEditando = item || null;
+      tipoItem = item ? item.tipo : 'saida';
+      marcarTipo($('trItemTipo'), tipoItem);
+      preencherCategorias($('trItemCategoria'), tipoItem, item ? item.categoria : null);
+      $('trItemModalTitulo').textContent = item ? 'Editar item do orçamento' : 'Novo item do orçamento';
+      $('trItemDesc').value = item ? item.descricao : '';
+      $('trItemValor').value = item ? valorParaCampo(item.valor) : '';
+      $('trItemExcluir').style.display = item ? '' : 'none';
+      [$('trItemDesc'), $('trItemValor')].forEach(f => { f.style.borderColor = ''; });
+      mostrarModal($('trItemModal'));
+      setTimeout(() => $('trItemDesc').focus(), 150);
+    }
+    $('trItemTipo').querySelectorAll('.tr-tipo-btn').forEach(b => b.addEventListener('click', () => {
+      tipoItem = b.dataset.tipo; marcarTipo($('trItemTipo'), tipoItem);
+      preencherCategorias($('trItemCategoria'), tipoItem, null);
+    }));
+    $('trItemModalFechar').addEventListener('click', () => $('trItemModal').classList.remove('show'));
+    $('trItemSalvar').addEventListener('click', async () => {
+      const descricao = $('trItemDesc').value.trim();
+      const valor = lerValor($('trItemValor').value);
+      let ok = true;
+      if(!descricao){ $('trItemDesc').style.borderColor = 'var(--t-out)'; ok = false; }
+      if(!(valor >= 0)){ $('trItemValor').style.borderColor = 'var(--t-out)'; ok = false; }
+      if(!ok || !eventoAberto) return;
+      const linha = { evento_id: eventoAberto, tipo: tipoItem, descricao, categoria: $('trItemCategoria').value || null, valor };
+      $('trItemSalvar').disabled = true;
+      const { error } = itemEditando
+        ? await supa.from('tesouraria_orcamento').update(linha).eq('id', itemEditando.id)
+        : await supa.from('tesouraria_orcamento').insert(linha);
+      $('trItemSalvar').disabled = false;
+      if(error){ alert('Não consegui salvar o item: ' + error.message); return; }
+      $('trItemModal').classList.remove('show');
+      await carregar();
+    });
+    $('trItemExcluir').addEventListener('click', async () => {
+      if(!itemEditando || !confirm('Excluir o item "' + itemEditando.descricao + '" do orçamento? Os lançamentos ligados a ele passam a contar como "fora do orçamento".')) return;
+      const { error } = await supa.from('tesouraria_orcamento').delete().eq('id', itemEditando.id);
+      if(error){ alert('Não consegui excluir: ' + error.message); return; }
+      $('trItemModal').classList.remove('show');
+      await carregar();
+    });
+
+    // ---- Nova cobrança ----
+    let tipoCob = 'mensalidade', quemCob = 'todos';
+    const CAT_COB = { mensalidade: 'Mensalidade', taxa: 'Outro', parcelada: 'Outro', inscricao: 'Inscrição' };
+    function vencPadrao(tipo){
+      const h = new Date();
+      if(tipo === 'mensalidade'){ const d = new Date(h.getFullYear(), h.getMonth() + (h.getDate() > 10 ? 1 : 0), 10); return isoDe(d); }
+      const d = new Date(); d.setDate(d.getDate() + 7); return isoDe(d);
+    }
+    function descPadrao(){
+      const venc = $('trCobVenc').value;
+      if(tipoCob === 'mensalidade' && venc){ const [a, m] = venc.split('-').map(Number); return 'Mensalidade · ' + MESES[m - 1] + '/' + a; }
+      if(tipoCob === 'inscricao'){ const ev = eventoPorId($('trCobEvento').value); return ev ? 'Inscrição · ' + ev.nome : 'Inscrição'; }
+      return '';
+    }
+    let descTocada = false;
+    function ajustarTipoCob(){
+      marcarTipo($('trCobTipo'), tipoCob);
+      const sel = $('trCobParcelas'); sel.innerHTML = '';
+      const max = tipoCob === 'parcelada' ? 12 : tipoCob === 'inscricao' ? 6 : 1;
+      for(let i = tipoCob === 'parcelada' ? 2 : 1; i <= max; i++){ const o = el('option', null, i === 1 ? 'À vista' : i + '×'); o.value = i; sel.appendChild(o); }
+      sel.disabled = max === 1;
+      $('trCobVencRot').textContent = (tipoCob === 'parcelada' || tipoCob === 'inscricao') ? '1º vencimento' : 'Vencimento';
+      preencherCategorias($('trCobCategoria'), 'entrada', CAT_COB[tipoCob]);
+      if(!descTocada) $('trCobDesc').value = descPadrao();
+      $('trCobDesc').placeholder = tipoCob === 'taxa' ? 'Ex.: Taxa de uniforme (camiseta)' : tipoCob === 'parcelada' ? 'Ex.: Kit de especialidades' : '';
+      atualizarPrevia();
+    }
+    function quemPaga(){
+      if(quemCob === 'classe') return pessoas.filter(p => p.classe === $('trCobClasse').value);
+      if(quemCob === 'escolher') return pessoas.filter(p => { const c = $('trCobPessoas').querySelector('input[value="' + p.id + '"]'); return c && c.checked; });
+      return pessoas.slice();
+    }
+    function atualizarPrevia(){
+      const valor = lerValor($('trCobValor').value);
+      const n = Number($('trCobParcelas').value) || 1;
+      const qtd = quemPaga().length;
+      const p = $('trCobPrevia');
+      if(!(valor > 0) || !qtd){ p.textContent = !qtd ? 'Escolha quem paga.' : 'Informe o valor por pessoa.'; return; }
+      p.textContent = 'Vai gerar ' + qtd + (qtd === 1 ? ' cobrança' : ' cobranças') + ' de ' + brl(valor) +
+        (n > 1 ? ' em ' + n + '× de ' + brl(Math.floor(valor / n * 100) / 100) : '') + ' — total ' + brl(valor * qtd) +
+        '. Ao clicar Receber, a entrada vai sozinha para o caixa.' + (tipoCob === 'mensalidade' ? ' No mês seguinte, use "Gerar próxima mensalidade".' : '');
+    }
+    async function abrirCobranca(pre){
+      pre = pre || {};
+      await carregarPessoas();
+      tipoCob = pre.tipo || 'mensalidade'; quemCob = 'todos'; descTocada = false;
+      $('trCobValor').value = '';
+      $('trCobVenc').value = vencPadrao(tipoCob);
+      preencherEventos($('trCobEvento'), pre.evento || '', 'Caixa geral do clube');
+      const classes = [...new Set(pessoas.map(p => p.classe).filter(Boolean))];
+      const sc = $('trCobClasse'); sc.innerHTML = '';
+      classes.forEach(c => { const o = el('option', null, c); o.value = c; sc.appendChild(o); });
+      const box = $('trCobPessoas'); box.innerHTML = '';
+      if(!pessoas.length) box.appendChild(vazio('Nenhum desbravador cadastrado nas classes.'));
+      pessoas.forEach(p => {
+        const l = el('label'); const c = el('input'); c.type = 'checkbox'; c.value = p.id; c.addEventListener('change', atualizarPrevia);
+        l.append(c, document.createTextNode(p.nome + (p.classe ? ' · ' + p.classe : ''))); box.appendChild(l);
+      });
+      marcarQuem();
+      ajustarTipoCob();
+      mostrarModal($('trCobModal'));
+    }
+    function marcarQuem(){
+      $('trCobQuem').querySelectorAll('.tr-filtro').forEach(b => b.classList.toggle('active', b.dataset.quem === quemCob));
+      $('trCobClasse').style.display = quemCob === 'classe' ? '' : 'none';
+      $('trCobPessoas').style.display = quemCob === 'escolher' ? '' : 'none';
+    }
+    $('trCobTipo').querySelectorAll('.tr-tipo-btn').forEach(b => b.addEventListener('click', () => { tipoCob = b.dataset.tipo; if(tipoCob !== 'taxa' && tipoCob !== 'parcelada') descTocada = false; ajustarTipoCob(); }));
+    $('trCobQuem').querySelectorAll('.tr-filtro').forEach(b => b.addEventListener('click', () => { quemCob = b.dataset.quem; marcarQuem(); atualizarPrevia(); }));
+    $('trCobDesc').addEventListener('input', () => { descTocada = true; });
+    $('trCobVenc').addEventListener('change', () => { if(!descTocada) $('trCobDesc').value = descPadrao(); });
+    $('trCobEvento').addEventListener('change', () => { if(!descTocada) $('trCobDesc').value = descPadrao(); });
+    [$('trCobValor'), $('trCobParcelas'), $('trCobClasse')].forEach(f => f.addEventListener('input', atualizarPrevia));
+    $('trCobClasse').addEventListener('change', atualizarPrevia);
+    $('trNovaCobBtn').addEventListener('click', () => abrirCobranca(null));
+    $('trCobFechar').addEventListener('click', () => $('trCobModal').classList.remove('show'));
+    $('trCobSalvar').addEventListener('click', async () => {
+      const descricao = $('trCobDesc').value.trim();
+      const valor = lerValor($('trCobValor').value);
+      const quem = quemPaga();
+      if(!descricao){ $('trCobDesc').style.borderColor = 'var(--t-out)'; return; }
+      if(!(valor > 0)){ $('trCobValor').style.borderColor = 'var(--t-out)'; return; }
+      if(!$('trCobVenc').value){ alert('Informe o vencimento.'); return; }
+      if(!quem.length){ alert('Escolha quem paga.'); return; }
+      if(tipoCob === 'inscricao' && !$('trCobEvento').value){ alert('Escolha o evento da inscrição.'); return; }
+      $('trCobSalvar').disabled = true;
+      const ok = await criarCobranca({ descricao, tipo: tipoCob, valor, parcelas: Number($('trCobParcelas').value) || 1, primeiro_vencimento: $('trCobVenc').value,
+        categoria: $('trCobCategoria').value || null, evento_id: $('trCobEvento').value || null }, quem.map(p => ({ id: p.id, nome: p.nome })));
+      $('trCobSalvar').disabled = false;
+      if(ok){
+        $('trCobModal').classList.remove('show');
+        if(!$('trEventoOverlay').classList.contains('show')) trocarAba('cobrancas');
+      }
+    });
+
+    // ---- Receber parcela ----
+    let parcRecebendo = null;
+    function abrirReceber(p){
+      if(!p || !podeEditar()) return;
+      parcRecebendo = p;
+      const c = cobPorId(p.cobranca_id) || {};
+      const pago = !!p.pago_em;
+      $('trRecTitulo').textContent = pago ? 'Pagamento registrado' : 'Receber';
+      $('trRecInfo').textContent = p.pessoa_nome + ' · ' + c.descricao + (p.total_parcelas > 1 ? ' · parcela ' + p.numero + '/' + p.total_parcelas : '') +
+        ' · vence ' + dataLonga(p.vencimento) + ' · ' + brl(p.valor) + (pago ? ' · ' + (p.forma_pagamento === 'Isento' ? 'isenta em ' : 'pago em ') + dataLonga(p.pago_em) : '');
+      $('trRecValor').value = valorParaCampo(p.valor);
+      $('trRecData').value = pago ? p.pago_em : hoje();
+      $('trRecForma').value = pago && p.forma_pagamento && p.forma_pagamento !== 'Isento' ? p.forma_pagamento : 'Pix';
+      [$('trRecValor'), $('trRecData'), $('trRecForma')].forEach(f => { f.disabled = pago; });
+      $('trRecSalvar').style.display = pago ? 'none' : '';
+      $('trRecIsentar').style.display = pago ? 'none' : '';
+      $('trRecDesfazer').style.display = pago ? '' : 'none';
+      mostrarModal($('trReceberModal'));
+    }
+    $('trRecFechar').addEventListener('click', () => $('trReceberModal').classList.remove('show'));
+    $('trRecSalvar').addEventListener('click', async () => {
+      const p = parcRecebendo; if(!p) return;
+      const c = cobPorId(p.cobranca_id) || {};
+      const valor = lerValor($('trRecValor').value);
+      if(!(valor > 0)){ $('trRecValor').style.borderColor = 'var(--t-out)'; return; }
+      $('trRecSalvar').disabled = true;
+      const r = await supa.from('tesouraria_lancamentos').insert({
+        data: $('trRecData').value || hoje(), tipo: 'entrada', valor,
+        descricao: c.descricao + ' — ' + p.pessoa_nome + (p.total_parcelas > 1 ? ' (' + p.numero + '/' + p.total_parcelas + ')' : ''),
+        categoria: c.categoria || 'Mensalidade', forma_pagamento: $('trRecForma').value,
+        evento_id: c.evento_id || null, orcamento_item_id: c.orcamento_item_id || null,
+        observacao: valor < p.valor ? 'Cobrança com desconto (cobrado ' + brl(p.valor) + ')' : 'Cobrança',
+        registrado_por: (window.__currentUsuario && window.__currentUsuario.nome) || null
+      }).select().single();
+      if(r.error){ $('trRecSalvar').disabled = false; alert('Não consegui registrar a entrada: ' + r.error.message); return; }
+      const { error } = await supa.from('tesouraria_parcelas').update({ pago_em: $('trRecData').value || hoje(), forma_pagamento: $('trRecForma').value, lancamento_id: r.data.id, valor }).eq('id', p.id);
+      $('trRecSalvar').disabled = false;
+      if(error){ alert('A entrada foi registrada, mas a parcela não foi marcada como paga: ' + error.message); }
+      $('trReceberModal').classList.remove('show');
+      await carregar();
+    });
+    $('trRecIsentar').addEventListener('click', async () => {
+      const p = parcRecebendo; if(!p) return;
+      if(!confirm('Isentar ' + p.pessoa_nome + ' desta parcela (' + brl(p.valor) + ')? Ela fica resolvida sem entrada de dinheiro.')) return;
+      const { error } = await supa.from('tesouraria_parcelas').update({ pago_em: hoje(), forma_pagamento: 'Isento', lancamento_id: null }).eq('id', p.id);
+      if(error){ alert('Não consegui isentar: ' + error.message); return; }
+      $('trReceberModal').classList.remove('show');
+      await carregar();
+    });
+    $('trRecDesfazer').addEventListener('click', async () => {
+      const p = parcRecebendo; if(!p) return;
+      if(!confirm('Desfazer ' + (p.forma_pagamento === 'Isento' ? 'a isenção' : 'o recebimento') + ' de ' + p.pessoa_nome + '?' + (p.lancamento_id ? ' A entrada correspondente sai do caixa.' : ''))) return;
+      const { error } = await supa.from('tesouraria_parcelas').update({ pago_em: null, forma_pagamento: null, lancamento_id: null, valor: valorCobrado(p) }).eq('id', p.id);
+      if(error){ alert('Não consegui desfazer: ' + error.message); return; }
+      if(p.lancamento_id) await supa.from('tesouraria_lancamentos').delete().eq('id', p.lancamento_id);
+      $('trReceberModal').classList.remove('show');
+      await carregar();
+    });
+
+    // ---------------------------------------------------------------
+    // Abas, navegação, filtros
+    // ---------------------------------------------------------------
+    function trocarAba(aba){
+      $('trAbas').querySelectorAll('.tr-aba').forEach(x => x.classList.toggle('active', x.dataset.aba === aba));
+      $('trAbaPainel').style.display = aba === 'painel' ? '' : 'none';
+      $('trAbaGeral').style.display = aba === 'geral' ? '' : 'none';
+      $('trAbaEventos').style.display = aba === 'eventos' ? '' : 'none';
+      $('trAbaCobrancas').style.display = aba === 'cobrancas' ? '' : 'none';
+      if(aba === 'painel') desenharPainel();
+    }
+    function marcarFiltro(){ $('trFiltros').querySelectorAll('.tr-filtro').forEach(x => x.classList.toggle('active', x.dataset.filtro === filtro)); }
+    function marcarCobFiltro(){ $('trCobFiltros').querySelectorAll('.tr-filtro').forEach(x => x.classList.toggle('active', x.dataset.st === cobFiltro)); }
+    $('trAbas').querySelectorAll('.tr-aba').forEach(b => b.addEventListener('click', () => trocarAba(b.dataset.aba)));
+    $('trAnoAnt').addEventListener('click', () => { anoSel--; desenharPainel(); });
+    $('trAnoProx').addEventListener('click', () => { anoSel++; desenharPainel(); });
+    $('trMesAnt').addEventListener('click', () => { mesSel = mesSel.mes === 1 ? { ano: mesSel.ano - 1, mes: 12 } : { ano: mesSel.ano, mes: mesSel.mes - 1 }; desenharGeral(); });
+    $('trMesProx').addEventListener('click', () => { mesSel = mesSel.mes === 12 ? { ano: mesSel.ano + 1, mes: 1 } : { ano: mesSel.ano, mes: mesSel.mes + 1 }; desenharGeral(); });
+    $('trFiltros').querySelectorAll('.tr-filtro').forEach(c => c.addEventListener('click', () => { filtro = c.dataset.filtro; marcarFiltro(); desenharGeral(); }));
+    $('trBusca').addEventListener('input', () => { busca = $('trBusca').value; desenharGeral(); });
+    $('trCobFiltros').querySelectorAll('.tr-filtro').forEach(c => c.addEventListener('click', () => { cobFiltro = c.dataset.st; cobSel = null; marcarCobFiltro(); desenharCobrancas(); }));
+    // Com o detalhe de um evento aberto, o "+" já lança nele.
+    $('trAddBtn').addEventListener('click', () => {
+      if($('trAbaCobrancas').style.display !== 'none' && !$('trEventoOverlay').classList.contains('show')){ abrirCobranca(null); return; }
+      abrirLancamento(null, { evento: $('trEventoOverlay').classList.contains('show') ? eventoAberto : '' });
+    });
+    $('trEventoVoltar').addEventListener('click', () => { $('trEventoOverlay').classList.remove('show'); eventoAberto = null; });
+    let redimensionando = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(redimensionando);
+      redimensionando = setTimeout(() => { if(view.classList.contains('active') && $('trAbaPainel').style.display !== 'none') desenharPainel(); }, 200);
+    });
+
+    // Abre/atualiza ao entrar na tela (ver o atalho data-goto) e ao logar.
+    window.__trAbrir = function(){
+      carregar();
+      carregarAgenda().then(() => { if(eventoAberto) desenharDetalhe(); });
+      carregarPessoas().then(() => { if($('trAbaCobrancas').style.display !== 'none') desenharCobrancas(); });
+    };
+    document.addEventListener('cedros:loggedin', () => { if(view.classList.contains('active')) carregar(); else desenharTudo(); });
   })();
 
   // ---- Generic helper: simple "list + tag + modal" screens (Secretaria, Almoxarifado, Manuais, Aniversário, Especialidades) ----
@@ -29772,7 +31307,7 @@ const REQ_SUMMARIES = {
         ['gs-t-blue', '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.6c2.8.1 4.8 1.9 5.5 5.4"/>',
           unidades, 'Unidades ativas'],
         ['gs-t-green', '<polyline points="5 12 10 17 19 7"/>', new Set(doMesSel.filter(ehReuniao).map(e => e.iso)).size, 'Reuniões no mês'],
-        ['gs-t-gold', '<path d="M12 3 3 20h18Z"/><path d="M12 9v5"/>', doMesSel.filter(e => ehEspecial(e) && !ehAcampamento(e)).length, 'Especiais no mês'],
+        ['gs-t-gold', '<path d="M12 3 3 20h18Z"/><path d="M12 9v5"/>', doMesSel.filter(e => ehEspecial(e) && !ehAcampamento(e)).length, 'Eventos Especiais'],
         ['gs-t-purple', '<path d="M3 20 12 4l9 16Z"/><path d="M12 20v-6"/>', doMesSel.filter(ehAcampamento).length, 'Acampamentos'],
         ['gs-t-green', '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><polyline points="8 15 11 18 16 13"/>',
           freq && freq.pct != null ? freq.pct + '%' : '—', 'Frequência (meta ' + META_FREQ + '%)'],
@@ -30127,6 +31662,7 @@ const REQ_SUMMARIES = {
       if(window.__restrictedGotoViews && window.__restrictedGotoViews.indexOf(target) !== -1) return;
       if(target === 'view-classes' && typeof window.__clShowHub === 'function') window.__clShowHub();
       if(target === 'view-class-planning' && typeof window.__cpOpen === 'function') window.__cpOpen();
+      if(target === 'view-treasury' && typeof window.__trAbrir === 'function') window.__trAbrir();
       if(target === 'view-units' && typeof window.__unShowHub === 'function') window.__unShowHub();
       if(target === 'view-event-org' && typeof window.__eoShowHub === 'function') window.__eoShowHub();
       if(target === 'view-missions' && typeof window.__msRefresh === 'function') window.__msRefresh();
