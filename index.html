@@ -2786,6 +2786,18 @@
     border-radius:16px; background:rgba(255,255,255,0.04);
   }
   .fc-forca svg{ width:min(46vw, 170px); height:auto; }
+  .fc-forca{ align-items:center; gap:14px; }
+  .fc-insignia{
+    flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    width:min(34vw, 130px); height:min(34vw, 130px); padding:6px; border-radius:50%;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(216,168,62,0.25);
+    animation:fcInsigniaEntra .3s ease;
+  }
+  .fc-insignia img{ width:100%; height:100%; object-fit:cover; border-radius:50%; transform:scale(1.06); }
+  .fc-forca.com-insignia svg{ width:min(34vw, 130px); }
+  @keyframes fcInsigniaEntra{ from{ opacity:0; transform:scale(0.85); } to{ opacity:1; transform:none; } }
+  .fc-fim-insignia{ display:flex; justify-content:center; margin:0 0 14px; }
+  .fc-fim-insignia img{ width:min(40vw, 150px); height:min(40vw, 150px); object-fit:cover; border-radius:50%; }
   .fc-forca .fc-estrutura{ stroke:var(--gold); stroke-width:5; stroke-linecap:round; fill:none; }
   .fc-forca .fc-parte{ stroke:var(--cream); stroke-width:4.5; stroke-linecap:round; fill:none; opacity:0; transition:opacity .25s ease; }
   .fc-forca .fc-parte.on{ opacity:1; }
@@ -12888,6 +12900,7 @@
                 <line class="fc-parte" x1="84" y1="88" x2="70" y2="112"/>
                 <line class="fc-parte" x1="84" y1="88" x2="98" y2="112"/>
               </svg>
+              <div class="fc-insignia" id="fcInsignia" style="display:none;"><img alt="Insígnia da especialidade"></div>
             </div>
             <p class="fc-dica" id="fcDica"></p>
             <div class="fc-palavra" id="fcPalavra"></div>
@@ -12905,6 +12918,7 @@
               <div><span>Palavras</span><b id="fcFimPalavras">0</b></div>
               <div><span>Seu recorde</span><b id="fcFimRecorde">0</b></div>
             </div>
+            <div class="fc-fim-insignia" id="fcFimInsignia" style="display:none;"><img alt="Insígnia da especialidade"></div>
             <p class="qz-resposta-certa" id="fcRespostaCerta"></p>
             <button type="button" class="pl-btn pl-btn-primary qz-btn-largo" id="fcDeNovoBtn">Jogar de novo</button>
           </div>
@@ -30566,6 +30580,8 @@ const REQ_SUMMARIES = {
     const elDica = document.getElementById('fcDica');
     const elPalavra = document.getElementById('fcPalavra');
     const elTeclado = document.getElementById('fcTeclado');
+    const elInsignia = document.getElementById('fcInsignia');
+    const elFimInsignia = document.getElementById('fcFimInsignia');
     const botoesDeModo = Array.from(document.querySelectorAll('.fc-modo'));
     if(!telaInicio) return;
 
@@ -30597,7 +30613,7 @@ const REQ_SUMMARIES = {
           if(nome.length < 4 || nome.length > 24) return;
           if(vistos[nome]) return;
           vistos[nome] = true;
-          lista.push({ palavra: nome, dica: 'Especialidade · ' + area });
+          lista.push({ palavra: nome, dica: 'Especialidade · ' + area, especialidade: nome });
         });
       });
       return lista;
@@ -30725,6 +30741,24 @@ const REQ_SUMMARIES = {
       });
     }
 
+    // Insígnia da especialidade ao lado da forca (só palavras do catálogo que
+    // têm imagem cadastrada). A busca é assíncrona: o contador evita que a
+    // imagem de uma palavra antiga apareça depois que a próxima já começou.
+    let pedidoInsignia = 0;
+    function pintarInsignia(item, alvo, comClasse){
+      const meu = ++pedidoInsignia;
+      if(!alvo) return;
+      alvo.style.display = 'none';
+      if(comClasse) elForca.classList.remove('com-insignia');
+      if(!item || !item.especialidade || !window.__spFotoDe) return;
+      window.__spFotoDe(item.especialidade).then(foto => {
+        if(meu !== pedidoInsignia || !foto) return;
+        alvo.querySelector('img').src = foto;
+        alvo.style.display = '';
+        if(comClasse) elForca.classList.add('com-insignia');
+      }).catch(() => {});
+    }
+
     function completou(){
       return Array.from(baralho[posicao].palavra).every(ch => !ehLetra(ch) || tentadas.has(base(ch)));
     }
@@ -30737,6 +30771,7 @@ const REQ_SUMMARIES = {
       montarTeclado();
       elDica.innerHTML = 'Dica: <b></b>';
       elDica.querySelector('b').textContent = baralho[posicao].dica;
+      pintarInsignia(baralho[posicao], elInsignia, true);
       pintarPalavra(false);
       pintarForca();
     }
@@ -30799,6 +30834,7 @@ const REQ_SUMMARIES = {
         respostaEl.innerHTML = 'A palavra era <b></b>.';
         respostaEl.querySelector('b').textContent = errada.palavra;
       } else respostaEl.style.display = 'none';
+      pintarInsignia(errada, elFimInsignia, false);
 
       const user = window.__currentUsuario;
       if(supa && user && palavrasCertas > 0){
