@@ -1921,6 +1921,7 @@
     --t-track:rgba(255,255,255,0.08); --t-hover:rgba(255,255,255,0.04); --t-sombra:none;
     --t-in:#3FCB6B; --t-out:#FF6B5C; --t-blue:#5B9BFF; --t-gold:#D8A83E; --t-purple:#B98BFF; --t-orange:#FF9F43; --t-aqua:#199e70;
     --t-on:#06170C; --t-modal:#0F1B11;
+    --t-hero-bg:linear-gradient(135deg, #142a1a, #0f1a12 60%, #121810);
     --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#6b6f68;
     background:var(--t-bg);
   }
@@ -1930,6 +1931,7 @@
     --t-track:rgba(20,40,25,0.09); --t-hover:rgba(20,40,25,0.035); --t-sombra:0 1px 2px rgba(20,40,25,0.06), 0 4px 14px rgba(20,40,25,0.05);
     --t-in:#16924A; --t-out:#D23F33; --t-blue:#2A6FD0; --t-gold:#A87708; --t-purple:#6E4FD0; --t-orange:#C9680E; --t-aqua:#138a60;
     --t-on:#FFFFFF; --t-modal:#FFFFFF;
+    --t-hero-bg:linear-gradient(135deg, #e3f4e8, #f6fbf7 60%, #ffffff);
     --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#9a9d95;
   }
   /* Peças comuns do app, recoloridas só aqui dentro no tema claro. */
@@ -2160,6 +2162,105 @@
   .tr-pessoa > b{ text-align:right; font-size:13px; white-space:nowrap; color:var(--t-ink); }
   .tr-pessoa > b small{ display:block; margin-top:3px; }
   .tr-so-web{ display:none; }
+
+  /* ---- Visual v3: destaque, ações, indicadores com anel, cartões ---- */
+  .tr-aba{ display:flex; align-items:center; justify-content:center; gap:6px; }
+  .tr-aba-ic{ font-size:14px; line-height:1; }
+  .tr-aba-cel{ display:none; }
+  .tr-hero{ display:grid; grid-template-columns:minmax(0, 1fr); gap:16px; padding:18px; margin-bottom:12px; border-radius:22px; overflow:hidden;
+    background:radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--t-in) 24%, transparent), transparent 58%), var(--t-hero-bg);
+    border:1px solid color-mix(in srgb, var(--t-in) 30%, transparent); box-shadow:var(--t-sombra); }
+  .tr-hero-topo{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .tr-hero-rot{ font-size:11.5px; font-weight:900; letter-spacing:0.06em; text-transform:uppercase; color:var(--t-muted); }
+  .tr-ano{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:900; color:var(--t-ink); }
+  .tr-ano button{ width:28px; height:28px; border-radius:9px; border:1px solid var(--t-line); background:color-mix(in srgb, var(--t-card) 70%, transparent); color:var(--t-ink); font-size:15px; font-weight:900; cursor:pointer; }
+  .tr-hero-saldo{ margin:6px 0 4px; font-size:38px; font-weight:900; line-height:1.05; color:var(--t-ink); letter-spacing:-0.01em; }
+  .tr-hero-saldo.neg{ color:var(--t-out); }
+  .tr-hero-sub{ font-size:12.5px; font-weight:700; color:var(--t-muted); }
+  .tr-hero .tr-selo{ display:inline-flex; margin-top:12px; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:900; border:1px solid currentColor; }
+  .tr-hero .tr-selo:empty{ display:none; }
+  .tr-hero-mes{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin-top:14px; }
+  .tr-hero-mes div{ padding:9px 11px; border-radius:13px; background:color-mix(in srgb, var(--t-card) 55%, transparent); border:1px solid var(--t-line); min-width:0; }
+  .tr-hero-mes span{ display:block; font-size:10px; font-weight:900; letter-spacing:0.04em; text-transform:uppercase; color:var(--t-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tr-hero-mes b{ font-size:15px; font-weight:900; white-space:nowrap; }
+  .tr-hero-graf{ display:flex; flex-direction:column; min-width:0; }
+  .tr-hero-graf-tit{ display:flex; justify-content:space-between; font-size:11.5px; font-weight:800; color:var(--t-muted); margin-bottom:4px; }
+
+  .tr-acoes{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; margin-bottom:12px; }
+  .tr-acao{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:15px; border:1px solid var(--t-line); background:var(--t-card); color:var(--t-ink); font-size:13px; font-weight:900; font-family:inherit; cursor:pointer; text-align:left; box-shadow:var(--t-sombra); }
+  .tr-acao:hover{ border-color:var(--t-line2); }
+  .tr-acao i{ font-style:normal; flex-shrink:0; width:34px; height:34px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; }
+  .tr-acao i.in{ background:color-mix(in srgb, var(--t-in) 18%, transparent); color:var(--t-in); }
+  .tr-acao i.out{ background:color-mix(in srgb, var(--t-out) 16%, transparent); color:var(--t-out); }
+  .tr-acao i.gold{ background:color-mix(in srgb, var(--t-gold) 20%, transparent); }
+  .tr-acao i.roxo{ background:color-mix(in srgb, var(--t-purple) 18%, transparent); }
+
+  .tr-kpis2{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; margin-bottom:12px; }
+  .tr-kpi2{ display:flex; align-items:center; gap:11px; padding:12px; border-radius:16px; background:var(--t-card); border:1px solid var(--t-line); box-shadow:var(--t-sombra); min-width:0; }
+  .tr-kpi2 > div{ min-width:0; }
+  .tr-kpi2 > div > span{ display:block; font-size:11px; font-weight:800; color:var(--t-muted); }
+  .tr-kpi2 > div > b{ display:block; font-size:17px; font-weight:900; color:var(--t-ink); white-space:nowrap; }
+  .tr-kpi2 > div > small{ display:block; font-size:11px; font-weight:700; color:var(--t-faint); }
+  .tr-kpi2-ic{ flex-shrink:0; width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .tr-anel{ position:relative; display:inline-block; flex-shrink:0; }
+  .tr-anel svg{ display:block; }
+  .tr-anel b{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:var(--t-ink); }
+
+  .tr-card-h2{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .tr-card-h2 h5{ margin:0; font-size:15px; font-weight:900; color:var(--t-ink); }
+  .tr-card-h2 h5 small{ display:block; margin-top:2px; font-size:11.5px; font-weight:700; color:var(--t-muted); }
+  .tr-seg{ display:flex; gap:3px; padding:3px; border-radius:10px; background:var(--t-card2); border:1px solid var(--t-line); }
+  .tr-seg button{ padding:5px 11px; border:none; border-radius:8px; background:none; color:var(--t-muted); font-size:11.5px; font-weight:900; font-family:inherit; cursor:pointer; }
+  .tr-seg button.on{ background:var(--t-ink); color:var(--t-card); }
+  .tr-link{ border:none; background:none; padding:0; color:var(--t-in); font-size:12.5px; font-weight:900; font-family:inherit; cursor:pointer; white-space:nowrap; }
+  .tr-rot-sec{ display:flex; align-items:center; justify-content:space-between; margin:16px 2px 8px; font-size:12px; font-weight:900; letter-spacing:0.06em; text-transform:uppercase; color:var(--t-faint); }
+
+  .tr-catl{ display:grid; grid-template-columns:34px minmax(0, 1fr) auto; align-items:center; gap:11px; padding:6px 0; }
+  .tr-catl-ic{ width:34px; height:34px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:900; color:var(--t-ink); }
+  .tr-catl-nm{ display:flex; justify-content:space-between; gap:8px; margin-bottom:5px; font-size:13px; font-weight:800; color:var(--t-ink); }
+  .tr-catl-nm small{ color:var(--t-faint); font-weight:800; }
+  .tr-catl > b{ min-width:78px; text-align:right; font-size:13.5px; font-weight:900; color:var(--t-ink); white-space:nowrap; }
+
+  .tr-evs{ display:grid; grid-template-columns:minmax(0, 1fr); gap:10px; margin-bottom:12px; }
+  .tr-ev3{ display:block; width:100%; padding:14px; border-radius:16px; background:var(--t-card); border:1px solid var(--t-line); color:var(--t-ink); text-align:left; font-family:inherit; cursor:pointer; box-shadow:var(--t-sombra); }
+  .tr-ev3:hover{ border-color:var(--t-line2); }
+  .tr-ev3-topo{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .tr-ev3-topo > div{ flex:1; min-width:0; }
+  .tr-ev3-topo b{ display:block; font-size:14px; font-weight:900; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tr-ev3-topo small{ display:block; font-size:11.5px; font-weight:700; color:var(--t-muted); }
+  .tr-ev3-ic{ flex-shrink:0; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; background:color-mix(in srgb, var(--t-purple) 16%, transparent); }
+  .tr-ev3-res{ display:flex; justify-content:space-between; align-items:baseline; margin:4px 0 8px; }
+  .tr-ev3-res span{ font-size:11px; font-weight:800; color:var(--t-muted); }
+  .tr-ev3-res b{ font-size:20px; font-weight:900; }
+  .tr-ev3-l{ display:flex; justify-content:space-between; margin:6px 0 4px; font-size:11px; font-weight:800; color:var(--t-faint); }
+
+  .tr-dia{ display:flex; justify-content:space-between; gap:10px; margin:14px 2px 6px; font-size:11px; font-weight:900; letter-spacing:0.04em; text-transform:uppercase; color:var(--t-faint); }
+  .tr-dia:first-child{ margin-top:0; }
+  .tr-l{ display:grid; grid-template-columns:40px minmax(0, 1fr) auto; align-items:center; gap:11px; padding:9px 11px; margin-bottom:6px; border-radius:14px; background:var(--t-card2); border:1px solid var(--t-line); text-decoration:none; cursor:pointer; }
+  .tr-l.so-leitura{ cursor:default; }
+  .tr-l:hover{ border-color:var(--t-line2); }
+  .tr-l-ic{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; }
+  .tr-l-ic.in{ background:color-mix(in srgb, var(--t-in) 16%, transparent); color:var(--t-in); }
+  .tr-l-ic.out{ background:color-mix(in srgb, var(--t-out) 14%, transparent); color:var(--t-out); }
+  .tr-l-corpo{ display:flex; flex-direction:column; min-width:0; }
+  .tr-l-cat{ font-size:10px; font-weight:900; letter-spacing:0.04em; text-transform:uppercase; color:var(--t-faint); }
+  .tr-l-desc{ font-size:13.5px; font-weight:800; color:var(--t-ink); }
+  .tr-l-meta{ font-size:11.5px; font-weight:700; color:var(--t-muted); }
+  .tr-l-val{ font-size:14px; font-weight:900; white-space:nowrap; }
+
+  .tr-cobm-topo{ display:flex; align-items:center; gap:16px; margin-bottom:10px; }
+  .tr-cobm-topo .tr-anel b{ font-size:17px; }
+  .tr-cobm-topo > div b{ display:block; font-size:20px; font-weight:900; color:var(--t-ink); }
+  .tr-cobm-topo > div small{ font-size:12px; font-weight:700; color:var(--t-muted); }
+  @media (max-width:420px){ .tr-aba-web{ display:none; } .tr-aba-cel{ display:inline; } .tr-aba{ font-size:11.5px; padding:9px 2px; } .tr-hero-saldo{ font-size:32px; } }
+  @media (min-width:900px){
+    .tr-hero{ grid-template-columns:minmax(0, 1fr) minmax(0, 1.3fr); padding:22px 24px; gap:24px; }
+    .tr-hero-saldo{ font-size:44px; }
+    .tr-acoes, .tr-kpis2{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
+    .tr-grade.g21{ grid-template-columns:minmax(0, 1.6fr) minmax(0, 1fr); }
+    .tr-grade.g11{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .tr-evs{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  }
 
   @media (min-width:700px){
     .tr-kpis{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
@@ -11145,73 +11246,72 @@
 
         <div class="pl-content" id="trContent">
           <div class="tr-abas" id="trAbas" role="tablist">
-            <button type="button" class="tr-aba active" data-aba="painel">Painel</button>
-            <button type="button" class="tr-aba" data-aba="geral">Lançamentos</button>
-            <button type="button" class="tr-aba" data-aba="eventos">Eventos</button>
-            <button type="button" class="tr-aba" data-aba="cobrancas">Cobranças<em id="trAbaAtraso" style="display:none;"></em></button>
+            <button type="button" class="tr-aba active" data-aba="painel"><span class="tr-aba-ic">📊</span>Painel</button>
+            <button type="button" class="tr-aba" data-aba="geral"><span class="tr-aba-ic">💸</span><span class="tr-aba-web">Lançamentos</span><span class="tr-aba-cel">Caixa</span></button>
+            <button type="button" class="tr-aba" data-aba="eventos"><span class="tr-aba-ic">🏕️</span>Eventos</button>
+            <button type="button" class="tr-aba" data-aba="cobrancas"><span class="tr-aba-ic">🧾</span>Cobranças<em id="trAbaAtraso" style="display:none;"></em></button>
           </div>
           <p class="pl-reminder-hint" id="trSoLeitura" style="display:none; margin:-2px 2px 12px;">Você pode consultar a Tesouraria. Lançar e editar valores é do(a) Tesoureiro(a), da Diretoria e do Administrador.</p>
 
           <!-- ===== Painel ===== -->
           <div id="trAbaPainel">
-            <div class="tr-mes">
-              <button type="button" class="tr-mes-btn" id="trAnoAnt" aria-label="Ano anterior">‹</button>
-              <span id="trAnoNome">—</span>
-              <button type="button" class="tr-mes-btn" id="trAnoProx" aria-label="Próximo ano">›</button>
+            <!-- Destaque: saldo, saúde, mês e a curva do saldo no ano -->
+            <section class="tr-hero">
+              <div class="tr-hero-esq">
+                <div class="tr-hero-topo">
+                  <span class="tr-hero-rot">Saldo do clube</span>
+                  <span class="tr-ano">
+                    <button type="button" id="trAnoAnt" aria-label="Ano anterior">‹</button>
+                    <span id="trAnoNome">—</span>
+                    <button type="button" id="trAnoProx" aria-label="Próximo ano">›</button>
+                  </span>
+                </div>
+                <div class="tr-hero-saldo" id="trHeroSaldo">R$ 0,00</div>
+                <div class="tr-hero-sub" id="trHeroSub"></div>
+                <div class="tr-selo" id="trHeroSelo"></div>
+                <div class="tr-hero-mes" id="trHeroMes"></div>
+              </div>
+              <div class="tr-hero-graf">
+                <div class="tr-hero-graf-tit"><span id="trHeroGrafTit">Evolução do saldo</span><span>fim de cada mês</span></div>
+                <div id="trGrafSaldo"></div>
+              </div>
+            </section>
+
+            <div class="tr-acoes" id="trAcoes">
+              <button type="button" class="tr-acao" data-acao="entrada"><i class="in">＋</i>Nova entrada</button>
+              <button type="button" class="tr-acao" data-acao="saida"><i class="out">－</i>Nova saída</button>
+              <button type="button" class="tr-acao" data-acao="cobranca"><i class="gold">🧾</i>Cobrar mensalidade</button>
+              <button type="button" class="tr-acao" data-acao="evento"><i class="roxo">🏕️</i>Novo evento</button>
             </div>
-            <div class="tr-kpis" id="trKpis"></div>
-            <!-- Saúde financeira em roscas (desenharSaude) -->
-            <div class="tr-grade g4s">
-              <section class="tr-card tr-saude-card" id="trSaudeCard">
-                <div class="tr-card-h"><h5>Saúde financeira</h5><span id="trSaudeSub">entradas do ano</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaSaude"></div><table class="tr-leg" id="trLegSaude"></table></div>
-                <p class="tr-saude-nota" id="trSaudeNota"></p>
-              </section>
+
+            <div class="tr-kpis2" id="trKpis"></div>
+
+            <div class="tr-grade g21">
               <section class="tr-card">
-                <div class="tr-card-h"><h5>Gastos por caixa</h5><span>saídas do ano</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaGastoCaixa"></div><table class="tr-leg" id="trLegGastoCaixa"></table></div>
-              </section>
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>Controle do orçamento</h5><span>eventos com orçamento</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaOrc"></div><table class="tr-leg" id="trLegOrc"></table></div>
-              </section>
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>Adimplência</h5><span>parcelas vencidas no ano</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaAdim"></div><table class="tr-leg" id="trLegAdim"></table></div>
-              </section>
-            </div>
-            <div class="tr-grade g4">
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>Seletor de caixa</h5><span>resultado no ano</span></div>
-                <div id="trCaixas"></div>
-              </section>
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>De onde vem</h5><span>entradas do ano</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaEnt"></div><table class="tr-leg" id="trLegEnt"></table></div>
-              </section>
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>Cobranças do mês</h5><span id="trRoscaCobSub">mensalidades e parcelas</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaCob"></div><table class="tr-leg" id="trLegCob"></table></div>
-              </section>
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>Para onde vai</h5><span>saídas do ano</span></div>
-                <div class="tr-rosca-box"><div class="tr-rosca" id="trRoscaSai"></div><table class="tr-leg" id="trLegSai"></table></div>
-              </section>
-            </div>
-            <div class="tr-grade g2">
-              <section class="tr-card">
-                <div class="tr-card-h"><h5>Fluxo de caixa mensal</h5><span class="tr-legenda"><span><i style="background:var(--t-in)"></i>Entradas</span><span><i style="background:var(--t-out)"></i>Saídas</span></span></div>
+                <div class="tr-card-h2"><h5>Fluxo de caixa<small id="trFluxoSub">entradas e saídas por mês</small></h5>
+                  <span class="tr-legenda"><span><i style="background:var(--t-in)"></i>Entradas</span><span><i style="background:var(--t-out)"></i>Saídas</span></span></div>
                 <div id="trGrafFluxo"></div>
               </section>
               <section class="tr-card">
-                <div class="tr-card-h"><h5>Evolução do saldo</h5><span>fim de cada mês</span></div>
-                <div id="trGrafSaldo"></div>
+                <div class="tr-card-h2"><h5>Categorias<small>onde o dinheiro entra e sai no ano</small></h5>
+                  <div class="tr-seg" id="trCatSeg"><button type="button" data-t="entrada">Entradas</button><button type="button" data-t="saida" class="on">Saídas</button></div></div>
+                <div id="trCatLista"></div>
               </section>
             </div>
-            <section class="tr-card">
-              <div class="tr-card-h"><h5>Resultado por evento</h5><span>lucro (+) ou prejuízo (−)</span></div>
-              <div id="trGrafEventos"></div>
-            </section>
+
+            <div class="tr-rot-sec">Eventos <button type="button" class="tr-link" id="trVerEventos">Ver todos ›</button></div>
+            <div class="tr-evs" id="trEvCards"></div>
+
+            <div class="tr-grade g11">
+              <section class="tr-card">
+                <div class="tr-card-h2"><h5>Últimos lançamentos<small>agrupados por dia</small></h5><button type="button" class="tr-link" id="trVerLanc">Ver todos ›</button></div>
+                <div id="trUltimos"></div>
+              </section>
+              <section class="tr-card">
+                <div class="tr-card-h2"><h5>Cobranças do mês<small id="trCobMesSub"></small></h5><button type="button" class="tr-link" id="trVerCob">Abrir ›</button></div>
+                <div id="trCobMes"></div>
+              </section>
+            </div>
           </div>
 
           <!-- ===== Lançamentos ===== -->
@@ -11248,7 +11348,7 @@
           <!-- ===== Eventos ===== -->
           <div id="trAbaEventos" style="display:none;">
             <button type="button" class="pl-list-add-btn" id="trNovoEventoBtn" style="margin-top:0;">+ Novo evento</button>
-            <div class="tr-eventos" id="trEventosLista"></div>
+            <div class="tr-evs" id="trEventosLista"></div>
           </div>
 
           <!-- ===== Cobranças ===== -->
@@ -24674,6 +24774,37 @@
       const h = new Date();
       return anoSel < h.getFullYear() ? 12 : anoSel > h.getFullYear() ? 0 : h.getMonth() + 1;
     }
+    let catTipo = 'saida';
+    // Selo da saúde: Saudável = ano no positivo e reserva de 3+ meses; Crítico =
+    // saldo negativo, ou ano no negativo com reserva abaixo de 1 mês; o resto, Atenção.
+    function nivelSaude(saldo, resultado, reserva){
+      if(saldo < 0 || (resultado < 0 && reserva < 1)) return 'crit';
+      return resultado >= 0 && reserva >= 3 ? 'ok' : 'aten';
+    }
+    // Anel de progresso pequeno (indicadores e cobranças).
+    function anel(pct, cor, tam, grossura, texto){
+      const box = el('span', 'tr-anel');
+      box.style.width = box.style.height = tam + 'px';
+      const r = (tam - grossura) / 2, c = 2 * Math.PI * r;
+      const svg = svgEl('svg', { width: tam, height: tam, viewBox: '0 0 ' + tam + ' ' + tam });
+      svgEl('circle', { cx: tam / 2, cy: tam / 2, r, fill: 'none', style: 'stroke:var(--t-track)', 'stroke-width': grossura }, svg);
+      const v = Math.max(0, Math.min(100, pct || 0));
+      if(v) svgEl('circle', { cx: tam / 2, cy: tam / 2, r, fill: 'none', style: 'stroke:' + cor, 'stroke-width': grossura, 'stroke-linecap': 'round',
+        'stroke-dasharray': (c * v / 100) + ' ' + c, transform: 'rotate(-90 ' + tam / 2 + ' ' + tam / 2 + ')' }, svg);
+      box.append(svg, el('b', null, texto));
+      return box;
+    }
+    function kpi2(box, visual, rotulo, valor, sub, subCls){
+      const k = el('div', 'tr-kpi2');
+      const t = el('div');
+      t.append(el('span', null, rotulo), el('b', null, valor));
+      const s = el('small', subCls || null, sub);
+      t.appendChild(s);
+      k.append(visual, t);
+      box.appendChild(k);
+    }
+    const icCaixa = (emoji, cor) => { const i = el('span', 'tr-kpi2-ic', emoji); i.style.background = 'color-mix(in srgb, ' + cor + ' 18%, transparent)'; return i; };
+
     function desenharPainel(){
       $('trAnoNome').textContent = String(anoSel);
       const doAno = lancamentos.filter(x => (x.data || '').slice(0, 4) === String(anoSel));
@@ -24681,228 +24812,238 @@
       doAno.forEach(x => { porMes[Number(x.data.slice(5, 7)) - 1][x.tipo === 'entrada' ? 'ent' : 'sai'] += x.valor; });
       const entAno = soma(doAno, 'entrada'), saiAno = soma(doAno, 'saida');
       const saldo = lancamentos.reduce((s, x) => s + sinal(x), 0);
+      const saldoEventos = lancamentos.filter(x => x.evento_id).reduce((s, x) => s + sinal(x), 0);
       const decorridos = mesesDecorridos();
       const gastoMedio = decorridos ? saiAno / decorridos : 0;
-      const abertas = parcelas.filter(p => !p.pago_em);
-      const atrasoValor = soma(abertas.filter(p => p.vencimento < hoje()));
-
-      const k = $('trKpis'); k.innerHTML = '';
-      kpi(k, 'Saldo atual', (saldo < 0 ? '− ' : '') + brl(Math.abs(saldo)), saldo < 0 ? 'tr-negativo' : 'tr-positivo', 'caixa geral + eventos', 'var(--t-in)', '$');
-      kpi(k, 'Resultado ' + anoSel, comSinal(entAno - saiAno), entAno - saiAno > 0 ? 'tr-positivo' : entAno - saiAno < 0 ? 'tr-negativo' : '', 'entradas ' + compacto(entAno) + ' · saídas ' + compacto(saiAno), 'var(--t-purple)', '∑');
-      kpi(k, 'Entradas no ano', brl(entAno), '', doAno.filter(x => x.tipo === 'entrada').length + ' lançamentos', 'var(--t-blue)', '↓');
-      kpi(k, 'Saídas no ano', brl(saiAno), '', doAno.filter(x => x.tipo === 'saida').length + ' lançamentos', 'var(--t-out)', '↑');
-      kpi(k, 'A receber', brl(soma(abertas)), '', atrasoValor ? brl(atrasoValor) + ' em atraso' : abertas.length + ' parcelas em aberto', 'var(--t-gold)', '⌛');
-      kpi(k, 'Reserva', gastoMedio > 0 && saldo > 0 ? (saldo / gastoMedio).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses' : '—', '', 'gasto médio ' + compacto(gastoMedio) + '/mês', 'var(--t-aqua)', '⏳');
-
-      desenharCaixas(doAno);
-      desenharSaude(doAno, entAno, saiAno, saldo, gastoMedio);
-      rosca($('trRoscaEnt'), $('trLegEnt'), porCategoria(doAno.filter(x => x.tipo === 'entrada')), 'Entradas', String(anoSel));
-      rosca($('trRoscaSai'), $('trLegSai'), porCategoria(doAno.filter(x => x.tipo === 'saida')), 'Saídas', String(anoSel));
-      const chave = isoDe(new Date()).slice(0, 7);
-      const doMes = parcelas.filter(p => p.vencimento.slice(0, 7) === chave);
-      $('trRoscaCobSub').textContent = MESES[new Date().getMonth()] + ' · vencimentos';
-      rosca($('trRoscaCob'), $('trLegCob'), [
-        ['Recebido', soma(doMes.filter(p => situacaoParcela(p) === 'pago'))],
-        ['A vencer', soma(doMes.filter(p => situacaoParcela(p) === 'avencer'))],
-        ['Em atraso', soma(doMes.filter(p => situacaoParcela(p) === 'atrasado'))]
-      ], 'Cobrado', 'no mês', ['var(--t-in)', 'var(--t-gold)', 'var(--t-out)'], 'Situação');
-      desenharFluxo(porMes, decorridos);
-      desenharSaldo(porMes, decorridos);
-      desenharResultadoEventos();
-    }
-
-    // Caixa geral + cada evento, com quanto do orçamento já foi gasto.
-    // ---- Faixa "Saúde financeira": quatro roscas ----
-    // Selo: Saudável = ano no positivo e reserva de 3+ meses; Crítico = ano no
-    // negativo e reserva abaixo de 1 mês (ou saldo negativo); o resto, Atenção.
-    function desenharSaude(doAno, entAno, saiAno, saldo, gastoMedio){
       const reserva = gastoMedio > 0 ? saldo / gastoMedio : (saldo > 0 ? Infinity : 0);
-      const resultado = entAno - saiAno;
-      const nivel = saldo < 0 || (resultado < 0 && reserva < 1) ? 'crit' : (resultado >= 0 && reserva >= 3 ? 'ok' : 'aten');
+      const nivel = nivelSaude(saldo, entAno - saiAno, reserva);
+      const pode = podeEditar();
+
+      // Destaque
+      const sEl = $('trHeroSaldo');
+      sEl.textContent = (saldo < 0 ? '− ' : '') + brl(Math.abs(saldo));
+      sEl.classList.toggle('neg', saldo < 0);
+      const sub = $('trHeroSub'); sub.innerHTML = '';
+      sub.append(document.createTextNode('Caixa geral ' + compacto(saldo - saldoEventos) + ' · Eventos ' + compacto(saldoEventos) + ' · '),
+        el('b', entAno - saiAno >= 0 ? 'tr-positivo' : 'tr-negativo', comSinal(entAno - saiAno)), document.createTextNode(' em ' + anoSel));
       const ROT = { ok: 'Saudável', aten: 'Atenção', crit: 'Crítico' };
-      // 1) Das entradas, quanto foi gasto e quanto sobrou (ou quanto faltou).
-      const dados = resultado >= 0
-        ? [['Gasto', saiAno], ['Sobrou', resultado]]
-        : [['Coberto pelas entradas', entAno], ['Faltou (déficit)', -resultado]];
-      rosca($('trRoscaSaude'), $('trLegSaude'), dados, 'Entradas', String(anoSel),
-        resultado >= 0 ? ['var(--t-out)', 'var(--t-in)'] : ['var(--t-gold)', 'var(--t-out)'], 'Uso');
-      const centro = $('trRoscaSaude').querySelector('.centro');
-      if(centro){ centro.lastChild.remove(); centro.appendChild(el('span', 'tr-selo ' + nivel, ROT[nivel])); }
-      const pctGasto = entAno ? Math.round(saiAno / entAno * 100) : 0;
-      $('trSaudeNota').textContent = !entAno && !saiAno ? 'Sem lançamentos em ' + anoSel + '.'
-        : ROT[nivel] + ': gastou ' + pctGasto + '% do que entrou' +
-          (isFinite(reserva) && gastoMedio > 0 ? '; o saldo cobre ' + Math.max(0, reserva).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses de gastos.' : '.');
-      // 2) Saídas por caixa (caixa geral + eventos; 5 maiores + "Outros").
-      const porCaixa = {};
-      doAno.filter(x => x.tipo === 'saida').forEach(x => {
-        const nome = x.evento_id ? ((eventoPorId(x.evento_id) || {}).nome || 'Evento') : 'Caixa geral';
-        porCaixa[nome] = (porCaixa[nome] || 0) + x.valor;
+      const selo = $('trHeroSelo');
+      selo.className = 'tr-selo ' + nivel;
+      selo.textContent = !lancamentos.length ? 'Sem lançamentos ainda'
+        : '● Saúde financeira: ' + ROT[nivel] + (isFinite(reserva) && gastoMedio > 0 ? ' — reserva de ' + Math.max(0, reserva).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses' : '');
+      // Mês corrente (ou dezembro, olhando um ano passado)
+      const mesRef = anoSel === new Date().getFullYear() ? new Date().getMonth() : 11;
+      const m = porMes[mesRef];
+      const mes = $('trHeroMes'); mes.innerHTML = '';
+      [['Entrou em ' + MESES[mesRef], brl(m.ent).replace(',00', ''), 'tr-positivo'], ['Saiu em ' + MESES[mesRef], brl(m.sai).replace(',00', ''), 'tr-negativo'],
+       ['Resultado do mês', comSinal(m.ent - m.sai).replace(',00', ''), m.ent - m.sai >= 0 ? 'tr-positivo' : 'tr-negativo']].forEach(([r, v, c]) => {
+        const d = el('div'); d.append(el('span', null, r), el('b', c, v)); mes.appendChild(d);
       });
-      const ord = Object.keys(porCaixa).sort((a, b) => porCaixa[b] - porCaixa[a]);
-      const caixas = ord.slice(0, ord.length > 6 ? 5 : 6).map(n => [n, porCaixa[n]]);
-      if(ord.length > 6) caixas.push(['Outros', ord.slice(5).reduce((s, n) => s + porCaixa[n], 0)]);
-      rosca($('trRoscaGastoCaixa'), $('trLegGastoCaixa'), caixas, 'Saídas', String(anoSel), null, 'Caixa');
-      // 3) Orçamento dos eventos do ano: gasto dentro do previsto, estouro e o que ainda sobra.
-      let dentro = 0, estouro = 0, disponivel = 0;
-      eventos.filter(e => (e.data_inicio || '').slice(0, 4) === String(anoSel)).forEach(ev => {
-        itens.filter(i => i.evento_id === ev.id && i.tipo === 'saida').forEach(item => {
-          const gasto = soma(lancamentos.filter(x => x.orcamento_item_id === item.id));
-          dentro += Math.min(gasto, item.valor);
-          estouro += Math.max(0, gasto - item.valor);
-          disponivel += Math.max(0, item.valor - gasto);
-        });
-      });
-      rosca($('trRoscaOrc'), $('trLegOrc'), [['Gasto no previsto', dentro], ['Estourou', estouro], ['Ainda disponível', disponivel]],
-        'Orçado', 'despesas', ['var(--t-blue)', 'var(--t-orange)', 'var(--s6)'], 'Situação');
-      // 4) Parcelas que venceram no ano: como foram (ou não) pagas.
-      const venc = parcelas.filter(p => p.vencimento.slice(0, 4) === String(anoSel) && p.vencimento <= hoje());
-      const g = { emDia: 0, atraso: 0, isento: 0, aberto: 0 };
-      venc.forEach(p => {
-        if(p.pago_em && p.forma_pagamento === 'Isento') g.isento += p.valor;
-        else if(p.pago_em) g[p.pago_em <= p.vencimento ? 'emDia' : 'atraso'] += p.valor;
-        else g.aberto += p.valor;
-      });
-      rosca($('trRoscaAdim'), $('trLegAdim'), [['Pago em dia', g.emDia], ['Pago com atraso', g.atraso], ['Isento (bolsa)', g.isento], ['Em atraso', g.aberto]],
-        'Vencido', 'até hoje', ['var(--t-in)', 'var(--t-gold)', 'var(--t-purple)', 'var(--t-out)'], 'Situação');
+      $('trHeroGrafTit').textContent = 'Evolução do saldo · ' + anoSel;
+      desenharSaldoHero(porMes, decorridos);
+
+      $('trAcoes').style.display = pode ? '' : 'none';
+
+      // Indicadores
+      const k = $('trKpis'); k.innerHTML = '';
+      const venc = parcelas.filter(p => p.vencimento <= hoje() && p.vencimento.slice(0, 4) === String(anoSel));
+      const emDia = venc.filter(p => p.pago_em && (p.forma_pagamento === 'Isento' || p.pago_em <= p.vencimento)).length;
+      const adim = venc.length ? Math.round(emDia / venc.length * 100) : null;
+      kpi2(k, anel(adim, 'var(--t-in)', 46, 5, adim == null ? '—' : adim + '%'), 'Adimplência', adim == null ? '—' : adim + '%', venc.length ? 'parcelas pagas em dia' : 'nenhuma parcela vencida');
+      const abertas = parcelas.filter(p => !p.pago_em);
+      const atraso = soma(abertas.filter(p => p.vencimento < hoje()));
+      kpi2(k, icCaixa('⌛', 'var(--t-gold)'), 'A receber', brl(soma(abertas)).replace(',00', ''), atraso ? brl(atraso).replace(',00', '') + ' em atraso' : abertas.length + ' parcelas em aberto', atraso ? 'tr-negativo' : '');
+      const pctGasto = entAno ? Math.round(saiAno / entAno * 100) : null;
+      kpi2(k, anel(pctGasto, pctGasto > 100 ? 'var(--t-out)' : 'var(--t-blue)', 46, 5, pctGasto == null ? '—' : pctGasto + '%'), 'Gasto do que entrou', pctGasto == null ? '—' : pctGasto + '%', 'em ' + anoSel);
+      kpi2(k, icCaixa('🛡️', 'var(--t-aqua)'), 'Reserva', isFinite(reserva) && gastoMedio > 0 && saldo > 0 ? reserva.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' meses' : '—', 'gasto médio ' + compacto(gastoMedio) + '/mês');
+
+      desenharFluxo(porMes, decorridos);
+      desenharCategoriasPainel(doAno);
+      // Eventos: os abertos primeiro, até 3
+      const evBox = $('trEvCards'); evBox.innerHTML = '';
+      const evs = eventos.slice().sort((a, b) => (a.status === b.status ? (a.data_inicio || '9').localeCompare(b.data_inicio || '9') : a.status === 'aberto' ? -1 : 1)).slice(0, 3);
+      if(!evs.length) evBox.appendChild(vazio(pode ? 'Nenhum evento ainda. Use "Novo evento" para controlar orçamento, entradas, saídas e inscrições.' : 'Nenhum evento cadastrado.'));
+      evs.forEach(ev => evBox.appendChild(cartaoEvento(ev)));
+      desenharUltimos();
+      desenharCobMes();
     }
 
-    // Caixa geral + cada evento; o uso do orçamento vai embaixo do nome, pra
-    // tabela caber na coluna estreita do painel.
-    function desenharCaixas(doAno){
-      const box = $('trCaixas'); box.innerHTML = '';
-      const t = el('table', 'tr-t');
-      t.innerHTML = '<thead><tr><th>Caixa</th><th class="r">Resultado</th></tr></thead>';
-      const tb = el('tbody');
-      const geral = doAno.filter(x => !x.evento_id).reduce((s, x) => s + sinal(x), 0);
-      let total = geral;
-      const linha = (cor, nome, pct, res, aoClicar) => {
-        const tr = el('tr', 'clicavel');
-        const n = el('td'); const d = el('span', 'tr-dot'); d.style.background = cor;
-        n.append(d, document.createTextNode(nome));
-        if(pct != null){
-          const sub = el('div'); sub.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11px;color:var(--t-muted)';
-          const b = el('span', 'tr-barra'); b.style.cssText = 'flex:1;max-width:90px';
-          const fi = el('i', pct > 100 ? 'estouro' : 'uso'); fi.style.width = Math.min(pct, 100) + '%';
-          b.appendChild(fi); sub.append(b, document.createTextNode(pct + '% do orçamento'));
-          n.appendChild(sub);
-        }
-        tr.append(n, el('td', 'r ' + (res > 0 ? 'tr-positivo' : res < 0 ? 'tr-negativo' : ''), comSinal(res).replace(',00', '')));
-        tr.addEventListener('click', aoClicar);
-        tb.appendChild(tr);
-      };
-      linha('var(--s6)', 'Caixa geral', null, geral, () => { trocarAba('geral'); filtro = 'geral'; marcarFiltro(); desenharGeral(); });
-      eventos.filter(e => (e.data_inicio || '').slice(0, 4) === String(anoSel) || doAno.some(x => x.evento_id === e.id)).forEach((ev, i) => {
-        const tt = totaisDoEvento(ev);
-        total += tt.resultado;
-        linha(CORES_CAT[i % 5], ev.nome, tt.prevSaidas ? Math.round(tt.saidas / tt.prevSaidas * 100) : null, tt.resultado, () => abrirDetalhe(ev.id));
+    // Curva do saldo no fim de cada mês (área suave), no destaque.
+    function desenharSaldoHero(porMes, decorridos){
+      const box = $('trGrafSaldo'); box.innerHTML = '';
+      const n = decorridos || 0;
+      if(!n || !lancamentos.length){ box.appendChild(vazio(n ? 'Lance entradas e saídas para ver a evolução.' : 'Ano ainda não começou.')); return; }
+      const inicial = lancamentos.filter(x => (x.data || '') < anoSel + '-01-01').reduce((s, x) => s + sinal(x), 0);
+      const pts = []; let acc = inicial;
+      for(let i = 0; i < n; i++){ acc += porMes[i].ent - porMes[i].sai; pts.push(acc); }
+      const W = largura(box), H = 170, pt = 26, pb = 22;
+      const maxV = Math.max(0, ...pts), minV = Math.min(0, ...pts);
+      const topo = maxV > 0 ? topoRedondo(maxV) : 1, fundo = minV < 0 ? -topoRedondo(-minV) : 0;
+      const y = v => pt + (H - pt - pb) * (topo - v) / (topo - fundo);
+      const x = i => 10 + (W - 20) * (n === 1 ? 0.5 : i / 11);
+      const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'tr-svg', role: 'img', 'aria-label': 'Saldo no fim de cada mês de ' + anoSel });
+      const grad = svgEl('linearGradient', { id: 'trGradSaldo', x1: 0, y1: 0, x2: 0, y2: 1 }, svgEl('defs', {}, svg));
+      svgEl('stop', { offset: '0', style: 'stop-color:var(--t-in);stop-opacity:0.42' }, grad);
+      svgEl('stop', { offset: '1', style: 'stop-color:var(--t-in);stop-opacity:0' }, grad);
+      if(fundo < 0) svgEl('line', { x1: 0, x2: W, y1: y(0), y2: y(0), class: 'tr-base zero' }, svg);
+      let d = 'M' + x(0) + ',' + y(pts[0]);
+      for(let i = 1; i < n; i++){ const cx = (x(i - 1) + x(i)) / 2; d += ' C' + cx + ',' + y(pts[i - 1]) + ' ' + cx + ',' + y(pts[i]) + ' ' + x(i) + ',' + y(pts[i]); }
+      svgEl('path', { d: d + ' L' + x(n - 1) + ',' + (H - pb) + ' L' + x(0) + ',' + (H - pb) + ' Z', fill: 'url(#trGradSaldo)' }, svg);
+      svgEl('path', { d, fill: 'none', style: 'stroke:var(--t-in)', 'stroke-width': 3, 'stroke-linecap': 'round' }, svg);
+      pts.forEach((v, i) => {
+        const g = svgEl('g', { class: 'tr-ponto' }, svg);
+        svgEl('circle', { cx: x(i), cy: y(v), r: 12, class: 'tr-alvo' }, g);
+        svgEl('circle', { cx: x(i), cy: y(v), r: i === n - 1 ? 5 : 2.5, style: 'fill:' + (v < 0 ? 'var(--t-out)' : 'var(--t-in)') + ';stroke:var(--t-card)', 'stroke-width': 2 }, g);
+        dica(g, 'Fim de ' + MES_CURTO[i] + '/' + anoSel + ': saldo ' + (v < 0 ? '− ' : '') + brl(Math.abs(v)));
       });
-      t.appendChild(tb);
-      const tf = el('tfoot'); const tr = el('tr');
-      tr.append(el('td', null, 'Total'), el('td', 'r ' + (total >= 0 ? 'tr-positivo' : 'tr-negativo'), comSinal(total).replace(',00', '')));
-      tf.appendChild(tr); t.appendChild(tf);
-      box.appendChild(t);
+      const ult = pts[n - 1];
+      svgEl('text', { x: Math.min(x(n - 1), W - 4), y: y(ult) - 12, 'text-anchor': n > 9 ? 'end' : 'middle', class: 'tr-rotulo' + (ult < 0 ? ' neg' : '') }, svg).textContent = compacto(ult);
+      [0, 3, 6, 9, 11].forEach(i => svgEl('text', { x: x(i), y: H - 5, 'text-anchor': i === 0 ? 'start' : i === 11 ? 'end' : 'middle', class: 'tr-eixo' }, svg).textContent = MES_CURTO[i]);
+      box.appendChild(svg);
     }
 
+    // Fluxo espelhado: entradas sobem (verde), saídas descem (vermelho), num eixo só em R$.
     function desenharFluxo(porMes, decorridos){
       const box = $('trGrafFluxo'); box.innerHTML = '';
-      const maior = Math.max(0, ...porMes.map(m => Math.max(m.ent, m.sai)));
-      if(!maior){ box.appendChild(vazio('Nenhum lançamento em ' + anoSel + '.')); return; }
-      const W = largura(box), H = 220, pl = 58, pr = 6, pt = 10, pb = 24;
-      const topo = topoRedondo(maior);
-      const y = v => pt + (H - pt - pb) * (1 - v / topo);
+      const maxE = Math.max(0, ...porMes.map(m => m.ent)), maxS = Math.max(0, ...porMes.map(m => m.sai));
+      if(!maxE && !maxS){ box.appendChild(vazio('Nenhum lançamento em ' + anoSel + '.')); return; }
+      // Uma escala só (1 real = mesma altura dos dois lados); cada lado vai até
+      // o próprio teto redondo, e o zero fica onde essa soma manda.
+      const topoE = maxE ? topoRedondo(maxE) : 0, topoS = maxS ? topoRedondo(maxS) : 0;
+      const W = largura(box), H = 240, pl = 58, pr = 6, pt = 10, pb = 22;
+      const alt = H - pt - pb, escala = alt / ((topoE + topoS) || 1);
+      const meio = pt + topoE * escala;
+      const yE = v => meio - v * escala, yS = v => meio + v * escala;
       const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'tr-svg', role: 'img', 'aria-label': 'Entradas e saídas por mês de ' + anoSel });
-      [0, 0.5, 1].forEach(f => {
-        svgEl('line', { x1: pl, x2: W - pr, y1: y(topo * f), y2: y(topo * f), class: f ? 'tr-grade-l' : 'tr-base' }, svg);
-        svgEl('text', { x: pl - 8, y: y(topo * f) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = compacto(topo * f);
+      [[yE(topoE), '+ ' + compacto(topoE), topoE], [yS(topoS), '− ' + compacto(topoS), topoS]].filter(r => r[2]).forEach(([yy, t]) => {
+        svgEl('line', { x1: pl, x2: W - pr, y1: yy, y2: yy, class: 'tr-grade-l' }, svg);
+        svgEl('text', { x: pl - 8, y: yy + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = t;
       });
-      const gw = (W - pl - pr) / 12, bw = Math.min(16, gw * 0.32);
+      svgEl('line', { x1: pl, x2: W - pr, y1: meio, y2: meio, class: 'tr-base' }, svg);
+      svgEl('text', { x: pl - 8, y: meio + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = 'R$ 0';
+      const gw = (W - pl - pr) / 12, bw = Math.min(24, gw * 0.55);
       porMes.forEach((m, i) => {
         const cx = pl + gw * i + gw / 2;
         const g = svgEl('g', { class: 'tr-grupo' }, svg);
-        svgEl('rect', { x: pl + gw * i, y: pt, width: gw, height: H - pt - pb, class: 'tr-alvo' }, g);
-        [[m.ent, 'var(--t-in)', cx - bw - 1], [m.sai, 'var(--t-out)', cx + 1]].forEach(([v, cor, x]) => {
-          if(!v) return;
-          const h = Math.max(3, y(0) - y(v));
-          svgEl('path', { d: 'M' + x + ',' + y(0) + 'v' + (-h + 3) + 'q0,-3 3,-3h' + (bw - 6) + 'q3,0 3,3v' + (h - 3) + 'z', style: 'fill:' + cor }, g);
-        });
+        svgEl('rect', { x: pl + gw * i, y: pt, width: gw, height: alt, class: 'tr-alvo' }, g);
+        if(m.ent){ const h = Math.max(3, meio - yE(m.ent)); svgEl('path', { d: 'M' + (cx - bw / 2) + ',' + (meio - 1) + 'v' + (-h + 4) + 'q0,-4 4,-4h' + (bw - 8) + 'q4,0 4,4v' + (h - 4) + 'z', style: 'fill:var(--t-in)' }, g); }
+        if(m.sai){ const h = Math.max(3, yS(m.sai) - meio); svgEl('path', { d: 'M' + (cx - bw / 2) + ',' + (meio + 1) + 'v' + (h - 4) + 'q0,4 4,4h' + (bw - 8) + 'q4,0 4,-4v' + (-h + 4) + 'z', style: 'fill:var(--t-out)' }, g); }
         const atual = anoSel === new Date().getFullYear() && i === decorridos - 1;
-        svgEl('text', { x: cx, y: H - 7, 'text-anchor': 'middle', class: 'tr-eixo' + (atual ? ' atual' : '') }, svg).textContent = MES_CURTO[i];
+        svgEl('text', { x: cx, y: H - 5, 'text-anchor': 'middle', class: 'tr-eixo' + (atual ? ' atual' : '') }, svg).textContent = MES_CURTO[i];
         dica(g, MES_CURTO[i] + '/' + anoSel + ' — Entradas ' + brl(m.ent) + ' · Saídas ' + brl(m.sai) + ' · Resultado ' + comSinal(m.ent - m.sai));
       });
       box.appendChild(svg);
     }
 
-    function desenharSaldo(porMes, decorridos){
-      const box = $('trGrafSaldo'); box.innerHTML = '';
-      const n = decorridos || 0;
-      if(!n || !lancamentos.length){ box.appendChild(vazio(n ? 'Nenhum lançamento ainda.' : 'Ano ainda não começou.')); return; }
-      const inicial = lancamentos.filter(x => (x.data || '') < anoSel + '-01-01').reduce((s, x) => s + sinal(x), 0);
-      const pontos = []; let acc = inicial;
-      for(let i = 0; i < n; i++){ acc += porMes[i].ent - porMes[i].sai; pontos.push(acc); }
-      const W = largura(box), H = 220, pl = 58, pr = 16, pt = 22, pb = 24;
-      const topo = topoRedondo(Math.max(1, ...pontos)), min = Math.min(0, ...pontos), fundo = min < 0 ? -topoRedondo(-min) : 0;
-      const y = v => pt + (H - pt - pb) * (topo - v) / (topo - fundo);
-      const gw = (W - pl - pr) / 12, x = i => pl + gw * i + gw / 2;
-      const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'tr-svg', role: 'img', 'aria-label': 'Saldo no fim de cada mês de ' + anoSel });
-      [topo, (topo + fundo) / 2, fundo < 0 ? fundo : null].filter(v => v != null).forEach(v => {
-        svgEl('line', { x1: pl, x2: W - pr, y1: y(v), y2: y(v), class: 'tr-grade-l' }, svg);
-        svgEl('text', { x: pl - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = compacto(v);
-      });
-      svgEl('line', { x1: pl, x2: W - pr, y1: y(0), y2: y(0), class: 'tr-base' + (fundo < 0 ? ' zero' : '') }, svg);
-      svgEl('text', { x: pl - 8, y: y(0) + 4, 'text-anchor': 'end', class: 'tr-eixo' }, svg).textContent = 'R$ 0';
-      const linha = pontos.map((v, i) => (i ? 'L' : 'M') + x(i) + ',' + y(v)).join('');
-      svgEl('path', { d: linha + 'L' + x(n - 1) + ',' + y(0) + 'L' + x(0) + ',' + y(0) + 'Z', class: 'tr-area' }, svg);
-      svgEl('path', { d: linha, class: 'tr-linha' }, svg);
-      pontos.forEach((v, i) => {
-        const g = svgEl('g', { class: 'tr-ponto' }, svg);
-        svgEl('circle', { cx: x(i), cy: y(v), r: 12, class: 'tr-alvo' }, g);
-        svgEl('circle', { cx: x(i), cy: y(v), r: 4, class: v < 0 ? 'neg' : '' }, g);
-        dica(g, 'Fim de ' + MES_CURTO[i] + '/' + anoSel + ': saldo ' + (v < 0 ? '− ' : '') + brl(Math.abs(v)));
-      });
-      const ult = pontos[n - 1];
-      svgEl('text', { x: x(n - 1), y: y(ult) - 10, 'text-anchor': n > 10 ? 'end' : 'middle', class: 'tr-rotulo' + (ult < 0 ? ' neg' : '') }, svg).textContent = compacto(ult);
-      for(let i = 0; i < 12; i++) svgEl('text', { x: x(i), y: H - 7, 'text-anchor': 'middle', class: 'tr-eixo' }, svg).textContent = MES_CURTO[i];
-      box.appendChild(svg);
+    // Categorias do ano com ícone, barra e %, alternando entradas/saídas.
+    function desenharCategoriasPainel(doAno){
+      const box = $('trCatLista'); box.innerHTML = '';
+      $('trCatSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === catTipo));
+      const lanc = doAno.filter(x => x.tipo === catTipo);
+      const total = soma(lanc);
+      if(!total){ box.appendChild(vazio(catTipo === 'saida' ? 'Nenhuma saída em ' + anoSel + '.' : 'Nenhuma entrada em ' + anoSel + '.')); return; }
+      const dados = porCategoria(lanc), maior = dados[0][1];
+      dados.forEach(([c, v], i) => box.appendChild(linhaCategoria(ICONE_CAT[c] || '•', c, v / total, v / maior, CORES_CAT[i], brl(v).replace(',00', ''))));
+    }
+    function linhaCategoria(icone, nome, pct, largura01, cor, valor, sufixo){
+      const l = el('div', 'tr-catl');
+      const ic = el('span', 'tr-catl-ic', icone); ic.style.background = 'color-mix(in srgb, ' + cor + ' 20%, transparent)';
+      const meio = el('div');
+      const nm = el('div', 'tr-catl-nm', nome); nm.appendChild(el('small', null, sufixo != null ? sufixo : Math.round(pct * 100) + '%'));
+      const b = el('div', 'tr-barra'); const fi = el('i'); fi.style.width = (largura01 > 0 ? Math.max(2, largura01 * 100) : 0) + '%'; fi.style.minWidth = '0'; fi.style.background = cor; b.appendChild(fi);
+      meio.append(nm, b);
+      l.append(ic, meio, el('b', null, valor));
+      l.title = nome + ': ' + valor + (sufixo == null ? ' (' + Math.round(pct * 100) + '%)' : '');
+      return l;
     }
 
-    function desenharResultadoEventos(){
-      const box = $('trGrafEventos'); box.innerHTML = '';
-      const doAno = eventos.filter(e => (e.data_inicio || '').slice(0, 4) === String(anoSel))
-        .map(e => Object.assign({ ev: e }, totaisDoEvento(e))).filter(t => t.lanc.length).sort((a, b) => b.resultado - a.resultado);
-      if(!doAno.length){ box.appendChild(vazio('Nenhum evento com lançamentos em ' + anoSel + '.')); return; }
-      const maior = Math.max(...doAno.map(t => Math.abs(t.resultado))) || 1;
-      doAno.forEach(t => {
-        const l = el('button', 'tr-div'); l.type = 'button';
-        l.title = t.ev.nome + ': entradas ' + brl(t.entradas) + ' · saídas ' + brl(t.saidas) + ' · resultado ' + comSinal(t.resultado);
-        const trilho = el('span', 'tr-div-trilho');
-        const neg = el('span', 'tr-div-lado neg'), pos = el('span', 'tr-div-lado pos');
-        const barra = el('i'); barra.style.width = (Math.abs(t.resultado) / maior * 100) + '%';
-        (t.resultado < 0 ? neg : pos).appendChild(barra);
-        trilho.append(neg, el('span', 'tr-div-zero'), pos);
-        l.append(el('span', 'tr-div-nome', t.ev.nome), trilho, el('b', t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '', comSinal(t.resultado)));
-        l.addEventListener('click', () => abrirDetalhe(t.ev.id));
-        box.appendChild(l);
-      });
+    // Cartão de evento (painel e aba Eventos): resultado em destaque e duas barras.
+    const ICONE_EV = ev => /acamp|campori|camporee/i.test(ev.nome) ? '⛺' : /bazar|venda|feira/i.test(ev.nome) ? '🛍️' : /dia mundial|investidura|cerim/i.test(ev.nome) ? '🎖️' : /passeio|excurs|viagem/i.test(ev.nome) ? '🚌' : '🏕️';
+    function cartaoEvento(ev){
+      const t = totaisDoEvento(ev);
+      const card = el('button', 'tr-ev3'); card.type = 'button';
+      const topo = el('div', 'tr-ev3-topo');
+      const nome = el('div', null); nome.append(el('b', null, ev.nome), el('small', null, periodo(ev) + (t.parc.length ? ' · ' + new Set(t.parc.map(p => p.desbravador_id || p.pessoa_nome)).size + ' inscritos' : '')));
+      topo.append(el('span', 'tr-ev3-ic', ICONE_EV(ev)), nome, el('span', 'tr-chip ' + ev.status, ev.status === 'aberto' ? 'Aberto' : 'Encerrado'));
+      const res = el('div', 'tr-ev3-res');
+      res.append(el('span', null, ev.status === 'aberto' ? 'resultado até agora' : 'resultado final'),
+        el('b', t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '', comSinal(t.resultado).replace(',00', '')));
+      card.append(topo, res);
+      const barra = (rot, valTxt, pct, cor) => {
+        const r = el('div', 'tr-ev3-l'); r.append(el('span', null, rot), el('span', null, valTxt)); card.appendChild(r);
+        const b = el('div', 'tr-barra'); const fi = el('i'); fi.style.width = Math.max(2, Math.min(100, pct)) + '%'; fi.style.background = cor; b.appendChild(fi); card.appendChild(b);
+      };
+      if(t.prevSaidas){ const p = Math.round(t.saidas / t.prevSaidas * 100); barra('Orçamento gasto', p + '%', p, p > 100 ? 'var(--t-orange)' : 'var(--t-blue)'); }
+      else barra('Saídas', brl(t.saidas).replace(',00', ''), t.entradas ? t.saidas / Math.max(t.entradas, t.saidas) * 100 : (t.saidas ? 100 : 0), 'var(--t-out)');
+      if(t.parc.length){ const tot = soma(t.parc), pg = soma(t.parc.filter(p => p.pago_em)); const p = tot ? Math.round(pg / tot * 100) : 0; barra('Inscrições recebidas', p + '%', p, 'var(--t-in)'); }
+      else if(t.prevEntradas){ const p = Math.round(t.entradas / t.prevEntradas * 100); barra('Receita prevista recebida', p + '%', p, 'var(--t-in)'); }
+      else barra('Entradas', brl(t.entradas).replace(',00', ''), t.entradas ? t.entradas / Math.max(t.entradas, t.saidas) * 100 : 0, 'var(--t-in)');
+      card.addEventListener('click', () => abrirDetalhe(ev.id));
+      return card;
     }
 
+    // Lançamentos agrupados por dia, com o total do dia.
+    function porDia(lista, box, limite){
+      const dias = [];
+      lista.forEach(x => { const d = dias[dias.length - 1]; if(d && d.data === x.data) d.itens.push(x); else dias.push({ data: x.data, itens: [x] }); });
+      let n = 0;
+      for(const d of dias){
+        if(limite && n >= limite) break;
+        const tot = d.itens.reduce((s, x) => s + sinal(x), 0);
+        const h = el('div', 'tr-dia');
+        const dt = new Date(d.data + 'T12:00:00');
+        const nomeDia = d.data === hoje() ? 'Hoje' : dt.toLocaleDateString('pt-BR', { weekday: 'long' });
+        h.append(el('span', null, nomeDia + ' · ' + dataCurta(d.data)), el('span', tot >= 0 ? 'tr-positivo' : 'tr-negativo', comSinal(tot)));
+        box.appendChild(h);
+        for(const x of d.itens){ if(limite && n >= limite) break; box.appendChild(linhaLancamento(x, true)); n++; }
+      }
+    }
+    function desenharUltimos(){
+      const box = $('trUltimos'); box.innerHTML = '';
+      if(!lancamentos.length){ box.appendChild(vazio('Nenhum lançamento ainda.')); return; }
+      porDia(lancamentos, box, 5);
+    }
+
+    // Cobranças do mês: anel grande + pagos / a vencer / atrasados.
+    function desenharCobMes(){
+      const box = $('trCobMes'); box.innerHTML = '';
+      const chave = hoje().slice(0, 7);
+      const doMes = parcelas.filter(p => p.vencimento.slice(0, 7) === chave);
+      $('trCobMesSub').textContent = MESES[new Date().getMonth()] + ' · ' + doMes.length + ' parcelas com vencimento no mês';
+      if(!cobrancasOk){ box.appendChild(vazio('As cobranças ainda não foram criadas no banco.')); return; }
+      if(!doMes.length){ box.appendChild(vazio(podeEditar() ? 'Nada vence este mês. Use "Cobrar mensalidade" para gerar as cobranças.' : 'Nada vence este mês.')); return; }
+      const g = { pago: [], avencer: [], atrasado: [] };
+      doMes.forEach(p => { const s = situacaoParcela(p); (g[s === 'isento' ? 'pago' : s] || g.pago).push(p); });
+      const pct = Math.round(g.pago.length / doMes.length * 100);
+      const topo = el('div', 'tr-cobm-topo');
+      const tx = el('div'); tx.append(el('b', null, g.pago.length + ' de ' + doMes.length + ' pagos'), el('small', null, brl(soma(g.pago)).replace(',00', '') + ' recebidos · faltam ' + brl(soma(g.avencer) + soma(g.atrasado)).replace(',00', '')));
+      topo.append(anel(pct, 'var(--t-in)', 96, 10, pct + '%'), tx);
+      box.appendChild(topo);
+      const tot = doMes.length;
+      [['✓', 'Pagos', g.pago, 'var(--t-in)'], ['⌛', 'A vencer', g.avencer, 'var(--t-gold)'], ['!', 'Atrasados', g.atrasado, 'var(--t-out)']].forEach(([ic, nome, ps, cor]) => {
+        box.appendChild(linhaCategoria(ic, nome, ps.length / tot, ps.length / tot, cor, brl(soma(ps)).replace(',00', ''), String(ps.length)));
+      });
+    }
     // ---------------------------------------------------------------
     // Aba Lançamentos
     // ---------------------------------------------------------------
     function linhaLancamento(x, mostrarEvento){
       const pode = podeEditar();
-      const linha = el('a', 'tr-row' + (pode ? '' : ' so-leitura'));
+      const linha = el('a', 'tr-l' + (pode ? '' : ' so-leitura'));
       linha.href = '#';
       const ent = x.tipo === 'entrada';
-      linha.appendChild(el('span', 'tr-row-icon ' + (ent ? 'tr-icon-in' : 'tr-icon-out'), ent ? '+' : '−'));
-      const corpo = el('span', 'tr-row-body');
-      if(x.categoria) corpo.appendChild(el('span', 'tr-cat-tag', (ICONE_CAT[x.categoria] || '•') + ' ' + x.categoria));
-      const desc = el('span', 'tr-row-desc', x.descricao);
+      // Ícone da categoria num quadrado com a cor do tipo (verde entra, vermelho sai).
+      linha.appendChild(el('span', 'tr-l-ic ' + (ent ? 'in' : 'out'), ICONE_CAT[x.categoria] || (ent ? '+' : '−')));
+      const corpo = el('span', 'tr-l-corpo');
+      if(x.categoria) corpo.appendChild(el('span', 'tr-l-cat', x.categoria));
+      const desc = el('span', 'tr-l-desc', x.descricao);
       const ev = mostrarEvento && x.evento_id ? eventoPorId(x.evento_id) : null;
       if(ev) desc.appendChild(el('span', 'tr-row-evento', ev.nome));
       corpo.appendChild(desc);
-      corpo.appendChild(el('span', 'tr-row-meta', [x.forma_pagamento, dataCurta(x.data), x.registrado_por].filter(Boolean).join(' · ')));
+      // Nas listas agrupadas por dia a data já está no cabeçalho do dia.
+      corpo.appendChild(el('span', 'tr-l-meta', [mostrarEvento ? '' : dataCurta(x.data), x.forma_pagamento, x.registrado_por].filter(Boolean).join(' · ')));
       linha.appendChild(corpo);
-      linha.appendChild(el('span', 'tr-row-value ' + (ent ? 'tr-value-in' : 'tr-value-out'), (ent ? '+ ' : '− ') + brl(x.valor)));
+      linha.appendChild(el('span', 'tr-l-val ' + (ent ? 'tr-value-in' : 'tr-value-out'), (ent ? '+ ' : '− ') + brl(x.valor)));
       if(x.observacao) linha.title = x.observacao;
       linha.addEventListener('click', (e) => { e.preventDefault(); if(podeEditar()) abrirLancamento(x); });
       return linha;
@@ -24941,7 +25082,7 @@
         && (!termo || normalizar([x.descricao, x.categoria, x.forma_pagamento, x.registrado_por, (eventoPorId(x.evento_id) || {}).nome].join(' ')).indexOf(termo) !== -1));
       lista.innerHTML = '';
       if(!filtrados.length){ lista.appendChild(vazio(doMes.length ? 'Nenhum lançamento com esse filtro neste mês.' : 'Nenhum lançamento em ' + MESES[mesSel.mes - 1] + '.')); return; }
-      filtrados.forEach(x => lista.appendChild(linhaLancamento(x, true)));
+      porDia(filtrados, lista);
     }
 
     // ---------------------------------------------------------------
@@ -24954,30 +25095,8 @@
     function desenharEventos(){
       const box = $('trEventosLista'); box.innerHTML = '';
       if(!eventos.length){ box.appendChild(vazio('Nenhum evento cadastrado. Crie um para controlar orçamento, entradas, saídas e inscrições.')); return; }
-      eventos.slice().sort((a, b) => (a.status === b.status ? (b.data_inicio || '').localeCompare(a.data_inicio || '') : a.status === 'aberto' ? -1 : 1)).forEach(ev => {
-        const t = totaisDoEvento(ev);
-        const card = el('button', 'tr-ev-card'); card.type = 'button';
-        const topo = el('div', 'tr-ev-topo');
-        const nome = el('span', 'tr-ev-nome', ev.nome); nome.appendChild(el('small', null, periodo(ev)));
-        topo.append(nome, el('span', 'tr-chip ' + ev.status, ev.status === 'aberto' ? 'Aberto' : 'Encerrado'));
-        const nums = el('div', 'tr-ev-nums');
-        [['Entradas', brl(t.entradas), 'tr-value-in'], ['Saídas', brl(t.saidas), 'tr-value-out'],
-         [t.resultado >= 0 ? 'Lucro' : 'Prejuízo', comSinal(t.resultado), t.resultado > 0 ? 'tr-positivo' : t.resultado < 0 ? 'tr-negativo' : '']].forEach(([r, v, c]) => {
-          const d = el('div', null, r); d.appendChild(el('b', c, v)); nums.appendChild(d);
-        });
-        card.append(topo, nums);
-        const extra = [];
-        if(t.orc.length) extra.push('resultado previsto ' + comSinal(t.prevResultado));
-        if(t.abertas) extra.push(brl(t.aReceber) + ' a receber' + (t.atrasadas ? ' (' + t.atrasadas + ' atrasadas)' : ''));
-        card.appendChild(el('span', 'tr-ev-orc', extra.length ? extra.join(' · ') : 'Sem orçamento cadastrado'));
-        if(t.prevSaidas){
-          const usado = Math.round(t.saidas / t.prevSaidas * 100);
-          const barra = el('span', 'tr-barra'); const i = el('i', usado > 100 ? 'estouro' : 'uso'); i.style.width = Math.min(usado, 100) + '%';
-          barra.appendChild(i); card.appendChild(barra);
-        }
-        card.addEventListener('click', () => abrirDetalhe(ev.id));
-        box.appendChild(card);
-      });
+      eventos.slice().sort((a, b) => (a.status === b.status ? (b.data_inicio || '').localeCompare(a.data_inicio || '') : a.status === 'aberto' ? -1 : 1))
+        .forEach(ev => box.appendChild(cartaoEvento(ev)));
     }
 
     function abrirDetalhe(id){
@@ -25830,6 +25949,21 @@
     $('trAbas').querySelectorAll('.tr-aba').forEach(b => b.addEventListener('click', () => trocarAba(b.dataset.aba)));
     $('trAnoAnt').addEventListener('click', () => { anoSel--; desenharPainel(); });
     $('trAnoProx').addEventListener('click', () => { anoSel++; desenharPainel(); });
+    // Painel: ações rápidas, Entradas/Saídas das categorias e os "Ver todos".
+    $('trAcoes').querySelectorAll('.tr-acao').forEach(b => b.addEventListener('click', () => {
+      if(!podeEditar()) return;
+      const a = b.dataset.acao;
+      if(a === 'entrada' || a === 'saida') abrirLancamento(null, { tipo: a });
+      else if(a === 'cobranca') abrirCobranca({ tipo: 'mensalidade' });
+      else if(a === 'evento') abrirEvento(null);
+    }));
+    $('trCatSeg').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      catTipo = b.dataset.t;
+      desenharCategoriasPainel(lancamentos.filter(x => (x.data || '').slice(0, 4) === String(anoSel)));
+    }));
+    $('trVerEventos').addEventListener('click', () => trocarAba('eventos'));
+    $('trVerLanc').addEventListener('click', () => trocarAba('geral'));
+    $('trVerCob').addEventListener('click', () => trocarAba('cobrancas'));
     $('trMesAnt').addEventListener('click', () => { mesSel = mesSel.mes === 1 ? { ano: mesSel.ano - 1, mes: 12 } : { ano: mesSel.ano, mes: mesSel.mes - 1 }; desenharGeral(); });
     $('trMesProx').addEventListener('click', () => { mesSel = mesSel.mes === 12 ? { ano: mesSel.ano + 1, mes: 1 } : { ano: mesSel.ano, mes: mesSel.mes + 1 }; desenharGeral(); });
     $('trFiltros').querySelectorAll('.tr-filtro').forEach(c => c.addEventListener('click', () => { filtro = c.dataset.filtro; marcarFiltro(); desenharGeral(); }));
