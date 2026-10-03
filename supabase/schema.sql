@@ -1365,3 +1365,26 @@ drop policy if exists p_tesouraria_cobrancas on tesouraria_cobrancas;
 create policy p_tesouraria_cobrancas on tesouraria_cobrancas for all using(true) with check(true);
 drop policy if exists p_tesouraria_parcelas on tesouraria_parcelas;
 create policy p_tesouraria_parcelas on tesouraria_parcelas for all using(true) with check(true);
+
+-- Contato do responsável pelo desbravador (cobranças e recibos pelo WhatsApp).
+-- Dado pessoal: só a liderança mexe nele pelo app (cadastro do aluno nas
+-- Classes e Tesouraria).
+alter table desbravadores add column if not exists responsavel_nome text;
+alter table desbravadores add column if not exists responsavel_whatsapp text;
+
+-- Configurações do clube editadas pelo próprio app (chave → valor). Hoje: a
+-- chave Pix, o nome do recebedor e os textos das mensagens de WhatsApp da
+-- Tesouraria (pix_chave, pix_nome, msg_cobranca, msg_recibo).
+create table if not exists clube_config (
+  chave text primary key,
+  valor text,
+  atualizado_por text,
+  atualizado_em timestamptz not null default now()
+);
+alter table clube_config enable row level security;
+drop policy if exists p_clube_config on clube_config;
+create policy p_clube_config on clube_config for all using(true) with check(true);
+
+-- Número sequencial do recibo (01, 02, 03...), gravado no lançamento na
+-- primeira vez que o recibo é gerado; reimprimir mantém o número.
+alter table tesouraria_lancamentos add column if not exists recibo_numero int;

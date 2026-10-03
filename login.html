@@ -2252,6 +2252,15 @@
   .tr-cobm-topo .tr-anel b{ font-size:17px; }
   .tr-cobm-topo > div b{ display:block; font-size:20px; font-weight:900; color:var(--t-ink); }
   .tr-cobm-topo > div small{ font-size:12px; font-weight:700; color:var(--t-muted); }
+  /* WhatsApp */
+  .tr-whats-btn{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:10px; padding:10px; border-radius:12px; border:1px solid #25D366; background:color-mix(in srgb, #25D366 14%, transparent); color:var(--t-ink); font-size:13px; font-weight:900; font-family:inherit; cursor:pointer; }
+  .tr-whats-btn:hover{ background:color-mix(in srgb, #25D366 22%, transparent); }
+  .tr-whats-resumo{ width:auto; margin-top:12px; padding:7px 12px; font-size:12px; }
+  .tr-pdf-btn{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%; margin-top:10px; padding:10px; border-radius:12px; border:1px solid var(--t-line2); background:var(--t-card2); color:var(--t-ink); font-size:13px; font-weight:900; font-family:inherit; cursor:pointer; }
+  .tr-pdf-btn:hover{ border-color:var(--t-ink); }
+  .tr-whats-mini{ flex-shrink:0; width:32px; height:30px; margin-left:6px; border-radius:9px; border:1px solid #25D366; background:color-mix(in srgb, #25D366 14%, transparent); font-size:14px; cursor:pointer; }
+  .tr-whats-mini.sem-numero{ border-style:dashed; opacity:0.7; }
+  .tr-whats-mini:disabled{ opacity:0.3; cursor:default; }
   @media (max-width:420px){ .tr-aba-web{ display:none; } .tr-aba-cel{ display:inline; } .tr-aba{ font-size:11.5px; padding:9px 2px; } .tr-hero-saldo{ font-size:32px; } }
   @media (min-width:900px){
     .tr-hero{ grid-template-columns:minmax(0, 1fr) minmax(0, 1.3fr); padding:22px 24px; gap:24px; }
@@ -10061,6 +10070,18 @@
           <label class="pl-field-label">Data de nascimento</label>
           <input type="text" class="pl-input" id="clStudentNascInput" placeholder="DD/MM/AAAA" inputmode="numeric" maxlength="10">
           <p class="pl-reminder-hint" id="clStudentNascHint">Usada para conferir a idade mínima da classe (requisito GE-1).</p>
+          <!-- Contato do responsável: a Tesouraria usa pra cobranças e recibos
+               pelo WhatsApp (desbravadores.responsavel_*). -->
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide">
+              <label class="pl-field-label" for="clStudentRespInput">Responsável</label>
+              <input type="text" class="pl-input" id="clStudentRespInput" placeholder="Nome do pai, mãe ou responsável" maxlength="60">
+            </div>
+            <div class="pl-field-col pl-field-col-wide">
+              <label class="pl-field-label" for="clStudentWhatsInput">WhatsApp do responsável</label>
+              <input type="tel" class="pl-input" id="clStudentWhatsInput" placeholder="(11) 91234-5678" inputmode="tel" maxlength="20">
+            </div>
+          </div>
           <div class="pl-modal-actions">
             <button type="button" class="pl-btn pl-btn-danger" id="clStudentDeleteBtn" style="display:none;">Excluir</button>
             <button type="button" class="pl-btn pl-btn-primary" id="clStudentSaveBtn">Adicionar</button>
@@ -11241,6 +11262,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <h3 class="pl-title">Tesouraria</h3>
+          <button type="button" class="tr-tema-btn" id="trConfigBtn" aria-label="Configurações da Tesouraria" title="Pix e mensagens do WhatsApp" style="display:none;">⚙</button>
           <button type="button" class="tr-tema-btn" id="trTemaBtn" aria-label="Trocar tema claro/escuro">☀ Claro</button>
         </div>
 
@@ -11270,6 +11292,7 @@
                 <div class="tr-hero-sub" id="trHeroSub"></div>
                 <div class="tr-selo" id="trHeroSelo"></div>
                 <div class="tr-hero-mes" id="trHeroMes"></div>
+                <button type="button" class="tr-whats-btn tr-whats-resumo" id="trResumoWhats">📲 Compartilhar resumo no WhatsApp</button>
               </div>
               <div class="tr-hero-graf">
                 <div class="tr-hero-graf-tit"><span id="trHeroGrafTit">Evolução do saldo</span><span>fim de cada mês</span></div>
@@ -11430,6 +11453,7 @@
           <label class="pl-field-label" for="trFieldObs">Observação</label>
           <input type="text" class="pl-input" id="trFieldObs" placeholder="Opcional (ex.: recibo nº 12)" maxlength="120">
           <p class="pl-reminder-hint" id="trLancCobAviso" style="display:none;">Este lançamento veio do recebimento de uma cobrança. Excluir aqui também desfaz o recebimento.</p>
+          <button type="button" class="tr-pdf-btn" id="trLancPdf" style="display:none;">📄 Recibo em PDF</button>
           <div class="pl-modal-actions">
             <button type="button" class="pl-btn pl-btn-danger" id="trDeleteBtn" style="display:none;">Excluir</button>
             <button type="button" class="pl-btn pl-btn-primary" id="trSaveBtn">Salvar</button>
@@ -11562,7 +11586,40 @@
             <button type="button" class="pl-btn pl-btn-neutral" id="trRecIsentar">Isentar (bolsa)</button>
             <button type="button" class="pl-btn pl-btn-primary" id="trRecSalvar">Receber</button>
           </div>
+          <button type="button" class="tr-pdf-btn" id="trRecPdf" style="display:none;">📄 Recibo em PDF</button>
+          <button type="button" class="tr-whats-btn" id="trRecWhats" style="display:none;">📲 Enviar recibo pelo WhatsApp</button>
           <button type="button" class="pl-list-add-btn" id="trRecDesfazer" style="display:none;">Desfazer recebimento</button>
+        </div>
+      </div>
+
+      <!-- Configurações da Tesouraria: Pix e textos do WhatsApp (clube_config) -->
+      <div class="pl-modal-overlay" id="trConfigModal">
+        <div class="pl-modal">
+          <div class="pl-modal-head">
+            <h4 class="pl-modal-title">Configurações da Tesouraria</h4>
+            <button type="button" class="pl-modal-close" id="trConfigFechar" aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <label class="pl-field-label" for="trCfgPix">Chave Pix do clube</label>
+          <input type="text" class="pl-input" id="trCfgPix" placeholder="CNPJ, e-mail, telefone ou chave aleatória" maxlength="120" autocomplete="off">
+          <label class="pl-field-label" for="trCfgPixNome">Nome do recebedor</label>
+          <input type="text" class="pl-input" id="trCfgPixNome" placeholder="Como aparece no Pix (ex.: Clube Cedros do Líbano)" maxlength="80">
+          <label class="pl-field-label" for="trCfgAssNome">Quem assina os recibos</label>
+          <input type="text" class="pl-input" id="trCfgAssNome" placeholder="Ex.: Josênia Rocha da Silva Ribeiro" maxlength="80">
+          <div class="pl-field-row">
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trCfgAssCargo">Cargo</label><input type="text" class="pl-input" id="trCfgAssCargo" placeholder="Ex.: Tesoureira" maxlength="40"></div>
+            <div class="pl-field-col pl-field-col-wide"><label class="pl-field-label" for="trCfgCidade">Cidade (data do recibo)</label><input type="text" class="pl-input" id="trCfgCidade" placeholder="Ex.: Cotia" maxlength="60"></div>
+          </div>
+          <label class="pl-field-label" for="trCfgMsgCob">Mensagem de cobrança (WhatsApp)</label>
+          <textarea class="pl-input pl-textarea" id="trCfgMsgCob" rows="6"></textarea>
+          <label class="pl-field-label" for="trCfgMsgRec">Mensagem de recibo (WhatsApp)</label>
+          <textarea class="pl-input pl-textarea" id="trCfgMsgRec" rows="5"></textarea>
+          <p class="pl-reminder-hint">Use os campos entre chaves, que o app troca na hora: {responsavel}, {desbravador}, {descricao}, {valor}, {parcela}, {vencimento}, {data_pagamento}, {pix}, {pix_nome}, {clube}. Linhas com {pix} somem se a chave estiver vazia.</p>
+          <div class="pl-modal-actions">
+            <button type="button" class="pl-btn pl-btn-neutral" id="trCfgPadrao">Textos padrão</button>
+            <button type="button" class="pl-btn pl-btn-primary" id="trCfgSalvar">Salvar</button>
+          </div>
         </div>
       </div>
     </section>
@@ -18933,10 +18990,52 @@
         : error.message;
     }
 
+    // ---- Contato do responsável (WhatsApp da Tesouraria) ----
+    // Lido do banco ao abrir o aluno e gravado só se mudou. Tolerante: sem as
+    // colunas novas no banco, os campos ficam vazios e o resto salva igual.
+    const studentRespInput = document.getElementById('clStudentRespInput');
+    const studentWhatsInput = document.getElementById('clStudentWhatsInput');
+    let contatoAberto = { nome: '', whats: '' };
+    function formatarFone(v){
+      let d = String(v || '').replace(/\D/g, '');
+      if(d.length > 11 && d.indexOf('55') === 0) d = d.slice(2);
+      d = d.slice(0, 11);
+      if(d.length <= 2) return d;
+      if(d.length <= 6) return '(' + d.slice(0, 2) + ') ' + d.slice(2);
+      if(d.length <= 10) return '(' + d.slice(0, 2) + ') ' + d.slice(2, 6) + '-' + d.slice(6);
+      return '(' + d.slice(0, 2) + ') ' + d.slice(2, 7) + '-' + d.slice(7);
+    }
+    if(studentWhatsInput) studentWhatsInput.addEventListener('input', () => { studentWhatsInput.style.borderColor = ''; studentWhatsInput.value = formatarFone(studentWhatsInput.value); });
+    async function carregarContato(className, nome){
+      contatoAberto = { nome: '', whats: '' };
+      if(studentRespInput) studentRespInput.value = '';
+      if(studentWhatsInput){ studentWhatsInput.value = ''; studentWhatsInput.style.borderColor = ''; }
+      const id = (STUDENT_IDS[className] || {})[nome];
+      if(!supa || !id) return;
+      const { data, error } = await supa.from('desbravadores').select('responsavel_nome, responsavel_whatsapp').eq('id', id).maybeSingle();
+      if(error || !data || editingStudentName !== nome) return;
+      contatoAberto = { nome: data.responsavel_nome || '', whats: data.responsavel_whatsapp || '' };
+      if(studentRespInput) studentRespInput.value = contatoAberto.nome;
+      if(studentWhatsInput) studentWhatsInput.value = formatarFone(contatoAberto.whats);
+    }
+    async function salvarContato(className, nome){
+      if(!studentRespInput || !studentWhatsInput) return '';
+      const resp = studentRespInput.value.trim(), whats = studentWhatsInput.value.replace(/\D/g, '');
+      if(resp === contatoAberto.nome && whats === String(contatoAberto.whats || '').replace(/\D/g, '')) return '';
+      const id = (STUDENT_IDS[className] || {})[nome];
+      if(!supa || !id) return '';
+      const { error } = await supa.from('desbravadores').update({ responsavel_nome: resp || null, responsavel_whatsapp: whats || null }).eq('id', id);
+      if(!error) return '';
+      return /responsavel_/.test(error.message)
+        ? 'Os campos do responsável ainda não existem no banco. Rode o trecho novo de supabase/schema.sql no Supabase.'
+        : error.message;
+    }
+
     function openEditStudentModal(name){
       editingStudentName = name;
       studentModalTitle.textContent = 'Editar Aluno';
       studentNameInput.value = name;
+      carregarContato(currentClass, name);
       if(studentNascInput){
         const iso = nascimentoDe(currentClass, name);
         studentNascInput.value = nascIsoToBr(iso);
@@ -19090,6 +19189,9 @@
       studentNameInput.value = '';
       if(studentNascInput){ studentNascInput.value = ''; studentNascInput.style.borderColor = ''; }
       if(studentNascHint) studentNascHint.textContent = NASC_HINT_PADRAO;
+      contatoAberto = { nome: '', whats: '' };
+      if(studentRespInput) studentRespInput.value = '';
+      if(studentWhatsInput){ studentWhatsInput.value = ''; studentWhatsInput.style.borderColor = ''; }
       studentSaveBtn.textContent = 'Adicionar';
       studentDeleteBtn.style.display = 'none';
       studentModalOverlay.classList.add('show');
@@ -19104,6 +19206,9 @@
       const nascTexto = studentNascInput ? studentNascInput.value.trim() : '';
       const nascIso = nascTexto ? nascBrToIso(nascTexto) : '';
       if(nascTexto && !nascIso){ studentNascInput.style.borderColor = '#FF6B5C'; studentNascInput.focus(); return; }
+      // WhatsApp opcional; se digitado, precisa ter DDD + número.
+      const foneDig = studentWhatsInput ? studentWhatsInput.value.replace(/\D/g, '') : '';
+      if(foneDig && (foneDig.length < 10 || foneDig.length > 13)){ studentWhatsInput.style.borderColor = '#FF6B5C'; studentWhatsInput.focus(); return; }
       ensureClassData(currentClass);
 
       if(editingStudentName){
@@ -19134,6 +19239,8 @@
         } else if(oldName !== name && STUDENT_NASC[currentClass]){
           STUDENT_NASC[currentClass][name] = STUDENT_NASC[currentClass][oldName] || '';
         }
+        const erroContato = await salvarContato(currentClass, name);
+        if(erroContato) alert('O nome foi salvo, mas o contato do responsável não: ' + erroContato);
         studentModalOverlay.classList.remove('show');
         selectStudent(selectedStudent);
         updateHubCounts();
@@ -19154,6 +19261,8 @@
         const erroNasc = await salvarNascimento(currentClass, name, nascIso);
         if(erroNasc) alert('O aluno foi adicionado, mas a data de nascimento não: ' + erroNasc);
       }
+      const erroContato = await salvarContato(currentClass, name);
+      if(erroContato) alert('O aluno foi adicionado, mas o contato do responsável não: ' + erroContato);
     });
     studentNameInput.addEventListener('input', () => { studentNameInput.style.borderColor = ''; });
 
@@ -24596,6 +24705,8 @@
     const num = x => Object.assign({}, x, { valor: Number(x.valor) || 0 });
     async function carregar(){
       if(!supa) return;
+      // Contatos dos responsáveis e Pix entram junto, pros botões de WhatsApp.
+      await Promise.all([carregarPessoas(true), carregarConfig()]);
       const [l, e, o, c, p] = await Promise.all([
         supa.from('tesouraria_lancamentos').select('*').order('data', { ascending: false }).order('created_at', { ascending: false }),
         supa.from('tesouraria_eventos').select('*').order('data_inicio', { ascending: false }),
@@ -24634,10 +24745,312 @@
         return Object.assign({}, a, { iso });
       }).sort((x, y) => x.iso.localeCompare(y.iso));
     }
-    async function carregarPessoas(){
-      if(!supa || pessoas.length) return;
-      const { data } = await supa.from('desbravadores').select('id, nome, classe').order('nome');
+    async function carregarPessoas(forcar){
+      if(!supa || (pessoas.length && !forcar)) return;
+      // Com o contato do responsável (WhatsApp); banco sem as colunas novas carrega sem ele.
+      let { data, error } = await supa.from('desbravadores').select('id, nome, classe, responsavel_nome, responsavel_whatsapp').order('nome');
+      if(error) ({ data } = await supa.from('desbravadores').select('id, nome, classe').order('nome'));
       pessoas = data || [];
+    }
+
+    // ---------------------------------------------------------------
+    // WhatsApp: cobrança, recibo e resumo com a mensagem pronta
+    // ---------------------------------------------------------------
+    // Configurações do clube (clube_config): chave Pix, recebedor e textos.
+    const MSG_PADRAO = {
+      msg_cobranca: 'Olá, {responsavel}! 👋\nLembrete do {clube}: {descricao} de {desbravador}{parcela} — {valor}, {vencimento}.\n\nPix: {pix} ({pix_nome})\n\nSe já pagou, por favor desconsidere. Obrigado!',
+      msg_recibo: 'Olá, {responsavel}! ✅\nRecebemos {valor} referente a {descricao} de {desbravador}{parcela}, em {data_pagamento}.\n\nObrigado! — Tesouraria do {clube}'
+    };
+    let config = {};
+    async function carregarConfig(){
+      if(!supa) return;
+      const { data, error } = await supa.from('clube_config').select('chave, valor');
+      if(error) return; // tabela ainda não criada: usa os textos padrão
+      config = {};
+      (data || []).forEach(r => { config[r.chave] = r.valor || ''; });
+    }
+    const cfg = chave => (config[chave] != null && config[chave] !== '') ? config[chave] : (MSG_PADRAO[chave] || '');
+
+    // Número no formato do wa.me: só dígitos, com 55 na frente quando for brasileiro.
+    function foneWhats(v){
+      let d = String(v || '').replace(/\D/g, '');
+      if(d.indexOf('0') === 0) d = d.replace(/^0+/, '');
+      if(d.length === 10 || d.length === 11) d = '55' + d;
+      return d.length >= 12 ? d : '';
+    }
+    function montarMensagem(modelo, vars){
+      const pix = (config.pix_chave || '').trim();
+      return modelo.split('\n')
+        .filter(linha => pix || linha.indexOf('{pix}') === -1) // sem chave, some a linha do Pix
+        .join('\n')
+        .replace(/\{(\w+)\}/g, (m, k) => vars[k] != null ? vars[k] : m)
+        .replace(/ \(\)/g, '');
+    }
+    function abrirWhats(fone, texto){
+      const url = 'https://wa.me/' + (fone || '') + '?text=' + encodeURIComponent(texto);
+      const w = window.open(url, '_blank');
+      if(!w) location.href = url; // app instalado pode bloquear janela nova
+    }
+    const pessoaPorId = id => pessoas.find(p => p.id === id) || null;
+
+    // Monta e abre a mensagem de uma parcela: 'cobranca' ou 'recibo'.
+    async function enviarWhats(p, tipo){
+      await carregarPessoas();
+      const c = cobPorId(p.cobranca_id) || {};
+      const pessoa = pessoaPorId(p.desbravador_id) || {};
+      let fone = foneWhats(pessoa.responsavel_whatsapp);
+      if(!fone && p.desbravador_id){
+        const digitado = prompt('WhatsApp do responsável por ' + p.pessoa_nome + ' (com DDD).\nFica salvo no cadastro do desbravador.', '');
+        if(digitado === null) return;
+        fone = foneWhats(digitado);
+        if(!fone){ alert('Número inválido. Use DDD + número, ex.: (11) 91234-5678.'); return; }
+        const { error } = await supa.from('desbravadores').update({ responsavel_whatsapp: fone.replace(/^55/, '') }).eq('id', p.desbravador_id);
+        if(error && /responsavel_/.test(error.message)) alert('O número não foi salvo: rode o trecho novo de supabase/schema.sql no Supabase. A mensagem abre mesmo assim.');
+        await carregarPessoas(true);
+      }
+      const atrasada = !p.pago_em && p.vencimento < hoje();
+      const vars = {
+        responsavel: pessoa.responsavel_nome || ('responsável por ' + p.pessoa_nome.split(' ')[0]),
+        desbravador: p.pessoa_nome,
+        descricao: c.descricao || 'cobrança',
+        valor: brl(p.valor),
+        parcela: p.total_parcelas > 1 ? ' (parcela ' + p.numero + '/' + p.total_parcelas + ')' : '',
+        vencimento: (atrasada ? 'venceu em ' : 'vence em ') + dataLonga(p.vencimento),
+        data_pagamento: p.pago_em ? dataLonga(p.pago_em) : dataLonga(hoje()),
+        pix: (config.pix_chave || '').trim(),
+        pix_nome: (config.pix_nome || '').trim(),
+        clube: window.CLUBE_CONFIG ? window.CLUBE_CONFIG.nomeCompleto : 'Clube'
+      };
+      abrirWhats(fone, montarMensagem(cfg(tipo === 'recibo' ? 'msg_recibo' : 'msg_cobranca'), vars));
+    }
+    // Botão 📲 da pessoa: cobra a próxima parcela em aberto; quitado, manda o recibo da última paga.
+    function botaoWhats(g){
+      const temNumero = !!foneWhats((pessoaPorId(g.desbravador_id) || {}).responsavel_whatsapp);
+      const pagas = g.parcelas.filter(p => p.pago_em && p.forma_pagamento !== 'Isento');
+      const alvo = g.proxima || pagas[pagas.length - 1];
+      const b = el('button', 'tr-whats-mini' + (temNumero ? '' : ' sem-numero'), '📲');
+      b.type = 'button';
+      b.title = !alvo ? 'Nada para enviar' : (g.proxima ? 'Cobrar pelo WhatsApp' : 'Enviar recibo pelo WhatsApp') + (temNumero ? '' : ' (sem número cadastrado)');
+      b.disabled = !alvo;
+      b.addEventListener('click', (e) => { e.stopPropagation(); if(alvo) enviarWhats(alvo, g.proxima ? 'cobranca' : 'recibo'); });
+      return b;
+    }
+    // ---------------------------------------------------------------
+    // Recibo em PDF (jsPDF, já carregado no fim da página)
+    // ---------------------------------------------------------------
+    // Valor por extenso em reais: 1.250,30 → "mil, duzentos e cinquenta reais e trinta centavos".
+    function porExtenso(valor){
+      const U = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+      const D = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+      const C = ['', 'cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
+      const ate999 = n => {
+        if(n === 100) return 'cem';
+        const c = Math.floor(n / 100), r = n % 100, partes = [];
+        if(c) partes.push(C[c]);
+        if(r < 20){ if(r) partes.push(U[r]); }
+        else { partes.push(D[Math.floor(r / 10)] + (r % 10 ? ' e ' + U[r % 10] : '')); }
+        return partes.join(' e ');
+      };
+      const inteiro = n => {
+        if(n === 0) return 'zero';
+        const grupos = [[1e9, 'bilhão', 'bilhões'], [1e6, 'milhão', 'milhões'], [1e3, 'mil', 'mil'], [1, '', '']];
+        const partes = [];
+        let resto = n;
+        grupos.forEach(([div, sing, plur]) => {
+          const q = Math.floor(resto / div); resto %= div;
+          if(!q) return;
+          if(div === 1e3) partes.push(q === 1 ? 'mil' : ate999(q) + ' mil');
+          else if(div === 1) partes.push(ate999(q));
+          else partes.push(ate999(q) + ' ' + (q === 1 ? sing : plur));
+        });
+        // "e" antes do último grupo quando ele é < 100 ou centena redonda (mil e cinquenta, mil e duzentos)
+        if(partes.length > 1){
+          const ult = n % 1000;
+          return partes.slice(0, -1).join(', ') + ((ult < 100 || ult % 100 === 0) ? ' e ' : ' ') + partes[partes.length - 1];
+        }
+        return partes[0];
+      };
+      const reais = Math.floor(Math.round(valor * 100) / 100), centavos = Math.round(valor * 100) % 100;
+      const txt = [];
+      if(reais) txt.push(inteiro(reais) + (reais === 1 ? ' real' : (reais % 1e6 === 0 ? ' de reais' : ' reais')));
+      if(centavos) txt.push(inteiro(centavos) + (centavos === 1 ? ' centavo' : ' centavos'));
+      return txt.join(' e ') || 'zero real';
+    }
+
+    // Logo reduzido (240 px) pro PDF não passar de 1 MB por causa da imagem.
+    let logoPequeno = null;
+    function prepararLogoPequeno(){
+      const src = window.CLUBE_CONFIG && window.CLUBE_CONFIG.logoDataUrl;
+      if(logoPequeno || !src) return;
+      const img = new Image();
+      img.onload = () => {
+        const lado = 240, cv = document.createElement('canvas');
+        cv.width = cv.height = lado;
+        const escala = Math.min(lado / img.width, lado / img.height);
+        const w = img.width * escala, h = img.height * escala;
+        cv.getContext('2d').drawImage(img, (lado - w) / 2, (lado - h) / 2, w, h);
+        try { logoPequeno = cv.toDataURL('image/png'); } catch(e){ /* fica o original */ }
+      };
+      img.src = src;
+    }
+
+    // Recibo no modelo do clube: A4 com duas vias (pagador em cima, clube
+    // embaixo) e linha de corte; cada via com borda dupla verde, o logo do clube
+    // como marca-d'água, número sequencial, valor, "Recebemos de", a quantia por
+    // extenso, "Correspondente a…", assinatura (nome e cargo de quem assina, do
+    // ⚙ Configurar) e "Cidade, dia de mês de ano".
+    let logoMarca = null;
+    function prepararLogoMarca(){
+      const src = window.CLUBE_CONFIG && window.CLUBE_CONFIG.logoDataUrl;
+      if(logoMarca || !src) return;
+      const img = new Image();
+      img.onload = () => {
+        const lado = 520, cv = document.createElement('canvas');
+        cv.width = cv.height = lado;
+        const escala = Math.min(lado / img.width, lado / img.height);
+        // Fundo branco + JPEG: com a marca-d'água clarinha não aparece diferença, e o PDF fica leve.
+        const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, lado, lado);
+        ctx.drawImage(img, (lado - img.width * escala) / 2, (lado - img.height * escala) / 2, img.width * escala, img.height * escala);
+        try { logoMarca = cv.toDataURL('image/jpeg', 0.8); } catch(e){ /* sem marca-d'água */ }
+      };
+      img.src = src;
+    }
+    const MESES_EXT = MESES;
+    function dataPorExtenso(iso){
+      const [a, m, d] = String(iso || hoje()).split('-').map(Number);
+      return d + ' de ' + MESES_EXT[m - 1] + ' de ' + a;
+    }
+    function gerarReciboPdf(d){
+      const jsPDFLib = window.jspdf && window.jspdf.jsPDF;
+      if(!jsPDFLib){ alert('Não foi possível carregar a biblioteca de PDF. Verifique sua conexão com a internet e tente novamente.'); return; }
+      const CFG = window.CLUBE_CONFIG || {};
+      const doc = new jsPDFLib({ unit: 'mm', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+      const assinante = (config.tesoureiro_nome || '').trim() || d.recebedor || '';
+      const cargo = (config.tesoureiro_cargo || '').trim() || 'Tesouraria';
+      const cidade = (config.cidade || '').trim();
+      const verde = [22, 140, 70], verdeClaro = [120, 190, 140];
+      const via = (topo, rotuloVia) => {
+        const x0 = 14, w = W - 28, h = 118, y0 = topo;
+        // Borda dupla
+        doc.setDrawColor(...verde); doc.setLineWidth(1.1); doc.rect(x0, y0, w, h);
+        doc.setDrawColor(...verdeClaro); doc.setLineWidth(0.4); doc.rect(x0 + 1.8, y0 + 1.8, w - 3.6, h - 3.6);
+        // Marca-d'água
+        const marca = logoMarca || logoPequeno || CFG.logoDataUrl;
+        if(marca && doc.GState){
+          try {
+            doc.saveGraphicsState();
+            doc.setGState(new doc.GState({ opacity: 0.1 }));
+            const lado = h - 20;
+            doc.addImage(marca, marca === logoMarca ? 'JPEG' : 'PNG', x0 + (w - lado) / 2, y0 + 10, lado, lado, 'marca');
+            doc.restoreGraphicsState();
+          } catch(e){ /* sem marca-d'água */ }
+        }
+        let y = y0 + 12;
+        doc.setTextColor(20, 30, 22); doc.setFont('times', 'bold'); doc.setFontSize(13);
+        doc.text('Recibo nº ' + d.numero, x0 + 8, y);
+        doc.text('Valor: ' + brl(d.valor), x0 + w - 8, y, { align: 'right' });
+        y += 15;
+        const largura = w - 16;
+        const linha = (rotulo, valor, gap) => {
+          doc.setFont('times', 'bold'); doc.setFontSize(12.5);
+          const txt = doc.splitTextToSize(rotulo + valor, largura);
+          doc.text(txt, x0 + 8, y);
+          y += txt.length * 5.6 + (gap || 5);
+        };
+        linha('Recebemos de ', d.pagador.toLocaleUpperCase('pt-BR'));
+        linha('A quantia de ', porExtenso(d.valor).toLocaleUpperCase('pt-BR'));
+        const clube = CFG.nomeCompleto || 'clube';
+        linha('Correspondente a ', d.referente.replace(/^./, c => c.toLowerCase()) + (d.desbravador && d.desbravador !== d.pagador ? ', do(a) desbravador(a) ' + d.desbravador : '') + ', com o ' + clube + '.', 3);
+        // Detalhes discretos
+        const det = [d.forma ? 'Pagamento: ' + d.forma : '', 'Data do pagamento: ' + dataLonga(d.data), d.evento ? 'Evento: ' + d.evento : ''].filter(Boolean).join('   ·   ');
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90, 100, 92);
+        doc.text(doc.splitTextToSize(det, largura), x0 + 8, y);
+        // Assinatura (esquerda) e cidade/data (direita)
+        const yAss = y0 + h - 22;
+        doc.setDrawColor(110); doc.setLineWidth(0.3); doc.line(x0 + 8, yAss, x0 + 88, yAss);
+        doc.setTextColor(20, 30, 22); doc.setFont('times', 'bold'); doc.setFontSize(12);
+        if(assinante) doc.text(assinante, x0 + 48, yAss + 5.5, { align: 'center' });
+        doc.setFontSize(11); doc.text(cargo, x0 + 48, yAss + (assinante ? 11 : 5.5), { align: 'center' });
+        doc.setFontSize(12);
+        doc.text((cidade ? cidade + ', ' : '') + dataPorExtenso(d.data), x0 + w - 8, yAss + 8, { align: 'right' });
+        // Identificação da via
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(130, 140, 132);
+        doc.text(rotuloVia, x0 + w - 8, y0 + h - 4, { align: 'right' });
+        doc.text('Emitido pelo ' + (CFG.appNome || 'app do clube') + (CFG.codigoClube ? ' · Clube código SGC ' + CFG.codigoClube : ''), x0 + 8, y0 + h - 4);
+      };
+      via(14, '1ª via — Pagador');
+      // Linha de corte
+      const yc = H / 2 + 6;
+      doc.setDrawColor(150); doc.setLineWidth(0.2); doc.setLineDashPattern([2, 2], 0); doc.line(10, yc, W - 10, yc); doc.setLineDashPattern([], 0);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(150);
+      doc.text('recorte aqui', W / 2, yc - 1.5, { align: 'center' }); // helvetica do PDF não tem a tesoura
+      via(yc + 8, '2ª via — Clube');
+      const nomeArq = 'recibo-' + d.numero + '-' + String(d.desbravador || d.pagador).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '.pdf';
+      doc.save(nomeArq);
+    }
+    window.__trPorExtenso = porExtenso; // conferência rápida pelo console
+
+    // Número sequencial do recibo, guardado no lançamento (recibo_numero):
+    // reimprimir mantém o número; o primeiro recibo de um lançamento pega o
+    // próximo da sequência. Sem a coluna no banco, usa um código do lançamento.
+    async function numeroDoRecibo(lancamentoId){
+      const l = lancamentos.find(x => x.id === lancamentoId);
+      const fmt = n => String(n).padStart(2, '0');
+      if(!l) return String(lancamentoId || Date.now().toString(36)).replace(/-/g, '').slice(0, 8).toUpperCase();
+      if(l.recibo_numero) return fmt(l.recibo_numero);
+      const { data } = await supa.from('tesouraria_lancamentos').select('recibo_numero').not('recibo_numero', 'is', null).order('recibo_numero', { ascending: false }).limit(1);
+      const proximo = ((data && data[0] && data[0].recibo_numero) || 0) + 1;
+      const { error } = await supa.from('tesouraria_lancamentos').update({ recibo_numero: proximo }).eq('id', l.id);
+      if(error) return String(l.id).replace(/-/g, '').slice(0, 8).toUpperCase();
+      l.recibo_numero = proximo;
+      return fmt(proximo);
+    }
+    // Recibo de uma parcela paga (cobrança).
+    async function reciboDaParcela(p){
+      await carregarPessoas();
+      const c = cobPorId(p.cobranca_id) || {};
+      const pessoa = pessoaPorId(p.desbravador_id) || {};
+      const l = lancamentos.find(x => x.id === p.lancamento_id) || {};
+      const ev = c.evento_id ? eventoPorId(c.evento_id) : null;
+      gerarReciboPdf({
+        numero: await numeroDoRecibo(p.lancamento_id), valor: p.valor,
+        pagador: pessoa.responsavel_nome || p.pessoa_nome,
+        desbravador: p.pessoa_nome,
+        referente: (c.descricao || 'cobrança') + (p.total_parcelas > 1 ? ', parcela ' + p.numero + ' de ' + p.total_parcelas : ''),
+        data: p.pago_em || hoje(), forma: p.forma_pagamento, evento: ev ? ev.nome : '',
+        recebedor: l.registrado_por || (window.__currentUsuario && window.__currentUsuario.nome) || ''
+      });
+    }
+    // Recibo de uma entrada qualquer (doação, venda...). Ligada a uma parcela, usa os dados dela.
+    async function reciboDoLancamento(x){
+      const parc = parcelas.find(p => p.lancamento_id === x.id);
+      if(parc) return reciboDaParcela(parc);
+      const pagador = prompt('Recebido de (nome de quem pagou):', '');
+      if(pagador === null || !pagador.trim()) return;
+      const ev = x.evento_id ? eventoPorId(x.evento_id) : null;
+      gerarReciboPdf({
+        numero: await numeroDoRecibo(x.id), valor: x.valor, pagador: pagador.trim(), desbravador: '',
+        referente: x.descricao + (x.categoria ? ' (' + x.categoria + ')' : ''),
+        data: x.data, forma: x.forma_pagamento, evento: ev ? ev.nome : '', recebedor: x.registrado_por || ''
+      });
+    }
+
+    // Resumo financeiro do mês para o grupo da Diretoria (sem número: o WhatsApp pergunta pra quem).
+    function resumoDoMes(){
+      const chave = hoje().slice(0, 7), mesNome = MESES[new Date().getMonth()];
+      const doMes = lancamentos.filter(x => (x.data || '').slice(0, 7) === chave);
+      const ent = soma(doMes, 'entrada'), sai = soma(doMes, 'saida');
+      const saldo = lancamentos.reduce((s, x) => s + sinal(x), 0);
+      const abertas = parcelas.filter(p => !p.pago_em);
+      const atraso = abertas.filter(p => p.vencimento < hoje());
+      const linhas = ['💰 *Tesouraria — ' + (window.CLUBE_CONFIG ? window.CLUBE_CONFIG.nomeCompleto : 'Clube') + '*', 'Resumo de ' + mesNome + ' (até ' + dataCurta(hoje()) + ')', '',
+        '⬆️ Entradas: ' + brl(ent), '⬇️ Saídas: ' + brl(sai), '📊 Resultado do mês: ' + comSinal(ent - sai), '🏦 Saldo do clube: ' + (saldo < 0 ? '− ' : '') + brl(Math.abs(saldo))];
+      if(abertas.length) linhas.push('⌛ A receber: ' + brl(soma(abertas)) + (atraso.length ? ' (' + brl(soma(atraso)) + ' em atraso)' : ''));
+      const abertosEv = eventos.filter(e => e.status === 'aberto');
+      if(abertosEv.length){ linhas.push('', '🏕️ Eventos abertos:'); abertosEv.slice(0, 5).forEach(e => linhas.push('• ' + e.nome + ': ' + comSinal(totaisDoEvento(e).resultado))); }
+      linhas.push('', 'Enviado pelo ' + (window.CLUBE_CONFIG ? window.CLUBE_CONFIG.appNome : 'app'));
+      return linhas.join('\n');
     }
 
     const sinal = x => x.tipo === 'entrada' ? x.valor : -x.valor;
@@ -24677,6 +25090,8 @@
       $('trAddBtn').style.display = pode ? '' : 'none';
       $('trNovoEventoBtn').style.display = pode ? '' : 'none';
       $('trNovaCobBtn').style.display = pode ? '' : 'none';
+      $('trConfigBtn').style.display = pode ? '' : 'none';
+      $('trResumoWhats').style.display = pode ? '' : 'none';
       $('trEventoEditar').style.visibility = pode ? 'visible' : 'hidden';
       const pessoasAtrasadas = new Set(parcelas.filter(p => situacaoParcela(p) === 'atrasado').map(p => p.desbravador_id || p.pessoa_nome)).size;
       $('trAbaAtraso').style.display = pessoasAtrasadas ? '' : 'none';
@@ -25386,6 +25801,8 @@
         const sit = el('td'); sit.appendChild(rotuloSit(g));
         const ac = el('td');
         if(pode) ac.appendChild(botao(g.proxima ? 'Receber' : 'Ver', g.proxima ? 'tr-mini-btn' : 'tr-btn', acaoReceber(g)));
+        // WhatsApp: cobrança de quem deve, recibo de quem já quitou.
+        if(pode) ac.appendChild(botaoWhats(g));
         const pc = el('td'); pc.appendChild(bolinhas(g));
         tr.append(el('td', null, g.nome), el('td', 'tr-mut', mostrarCobranca ? cob.descricao : classeDe(g.desbravador_id)), el('td', null, plano(g)), pc,
           el('td', 'r tr-value-in', brl(g.pago)), el('td', 'r', g.falta ? brl(g.falta) : '—'), venc, sit, ac);
@@ -25410,7 +25827,7 @@
         const v = el('b', g.falta ? '' : 'tr-positivo', g.falta ? brl(g.falta) : brl(g.pago));
         const sc = el('small'); sc.appendChild(rotuloSit(g)); v.appendChild(sc);
         c.append(el('span', 'ini', iniciais(g.nome)), corpo, v);
-        if(pode){ c.style.cursor = 'pointer'; c.addEventListener('click', acaoReceber(g)); }
+        if(pode){ c.style.cursor = 'pointer'; c.addEventListener('click', acaoReceber(g)); c.appendChild(botaoWhats(g)); }
         cel.appendChild(c);
       });
       frag.appendChild(cel);
@@ -25554,7 +25971,7 @@
       overlay.classList.add('show');
     }
     function fecharAoTocarFora(id){ $(id).addEventListener('click', (e) => { if(e.target === $(id)) $(id).classList.remove('show'); }); }
-    ['trModalOverlay', 'trEventoModal', 'trItemModal', 'trCobModal', 'trReceberModal'].forEach(fecharAoTocarFora);
+    ['trModalOverlay', 'trEventoModal', 'trItemModal', 'trCobModal', 'trReceberModal', 'trConfigModal'].forEach(fecharAoTocarFora);
     function marcarTipo(grupo, tipo){ grupo.querySelectorAll('.tr-tipo-btn').forEach(b => b.classList.toggle('active', b.dataset.tipo === tipo)); }
     function preencherCategorias(select, tipo, atual){
       select.innerHTML = '';
@@ -25622,6 +26039,8 @@
       $('trFieldObs').value = x ? (x.observacao || '') : '';
       $('trDeleteBtn').style.display = x ? '' : 'none';
       $('trLancCobAviso').style.display = x && parcelas.some(p => p.lancamento_id === x.id) ? '' : 'none';
+      // Recibo só faz sentido pra entrada já gravada.
+      $('trLancPdf').style.display = x && x.tipo === 'entrada' ? '' : 'none';
       [$('trFieldDesc'), $('trFieldValue')].forEach(f => { f.style.borderColor = ''; });
       mostrarModal($('trModalOverlay'));
       setTimeout(() => $(item ? 'trFieldValue' : 'trFieldDesc').focus(), 150);
@@ -25891,6 +26310,8 @@
       $('trRecSalvar').style.display = pago ? 'none' : '';
       $('trRecIsentar').style.display = pago ? 'none' : '';
       $('trRecDesfazer').style.display = pago ? '' : 'none';
+      $('trRecWhats').style.display = pago && p.forma_pagamento !== 'Isento' ? '' : 'none';
+      $('trRecPdf').style.display = pago && p.forma_pagamento !== 'Isento' ? '' : 'none';
       mostrarModal($('trReceberModal'));
     }
     $('trRecFechar').addEventListener('click', () => $('trReceberModal').classList.remove('show'));
@@ -25914,6 +26335,9 @@
       if(error){ alert('A entrada foi registrada, mas a parcela não foi marcada como paga: ' + error.message); }
       $('trReceberModal').classList.remove('show');
       await carregar();
+      // Reabre no estado "Pagamento registrado", já com recibo em PDF e WhatsApp à mão.
+      const paga = parcelas.find(x => x.id === p.id);
+      if(!error && paga) abrirReceber(paga);
     });
     $('trRecIsentar').addEventListener('click', async () => {
       const p = parcRecebendo; if(!p) return;
@@ -25964,6 +26388,41 @@
     $('trVerEventos').addEventListener('click', () => trocarAba('eventos'));
     $('trVerLanc').addEventListener('click', () => trocarAba('geral'));
     $('trVerCob').addEventListener('click', () => trocarAba('cobrancas'));
+    // WhatsApp: recibo pelo modal de pagamento e resumo do mês pelo destaque.
+    $('trRecWhats').addEventListener('click', () => { if(parcRecebendo) enviarWhats(parcRecebendo, 'recibo'); });
+    $('trRecPdf').addEventListener('click', () => { if(parcRecebendo) reciboDaParcela(parcRecebendo); });
+    $('trLancPdf').addEventListener('click', () => { if(lancEditando) reciboDoLancamento(lancEditando); });
+    $('trResumoWhats').addEventListener('click', () => abrirWhats('', resumoDoMes()));
+    // Configurações: Pix e textos das mensagens (clube_config).
+    function abrirConfig(){
+      $('trCfgPix').value = config.pix_chave || '';
+      $('trCfgPixNome').value = config.pix_nome || '';
+      $('trCfgAssNome').value = config.tesoureiro_nome || '';
+      $('trCfgAssCargo').value = config.tesoureiro_cargo || '';
+      $('trCfgCidade').value = config.cidade || '';
+      $('trCfgMsgCob').value = cfg('msg_cobranca');
+      $('trCfgMsgRec').value = cfg('msg_recibo');
+      mostrarModal($('trConfigModal'));
+    }
+    $('trConfigBtn').addEventListener('click', async () => { await carregarConfig(); abrirConfig(); });
+    $('trConfigFechar').addEventListener('click', () => $('trConfigModal').classList.remove('show'));
+    $('trCfgPadrao').addEventListener('click', () => {
+      $('trCfgMsgCob').value = MSG_PADRAO.msg_cobranca;
+      $('trCfgMsgRec').value = MSG_PADRAO.msg_recibo;
+    });
+    $('trCfgSalvar').addEventListener('click', async () => {
+      const quem = (window.__currentUsuario && window.__currentUsuario.nome) || null;
+      const linhas = [['pix_chave', $('trCfgPix').value.trim()], ['pix_nome', $('trCfgPixNome').value.trim()],
+        ['tesoureiro_nome', $('trCfgAssNome').value.trim()], ['tesoureiro_cargo', $('trCfgAssCargo').value.trim()], ['cidade', $('trCfgCidade').value.trim()],
+        ['msg_cobranca', $('trCfgMsgCob').value.trim()], ['msg_recibo', $('trCfgMsgRec').value.trim()]]
+        .map(([chave, valor]) => ({ chave, valor, atualizado_por: quem, atualizado_em: new Date().toISOString() }));
+      $('trCfgSalvar').disabled = true;
+      const { error } = await supa.from('clube_config').upsert(linhas);
+      $('trCfgSalvar').disabled = false;
+      if(error){ alert(/clube_config/.test(error.message) ? 'A tabela de configurações ainda não existe no banco. Rode o trecho novo de supabase/schema.sql no Supabase.' : 'Não consegui salvar: ' + error.message); return; }
+      await carregarConfig();
+      $('trConfigModal').classList.remove('show');
+    });
     $('trMesAnt').addEventListener('click', () => { mesSel = mesSel.mes === 1 ? { ano: mesSel.ano - 1, mes: 12 } : { ano: mesSel.ano, mes: mesSel.mes - 1 }; desenharGeral(); });
     $('trMesProx').addEventListener('click', () => { mesSel = mesSel.mes === 12 ? { ano: mesSel.ano + 1, mes: 1 } : { ano: mesSel.ano, mes: mesSel.mes + 1 }; desenharGeral(); });
     $('trFiltros').querySelectorAll('.tr-filtro').forEach(c => c.addEventListener('click', () => { filtro = c.dataset.filtro; marcarFiltro(); desenharGeral(); }));
@@ -25984,6 +26443,8 @@
     // Abre/atualiza ao entrar na tela (ver o atalho data-goto) e ao logar.
     window.__trAbrir = function(){
       carregar();
+      prepararLogoPequeno();
+      prepararLogoMarca();
       carregarAgenda().then(() => { if(eventoAberto) desenharDetalhe(); });
       carregarPessoas().then(() => { if($('trAbaCobrancas').style.display !== 'none') desenharCobrancas(); });
     };
