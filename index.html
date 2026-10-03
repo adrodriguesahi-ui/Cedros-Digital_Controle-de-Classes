@@ -2780,6 +2780,44 @@
   .qz-alt-edit-linha{ display:flex; align-items:center; gap:8px; }
   .qz-alt-edit-linha input[type="radio"]{ flex-shrink:0; width:18px; height:18px; accent-color:var(--accent); }
 
+  /* ===== Jogo da Forca ===== */
+  .fc-forca{
+    display:flex; justify-content:center; margin:0 0 12px; padding:10px 0 6px;
+    border-radius:16px; background:rgba(255,255,255,0.04);
+  }
+  .fc-forca svg{ width:min(46vw, 170px); height:auto; }
+  .fc-forca .fc-estrutura{ stroke:var(--gold); stroke-width:5; stroke-linecap:round; fill:none; }
+  .fc-forca .fc-parte{ stroke:var(--cream); stroke-width:4.5; stroke-linecap:round; fill:none; opacity:0; transition:opacity .25s ease; }
+  .fc-forca .fc-parte.on{ opacity:1; }
+  .fc-forca.perdeu .fc-parte{ stroke:#FF6B5C; }
+  .fc-dica{
+    margin:0 0 14px; text-align:center; font-size:12px; font-weight:800; letter-spacing:0.02em;
+    color:rgba(245,239,225,0.6);
+  }
+  .fc-dica b{ color:var(--gold); }
+  .fc-palavra{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:6px 16px; margin:0 0 18px;
+  }
+  .fc-bloco{ display:flex; gap:4px; }
+  .fc-letra{
+    width:22px; height:32px; display:flex; align-items:flex-end; justify-content:center;
+    padding-bottom:3px; border-bottom:3px solid rgba(245,239,225,0.45);
+    font-size:20px; font-weight:900; color:var(--cream); text-transform:uppercase;
+  }
+  .fc-letra.sinal{ border-bottom-color:transparent; width:auto; min-width:8px; }
+  .fc-letra.revelada-fim{ color:#FF6B5C; }
+  .fc-palavra.ganhou .fc-letra{ color:var(--accent); border-bottom-color:var(--accent); }
+  .fc-teclado{ display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
+  .fc-tecla{
+    padding:11px 0; border-radius:10px; cursor:pointer; font-family:inherit;
+    font-size:15px; font-weight:900; color:var(--cream);
+    border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05);
+  }
+  .fc-tecla:active{ transform:scale(0.95); }
+  .fc-tecla.certa{ background:rgba(63,203,107,0.2); border-color:var(--accent); color:var(--accent); }
+  .fc-tecla.errada{ background:rgba(255,107,92,0.1); border-color:rgba(255,107,92,0.35); color:rgba(255,107,92,0.6); }
+  .fc-tecla:disabled{ cursor:default; }
+
   /* Barra de dias do período, no editor do evento. */
   .pl-dias-periodo{
     margin:0 0 14px; padding:11px 12px; border-radius:13px;
@@ -12654,6 +12692,15 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
 
+          <button type="button" class="qz-entrada" id="fcEntradaBtn">
+            <span class="qz-entrada-icone">🪢</span>
+            <span class="qz-entrada-txt">
+              <b>Jogo da Forca</b>
+              <i id="fcEntradaSub">Adivinhe a palavra antes de completar o boneco.</i>
+            </span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+
           <h4 class="un-section-title" style="margin-top:0;">Missões ativas</h4>
           <div class="un-mini-list" id="msMissionList" style="margin-bottom:18px;">
             <p class="un-empty-hint">Carregando...</p>
@@ -12781,6 +12828,108 @@
             <button type="button" class="pl-btn pl-btn-primary" id="qzAdminSalvar">Adicionar</button>
           </div>
           <div class="un-mini-list" id="qzAdminLista" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: JOGO DA FORCA =====
+         Também do Desafio Só Desbravador. Uma rodada é uma sequência de
+         palavras: cada uma acertada soma pontos, e completar o boneco encerra a
+         rodada. A melhor rodada de cada um entra no ranking "Seja Destaque".
+         Palavras de duas fontes: nomes de especialidades do catálogo (dica = área)
+         e as que o clube cadastrar em forca_palavras. -->
+    <section class="view view-planning" id="view-forca">
+      <div class="pl-scroll">
+        <div class="pl-topbar">
+          <button type="button" class="pl-back" data-back="view-missions" aria-label="Voltar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <h3 class="pl-title">Jogo da Forca</h3>
+          <span class="pl-topbar-spacer" aria-hidden="true"></span>
+        </div>
+        <div class="pl-content">
+
+          <!-- 1. Antes de começar -->
+          <div id="fcInicio">
+            <div class="qz-capa">
+              <span class="qz-capa-icone">🪢</span>
+              <h4>Jogo da Forca</h4>
+              <p>Descubra a palavra letra por letra. São <b>6 erros</b> por palavra; acertou, vem a próxima. Completou o boneco, a rodada acaba — cada palavra certa vale <b>2 pontos</b> no ranking.</p>
+            </div>
+            <div class="qz-modos">
+              <button type="button" class="qz-modo fc-modo active" data-modo="especialidades">Especialidades</button>
+              <button type="button" class="qz-modo fc-modo" id="fcModoClube" data-modo="clube">Palavras do clube</button>
+            </div>
+            <div class="qz-placar">
+              <div><span>Seu recorde</span><b id="fcRecorde">0</b></div>
+              <div><span>Palavras no banco</span><b id="fcBanco">—</b></div>
+            </div>
+            <p class="pl-reminder-hint" id="fcModoHint" style="display:none;"></p>
+            <button type="button" class="pl-btn pl-btn-primary qz-btn-largo" id="fcComecarBtn">Começar rodada</button>
+            <button type="button" class="pl-list-add-btn" id="fcGerenciarBtn" style="display:none;">Palavras cadastradas pelo clube</button>
+          </div>
+
+          <!-- 2. Jogando -->
+          <div id="fcJogo" style="display:none;">
+            <div class="qz-vidas">
+              <span class="qz-certas">Palavras<b id="fcPalavras">0</b></span>
+              <span class="qz-erradas">Erros<b id="fcErros">0/6</b></span>
+            </div>
+            <div class="fc-forca" id="fcForca">
+              <svg viewBox="0 0 120 140" aria-hidden="true">
+                <line class="fc-estrutura" x1="10" y1="132" x2="70" y2="132"/>
+                <line class="fc-estrutura" x1="28" y1="132" x2="28" y2="8"/>
+                <line class="fc-estrutura" x1="28" y1="8" x2="84" y2="8"/>
+                <line class="fc-estrutura" x1="84" y1="8" x2="84" y2="24"/>
+                <circle class="fc-parte" cx="84" cy="36" r="12"/>
+                <line class="fc-parte" x1="84" y1="48" x2="84" y2="88"/>
+                <line class="fc-parte" x1="84" y1="58" x2="68" y2="76"/>
+                <line class="fc-parte" x1="84" y1="58" x2="100" y2="76"/>
+                <line class="fc-parte" x1="84" y1="88" x2="70" y2="112"/>
+                <line class="fc-parte" x1="84" y1="88" x2="98" y2="112"/>
+              </svg>
+            </div>
+            <p class="fc-dica" id="fcDica"></p>
+            <div class="fc-palavra" id="fcPalavra"></div>
+            <div class="fc-teclado" id="fcTeclado"></div>
+          </div>
+
+          <!-- 3. Fim da rodada -->
+          <div id="fcFim" style="display:none;">
+            <div class="qz-capa">
+              <span class="qz-capa-icone" id="fcFimIcone">💪</span>
+              <h4 id="fcFimTitulo">Fim da rodada</h4>
+              <p id="fcFimTexto"></p>
+            </div>
+            <div class="qz-placar">
+              <div><span>Palavras</span><b id="fcFimPalavras">0</b></div>
+              <div><span>Seu recorde</span><b id="fcFimRecorde">0</b></div>
+            </div>
+            <p class="qz-resposta-certa" id="fcRespostaCerta"></p>
+            <button type="button" class="pl-btn pl-btn-primary qz-btn-largo" id="fcDeNovoBtn">Jogar de novo</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Palavras cadastradas pelo clube -->
+      <div class="pl-modal-overlay" id="fcAdminOverlay">
+        <div class="pl-modal">
+          <div class="pl-modal-head">
+            <h4 class="pl-modal-title">Palavras do clube</h4>
+            <button type="button" class="pl-modal-close" id="fcAdminClose" aria-label="Fechar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <p class="pl-reminder-hint" style="margin-top:0;">Personagens bíblicos, nós, termos do clube... Só letras e espaços. A dica aparece durante o jogo.</p>
+          <label class="pl-field-label" style="margin-top:0;">Palavra</label>
+          <input type="text" class="pl-input" id="fcFieldPalavra" maxlength="30" placeholder="Ex.: Daniel">
+          <label class="pl-field-label">Dica</label>
+          <input type="text" class="pl-input" id="fcFieldDica" maxlength="60" placeholder="Ex.: Personagem bíblico">
+          <div class="pl-modal-actions">
+            <button type="button" class="pl-btn pl-btn-primary" id="fcAdminSalvar">Adicionar</button>
+          </div>
+          <div class="un-mini-list" id="fcAdminLista" style="margin-top:14px;"></div>
         </div>
       </div>
     </section>
@@ -29595,11 +29744,15 @@ const REQ_SUMMARIES = {
       // pode cair por causa disso.
       const pegarPartidas = supa.from('quiz_partidas').select('usuario_id, pontos')
         .then(r => r.error ? { data: [] } : r, () => ({ data: [] }));
-      const [{ data: concluidas }, { data: missoes }, { data: users }, { data: partidas }] = await Promise.all([
+      // Mesma proteção pra Forca: sem a tabela forca_partidas, só não soma.
+      const pegarForca = supa.from('forca_partidas').select('usuario_id, pontos')
+        .then(r => r.error ? { data: [] } : r, () => ({ data: [] }));
+      const [{ data: concluidas }, { data: missoes }, { data: users }, { data: partidas }, { data: partidasForca }] = await Promise.all([
         supa.from('missoes_concluidas').select('usuario_id, missao_id'),
         supa.from('missoes').select('id, pontos'),
         supa.from('usuarios').select('id, nome'),
-        pegarPartidas
+        pegarPartidas,
+        pegarForca
       ]);
       const pointsByMission = {};
       (missoes || []).forEach(m => { pointsByMission[m.id] = m.pontos || 0; });
@@ -29618,6 +29771,15 @@ const REQ_SUMMARIES = {
       });
       Object.keys(melhorPartida).forEach(id => {
         totals[id] = (totals[id] || 0) + melhorPartida[id];
+      });
+      // Da Forca, idem: só a melhor rodada.
+      const melhorForca = {};
+      (partidasForca || []).forEach(row => {
+        const p = row.pontos || 0;
+        if(p > (melhorForca[row.usuario_id] || 0)) melhorForca[row.usuario_id] = p;
+      });
+      Object.keys(melhorForca).forEach(id => {
+        totals[id] = (totals[id] || 0) + melhorForca[id];
       });
 
       // Classes e leitura: 0,5 por requisito concluído, 2 por livro do Curso
@@ -29756,7 +29918,7 @@ const REQ_SUMMARIES = {
       const ranking = await window.__msComputeRanking();
       rankingList.innerHTML = '';
       if(!ranking.length){
-        rankingList.innerHTML = '<p class="un-empty-hint">Ninguém pontuou ainda — o ranking soma missões, Trilha do Saber, requisitos de classe e leitura.</p>';
+        rankingList.innerHTML = '<p class="un-empty-hint">Ninguém pontuou ainda — o ranking soma missões, Trilha do Saber, Forca, requisitos de classe e leitura.</p>';
         return;
       }
       ranking.forEach((item, i) => {
@@ -30378,6 +30540,377 @@ const REQ_SUMMARIES = {
     const deNovoBtn = document.getElementById('qzDeNovoBtn');
     if(deNovoBtn) deNovoBtn.addEventListener('click', comecar);
     window.__quizAbrir = abrirQuiz;
+  })();
+
+  // ===== Jogo da Forca: também do Desafio Só Desbravador =====
+  // Palavras de duas fontes: nomes de especialidades do catálogo (SPECIALTY_DB,
+  // com a área como dica) e as que o clube cadastra em forca_palavras. Uma
+  // rodada é uma sequência de palavras; completar o boneco encerra. Só a melhor
+  // rodada de cada um entra no ranking (ver __msComputeRanking).
+  (function(){
+    const MAX_ERROS = 6;
+    const PONTOS_POR_PALAVRA = 2;
+    const LETRAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+    const telaInicio = document.getElementById('fcInicio');
+    const telaJogo = document.getElementById('fcJogo');
+    const telaFim = document.getElementById('fcFim');
+    const entradaBtn = document.getElementById('fcEntradaBtn');
+    const entradaSub = document.getElementById('fcEntradaSub');
+    const elRecorde = document.getElementById('fcRecorde');
+    const elBanco = document.getElementById('fcBanco');
+    const elModoHint = document.getElementById('fcModoHint');
+    const elPalavras = document.getElementById('fcPalavras');
+    const elErros = document.getElementById('fcErros');
+    const elForca = document.getElementById('fcForca');
+    const elDica = document.getElementById('fcDica');
+    const elPalavra = document.getElementById('fcPalavra');
+    const elTeclado = document.getElementById('fcTeclado');
+    const botoesDeModo = Array.from(document.querySelectorAll('.fc-modo'));
+    if(!telaInicio) return;
+
+    function baralhar(lista){
+      const copia = lista.slice();
+      for(let i = copia.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = copia[i]; copia[i] = copia[j]; copia[j] = t;
+      }
+      return copia;
+    }
+
+    // "Á", "ã", "ç" → "A", "A", "C": quem toca o A revela todas as variações.
+    function base(ch){
+      return ch.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+    }
+    function ehLetra(ch){ return /^[A-Z]$/.test(base(ch)); }
+
+    // Nomes de especialidades que funcionam na forca: sem número, sem
+    // "- Avançado" e sem numeral romano no fim ("Acampamento II" teria quatro
+    // palavras quase iguais no banco).
+    function palavrasDoCatalogo(){
+      const lista = [];
+      const vistos = {};
+      Object.keys(SPECIALTY_DB || {}).forEach(area => {
+        if(area === 'Mestrados') return;
+        (SPECIALTY_DB[area] || []).forEach(nome => {
+          if(/\d/.test(nome) || / - /.test(nome) || /\s[IVX]+$/.test(nome)) return;
+          if(nome.length < 4 || nome.length > 24) return;
+          if(vistos[nome]) return;
+          vistos[nome] = true;
+          lista.push({ palavra: nome, dica: 'Especialidade · ' + area });
+        });
+      });
+      return lista;
+    }
+
+    async function carregarDoClube(){
+      if(!supa) return [];
+      const { data, error } = await supa.from('forca_palavras').select('*').eq('ativa', true);
+      if(error){
+        console.warn('forca_palavras indisponível; jogando só com o catálogo.', error.message);
+        return [];
+      }
+      return (data || []).filter(r => r.palavra).map(r => ({ palavra: r.palavra, dica: r.dica || 'Palavra do clube' }));
+    }
+
+    async function carregarRecorde(){
+      const user = window.__currentUsuario;
+      if(!supa || !user) return 0;
+      const { data, error } = await supa.from('forca_partidas')
+        .select('palavras').eq('usuario_id', user.id)
+        .order('palavras', { ascending: false }).limit(1);
+      if(error) return 0;
+      return (data && data[0]) ? (data[0].palavras || 0) : 0;
+    }
+
+    let modo = 'especialidades';
+    let doCatalogo = [];
+    let doClube = [];
+    let recorde = 0;
+    let baralho = [];
+    let posicao = 0;
+    let palavrasCertas = 0;
+    let tentadas = new Set();
+    let erros = 0;
+    let jogando = false;
+
+    function mostrar(qual){
+      telaInicio.style.display = qual === 'inicio' ? '' : 'none';
+      telaJogo.style.display = qual === 'jogo' ? '' : 'none';
+      telaFim.style.display = qual === 'fim' ? '' : 'none';
+    }
+
+    function podeGerenciar(){
+      const u = window.__currentUsuario;
+      return !!u && ['Administrador','Diretoria','Diretoria Executiva'].indexOf(u.papel) !== -1;
+    }
+
+    function pintarEscolhaDeModo(){
+      const botaoClube = document.getElementById('fcModoClube');
+      if(botaoClube) botaoClube.disabled = !doClube.length;
+      if(!doClube.length && modo === 'clube') modo = 'especialidades';
+      botoesDeModo.forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
+      if(elBanco) elBanco.textContent = modo === 'clube' ? doClube.length : doCatalogo.length;
+      if(elModoHint){
+        if(!doClube.length){
+          elModoHint.style.display = '';
+          elModoHint.textContent = podeGerenciar()
+            ? 'Cadastre palavras do clube (personagens bíblicos, nós, termos do clube) no botão abaixo para liberar o modo "Palavras do clube".'
+            : 'O modo "Palavras do clube" aparece quando a Diretoria cadastrar palavras.';
+        } else elModoHint.style.display = 'none';
+      }
+    }
+
+    async function abrir(){
+      mostrar('inicio');
+      showView('view-forca');
+      doCatalogo = palavrasDoCatalogo();
+      doClube = await carregarDoClube();
+      pintarEscolhaDeModo();
+      recorde = await carregarRecorde();
+      if(elRecorde) elRecorde.textContent = recorde;
+      if(entradaSub) entradaSub.textContent = recorde
+        ? ('Seu recorde: ' + recorde + (recorde === 1 ? ' palavra.' : ' palavras.'))
+        : 'Adivinhe a palavra antes de completar o boneco.';
+      const gerenciarBtn = document.getElementById('fcGerenciarBtn');
+      if(gerenciarBtn) gerenciarBtn.style.display = podeGerenciar() ? '' : 'none';
+    }
+
+    function montarTeclado(){
+      elTeclado.innerHTML = '';
+      LETRAS.forEach(letra => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'fc-tecla';
+        b.textContent = letra;
+        b.dataset.letra = letra;
+        b.addEventListener('click', () => chutar(letra));
+        elTeclado.appendChild(b);
+      });
+    }
+
+    function pintarForca(){
+      const partes = elForca.querySelectorAll('.fc-parte');
+      partes.forEach((p, i) => p.classList.toggle('on', i < erros));
+      elForca.classList.toggle('perdeu', erros >= MAX_ERROS);
+      elErros.textContent = erros + '/' + MAX_ERROS;
+      elPalavras.textContent = palavrasCertas;
+    }
+
+    // Desenha a palavra agrupando por termo, pra quebra de linha não partir
+    // uma palavra no meio. revelarTudo mostra em vermelho o que faltou.
+    function pintarPalavra(revelarTudo){
+      const atual = baralho[posicao].palavra;
+      elPalavra.innerHTML = '';
+      elPalavra.classList.remove('ganhou');
+      atual.split(' ').forEach(termo => {
+        if(!termo) return;
+        const bloco = document.createElement('span');
+        bloco.className = 'fc-bloco';
+        Array.from(termo).forEach(ch => {
+          const casa = document.createElement('span');
+          casa.className = 'fc-letra';
+          if(!ehLetra(ch)){
+            casa.classList.add('sinal');
+            casa.textContent = ch;
+          } else if(tentadas.has(base(ch))){
+            casa.textContent = ch.toUpperCase();
+          } else if(revelarTudo){
+            casa.textContent = ch.toUpperCase();
+            casa.classList.add('revelada-fim');
+          }
+          bloco.appendChild(casa);
+        });
+        elPalavra.appendChild(bloco);
+      });
+    }
+
+    function completou(){
+      return Array.from(baralho[posicao].palavra).every(ch => !ehLetra(ch) || tentadas.has(base(ch)));
+    }
+
+    function proxima(){
+      if(posicao >= baralho.length){ terminar(true); return; }
+      tentadas = new Set();
+      erros = 0;
+      jogando = true;
+      montarTeclado();
+      elDica.innerHTML = 'Dica: <b></b>';
+      elDica.querySelector('b').textContent = baralho[posicao].dica;
+      pintarPalavra(false);
+      pintarForca();
+    }
+
+    function chutar(letra){
+      if(!jogando || tentadas.has(letra)) return;
+      tentadas.add(letra);
+      const tem = Array.from(baralho[posicao].palavra).some(ch => ehLetra(ch) && base(ch) === letra);
+      const tecla = elTeclado.querySelector('[data-letra="' + letra + '"]');
+      if(tecla){ tecla.disabled = true; tecla.classList.add(tem ? 'certa' : 'errada'); }
+      if(!tem) erros++;
+      pintarPalavra(false);
+      pintarForca();
+      if(completou()){
+        jogando = false;
+        palavrasCertas++;
+        pintarForca();
+        elPalavra.classList.add('ganhou');
+        elTeclado.querySelectorAll('.fc-tecla').forEach(b => b.disabled = true);
+        setTimeout(() => { posicao++; proxima(); }, 1100);
+      } else if(erros >= MAX_ERROS){
+        jogando = false;
+        pintarPalavra(true);
+        elTeclado.querySelectorAll('.fc-tecla').forEach(b => b.disabled = true);
+        setTimeout(() => terminar(false), 1600);
+      }
+    }
+
+    function comecar(){
+      const fonte = modo === 'clube' ? doClube : doCatalogo;
+      // 40 palavras por rodada bastam; ninguém chega ao fim disso numa sentada.
+      baralho = baralhar(fonte).slice(0, 40);
+      if(!baralho.length){ alert('Ainda não há palavras pra jogar.'); return; }
+      posicao = 0;
+      palavrasCertas = 0;
+      mostrar('jogo');
+      proxima();
+    }
+
+    async function terminar(acabouOBaralho){
+      jogando = false;
+      const errada = acabouOBaralho ? null : baralho[posicao];
+      mostrar('fim');
+      document.getElementById('fcFimPalavras').textContent = palavrasCertas;
+      const bateuRecorde = palavrasCertas > recorde;
+      if(bateuRecorde) recorde = palavrasCertas;
+      document.getElementById('fcFimRecorde').textContent = recorde;
+      if(elRecorde) elRecorde.textContent = recorde;
+      document.getElementById('fcFimIcone').textContent = bateuRecorde ? '\u{1F3C6}' : (palavrasCertas ? '\u{1F4AA}' : '\u{1F643}');
+      document.getElementById('fcFimTitulo').textContent = acabouOBaralho
+        ? 'Você acertou todas!'
+        : (bateuRecorde ? 'Novo recorde!' : 'Fim da rodada');
+      const pts = palavrasCertas * PONTOS_POR_PALAVRA;
+      document.getElementById('fcFimTexto').textContent = palavrasCertas
+        ? (palavrasCertas + (palavrasCertas === 1 ? ' palavra certa' : ' palavras certas') + ' · ' + pts + ' pontos.')
+        : 'Nenhuma palavra desta vez. Tente de novo.';
+      const respostaEl = document.getElementById('fcRespostaCerta');
+      if(errada){
+        respostaEl.style.display = '';
+        respostaEl.innerHTML = 'A palavra era <b></b>.';
+        respostaEl.querySelector('b').textContent = errada.palavra;
+      } else respostaEl.style.display = 'none';
+
+      const user = window.__currentUsuario;
+      if(supa && user && palavrasCertas > 0){
+        const { error } = await supa.from('forca_partidas')
+          .insert({ usuario_id: user.id, palavras: palavrasCertas, pontos: pts });
+        if(error) console.warn('Não consegui gravar a rodada da Forca:', error.message);
+        else if(window.__msRefresh) window.__msRefresh();
+      }
+    }
+
+    // Teclado físico (computador): só vale com a Forca aberta e em jogo.
+    document.addEventListener('keydown', e => {
+      if(!jogando || e.ctrlKey || e.metaKey || e.altKey) return;
+      const view = document.getElementById('view-forca');
+      if(!view || !view.classList.contains('active')) return;
+      const letra = base(e.key || '');
+      if(letra.length === 1 && /[A-Z]/.test(letra)){ e.preventDefault(); chutar(letra); }
+    });
+
+    const voltar = document.querySelector('#view-forca .pl-back');
+    if(voltar) voltar.addEventListener('click', () => { jogando = false; });
+
+    botoesDeModo.forEach(b => b.addEventListener('click', () => {
+      if(b.disabled) return;
+      modo = b.dataset.modo;
+      pintarEscolhaDeModo();
+    }));
+    if(entradaBtn) entradaBtn.addEventListener('click', abrir);
+    const comecarBtn = document.getElementById('fcComecarBtn');
+    if(comecarBtn) comecarBtn.addEventListener('click', comecar);
+    const deNovoBtn = document.getElementById('fcDeNovoBtn');
+    if(deNovoBtn) deNovoBtn.addEventListener('click', comecar);
+
+    // ---- Palavras cadastradas pelo clube ----
+    const adminOverlay = document.getElementById('fcAdminOverlay');
+    const adminLista = document.getElementById('fcAdminLista');
+    const campoPalavra = document.getElementById('fcFieldPalavra');
+    const campoDica = document.getElementById('fcFieldDica');
+
+    async function renderAdminLista(){
+      if(!adminLista || !supa) return;
+      const { data, error } = await supa.from('forca_palavras').select('*').order('created_at', { ascending: false });
+      adminLista.innerHTML = '';
+      if(error){
+        adminLista.innerHTML = '<p class="un-empty-hint">A tabela forca_palavras ainda não existe. Rode supabase/atualizacao-forca.sql no Supabase.</p>';
+        return;
+      }
+      if(!(data || []).length){
+        adminLista.innerHTML = '<p class="un-empty-hint">Nenhuma palavra do clube ainda. As especialidades do catálogo já estão no jogo.</p>';
+        return;
+      }
+      data.forEach(row => {
+        const item = document.createElement('div');
+        item.className = 'un-mini-row';
+        item.innerHTML = '<div style="flex:1; min-width:0;"><b style="display:block; font-size:12.5px;"></b>' +
+          '<span style="font-size:11px; color:rgba(245,239,225,0.5);"></span></div>' +
+          '<button type="button" class="pl-list-remove-btn" aria-label="Excluir">×</button>';
+        item.querySelector('b').textContent = row.palavra;
+        item.querySelector('span').textContent = 'Dica: ' + (row.dica || '—');
+        item.querySelector('button').addEventListener('click', async () => {
+          if(!confirm('Excluir esta palavra?')) return;
+          await supa.from('forca_palavras').delete().eq('id', row.id);
+          renderAdminLista();
+          doClube = await carregarDoClube();
+          pintarEscolhaDeModo();
+        });
+        adminLista.appendChild(item);
+      });
+    }
+
+    const gerenciarBtn = document.getElementById('fcGerenciarBtn');
+    if(gerenciarBtn) gerenciarBtn.addEventListener('click', () => {
+      campoPalavra.value = '';
+      campoDica.value = '';
+      renderAdminLista();
+      // Como os outros modais: precisa estar na view ativa pra não abrir invisível.
+      const ativa = document.querySelector('.view.active');
+      if(ativa) ativa.appendChild(adminOverlay);
+      adminOverlay.classList.add('show');
+    });
+    const adminClose = document.getElementById('fcAdminClose');
+    if(adminClose) adminClose.addEventListener('click', () => adminOverlay.classList.remove('show'));
+
+    const adminSalvar = document.getElementById('fcAdminSalvar');
+    if(adminSalvar) adminSalvar.addEventListener('click', async () => {
+      const palavra = campoPalavra.value.trim().replace(/\s+/g, ' ');
+      const dica = campoDica.value.trim();
+      const letras = Array.from(palavra).filter(ehLetra).length;
+      if(!palavra || letras < 3 || !/^[\p{L} '-]+$/u.test(palavra)){
+        campoPalavra.style.borderColor = '#FF6B5C';
+        alert('Use só letras, espaços ou hífen, com pelo menos 3 letras.');
+        return;
+      }
+      campoPalavra.style.borderColor = '';
+      if(!dica){ campoDica.style.borderColor = '#FF6B5C'; return; }
+      campoDica.style.borderColor = '';
+      const { error } = await supa.from('forca_palavras').insert({
+        palavra: palavra,
+        dica: dica,
+        ativa: true,
+        criado_por: (window.__currentUsuario && window.__currentUsuario.nome) || null
+      });
+      if(error){ alert('Não consegui salvar: ' + error.message); return; }
+      campoPalavra.value = '';
+      campoDica.value = '';
+      campoPalavra.focus();
+      renderAdminLista();
+      doClube = await carregarDoClube();
+      pintarEscolhaDeModo();
+    });
+
+    window.__forcaAbrir = abrir;
   })();
 
   // ---------------------------------------------------------------------
